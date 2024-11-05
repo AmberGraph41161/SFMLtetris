@@ -1,3 +1,5 @@
+#include <SFML/System/Vector2.hpp>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <chrono>
@@ -119,15 +121,31 @@ void updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, c
 	}
 }
 
+void printBoard(std::vector<std::vector<char>> &board)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			std::cout << board[y][x];
+		}
+		std::cout << std::endl;
+	}
+}
+
 int main()
 {
-	Block iBlock({ {0, 0}, {1, 0}, {2, 0}, {3, 0} });
-	Block jBlock({ {0, 0}, {0, 1}, {1, 1}, {2, 1} });
-	Block lBlock({ {2, 0}, {0, 1}, {1, 1}, {2, 1} });
-	Block oBlock({ {0, 0}, {1, 0}, {0, 1}, {1, 1} });
-	Block sBlock({ {1, 0}, {2, 0}, {0, 1}, {1, 1} });
-	Block tBlock({ {1, 0}, {0, 1}, {1, 1}, {2, 1} });
-	Block zBlock({ {0, 0}, {1, 0}, {1, 1}, {2, 1} });
+	bool debug = false;
+
+	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock };
+
+	Block iBlockCoords({ {0, 0}, {1, 0}, {2, 0}, {3, 0} });
+	Block jBlockCoords({ {0, 0}, {0, 1}, {1, 1}, {2, 1} });
+	Block lBlockCoords({ {2, 0}, {0, 1}, {1, 1}, {2, 1} });
+	Block oBlockCoords({ {0, 0}, {1, 0}, {0, 1}, {1, 1} });
+	Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} });
+	Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} });
+	Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} });
 
 	const char blankChar = 'b';
 	const char activeChar = 'a';
@@ -182,14 +200,21 @@ int main()
 		when moving active pieces, start from bottom of the board to the top of the board when shimming pieces down.
 	*/
 
-	for(int y = 0; y < board.size(); y++)
+	sf::Sprite theBlock;
+	sf::Texture diamondBlockTexture;
+	if(!diamondBlockTexture.loadFromFile("textures/blocks/diamond_block.png"))
 	{
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			std::cout << board[y][x];
-		}
-		std::cout << std::endl;
+		std::cerr << "failed to load \"textures/blocks/diamond_block.png\"" << std::endl;
+		exit(EXIT_FAILURE);
 	}
+	sf::Texture diamondOreTexture;
+	if(!diamondOreTexture.loadFromFile("textures/blocks/diamond_ore.png"))
+	{
+		std::cerr << "failed to load \"textures/blocks/diamond_ore.png\"" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	theBlock.setTexture(diamondOreTexture);
+	theBlock.setScale(sf::Vector2f(2, 2));
 
 	std::chrono::time_point<std::chrono::system_clock> lastlastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> lastframe = std::chrono::high_resolution_clock::now();
@@ -217,10 +242,18 @@ int main()
 		//controls
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::I))
 		{
+			board[0][0] = activeChar;
+			board[1][0] = activeChar;
+			board[1][1] = activeChar;
+			board[1][2] = activeChar;
+			board[1][3] = activeChar;
+
+			/*
 			int x, y;
 			std::cin >> x;
 			std::cin >> y;
 			board[y][x] = activeChar;
+			*/
 		}
 
 		//bool tick = false;
@@ -229,22 +262,31 @@ int main()
 			tickDelta = std::chrono::seconds::zero();
 			//tick = true;
 			updateBoard(board, blankChar, activeChar, inactiveChar);
-			std::cout << "UPDATE" << std::endl;
-			std::cout << "----------------------------------------------------------------------------------------------------------------" << std::endl;
-			for(int y = 0; y < board.size(); y++)
+
+			if(debug)
 			{
-				for(int x = 0; x < board[y].size(); x++)
-				{
-					std::cout << board[y][x];
-				}
-				std::cout << std::endl;
+				std::cout << std::string(boardWidth, '-') << std::endl;
+				printBoard(board);
 			}
 		}
 		tickDelta += deltaTime;
 
+		//draw stuff
 		lastlastframe = std::chrono::high_resolution_clock::now();
 		window.clear(sf::Color::Black);
-		//window.draw();
+
+		for(int y = 0; y < board.size(); y++)
+		{
+			for(int x = 0; x < board[y].size(); x++)
+			{
+				if(board[y][x] == activeChar)
+				{
+					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+					window.draw(theBlock);
+				}
+			}
+		}
+
 		window.display();
 		lastframe = std::chrono::high_resolution_clock::now();
 		deltaTime = lastframe - lastlastframe;
