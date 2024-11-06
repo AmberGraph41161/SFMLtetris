@@ -57,12 +57,15 @@ struct Block
 		this->points.reserve(4);
 		this->points = points;
 	}
+	Block()
+	{
+	}
 
 	std::vector<Point> points;
 };
 
 enum direction { directionUp, directionDown, directionLeft, directionRight };
-void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
+bool canMoveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
 {
 	bool canMoveActivePieces = true;
 	switch(upDownLeftRight)
@@ -215,27 +218,231 @@ void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, directio
 		}
 	}
 
+	return canMoveActivePieces;
+}
+
+void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
+{
 	//move or don't move pieces after checking yo
-	if(canMoveActivePieces)
+	if(canMoveActivePiecesInDirection(board, upDownLeftRight, blankChar, activeChar, inactiveChar))
 	{
-		std::cout << "can move in direction ";
 		switch(upDownLeftRight)
 		{
 			case directionUp:
-				std::cout << "up" << std::endl;
+			{
+				for(int y = 1; y < board.size(); y++)
+				{
+					for(int x = 0; x < board[y].size(); x++)
+					{
+						if(board[y][x] == activeChar)
+						{
+							board[y - 1][x] = activeChar;
+							board[y][x] = blankChar;
+						}
+					}
+				}
+
 				break;
+			}
 			case directionDown:
-				std::cout << "down" << std::endl;
+			{
+				for(int y = board.size() - 2; y >= 0; y--)
+				{
+					for(int x = 0; x < board[y].size(); x++)
+					{
+						if(board[y][x] == activeChar)
+						{
+							board[y + 1][x] = activeChar;
+							board[y][x] = blankChar;
+						}
+					}
+				}
+
 				break;
+			}
 			case directionLeft:
-				std::cout << "left" << std::endl;
+			{
+				for(int y = 0; y < board.size(); y++)
+				{
+					for(int x = 1; x < board[y].size(); x++)
+					{
+						if(board[y][x] == activeChar)
+						{
+							board[y][x - 1] = activeChar;
+							board[y][x] = blankChar;
+						}
+					}
+				}
+
 				break;
+			}
 			case directionRight:
-				std::cout << "right" << std::endl;
+			{
+				for(int y = 0; y < board.size(); y++)
+				{
+					for(int x = board[y].size() - 2; x >= 0; x--)
+					{
+						if(board[y][x] == activeChar)
+						{
+							board[y][x + 1] = activeChar;
+							board[y][x] = blankChar;
+						}
+					}
+				}
+
 				break;
+			}
+
 			default:
-				std::cout << "default" << std::endl;
+			{
+				std::cout << "you've reached unreachable code" << std::endl;
 				break;
+			}
+		}
+	}
+}
+
+void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar, bool rotateInClockWiseDirection = true)
+{
+	/*
+	stupid math stuff
+	(x, y) --> rotate CCW --> (-y, x)
+	(x, y) --> rotate CW  --> (y, -x)
+
+	measure distance between point you want to rotate about and the origin, call it newOrigin
+	allPoints - newOrigin,
+	rotate allPoints,
+	allPoints + newOrigin
+	*/
+
+	//collect all points
+	Block tempBlock;
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x] == activeChar)
+			{
+				tempBlock.points.push_back(Point(x, y));
+			}
+		}
+	}
+
+	//get 'middile point of all points'
+	int topMost = tempBlock.points[0].y;
+	int bottomMost = tempBlock.points[0].y;
+	int leftMost = tempBlock.points[0].x;
+	int rightMost = tempBlock.points[0].x;
+
+	for(int x = 0; x < tempBlock.points.size(); x++)
+	{
+		if(tempBlock.points[x].y > topMost)
+		{
+			topMost = tempBlock.points[x].y;
+		} else if(tempBlock.points[x].y < bottomMost)
+		{
+			bottomMost = tempBlock.points[x].y;
+		}
+
+		if(tempBlock.points[x].x < leftMost)
+		{
+			leftMost = tempBlock.points[x].x;
+		} else if(tempBlock.points[x].x > rightMost)
+		{
+			rightMost = tempBlock.points[x].x;
+		}
+	}
+	Point rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
+
+	//translate all points by newOrigin crap
+	for(int x = 0; x < tempBlock.points.size(); x++)
+	{
+		tempBlock.points[x].x -= rotateAboutThisCoordinate.x;
+		tempBlock.points[x].y -= rotateAboutThisCoordinate.y;
+	}
+
+	//rotate all points
+	for(int x = 0; x < tempBlock.points.size(); x++)
+	{
+		/*
+		(x, y) --> rotate CCW --> (-y, x)
+		(x, y) --> rotate CW  --> (y, -x)
+		*/
+
+		int tempNumberSwapPlaceholder;
+		if(rotateInClockWiseDirection)
+		{
+			tempNumberSwapPlaceholder = tempBlock.points[x].x;
+			tempBlock.points[x].x = tempBlock.points[x].y * -1;
+			tempBlock.points[x].y = tempNumberSwapPlaceholder;
+		} else
+		{
+			tempNumberSwapPlaceholder = tempBlock.points[x].x;
+			tempBlock.points[x].x = tempBlock.points[x].y;
+			tempBlock.points[x].y = tempNumberSwapPlaceholder * -1;
+		}
+	}
+
+	//translate back all points by newOrigin crap
+	for(int x = 0; x < tempBlock.points.size(); x++)
+	{
+		tempBlock.points[x].x += rotateAboutThisCoordinate.x;
+		tempBlock.points[x].y += rotateAboutThisCoordinate.y;
+	}
+
+	//clear all active points and draw new ones
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x] == activeChar)
+			{
+				board[y][x] = blankChar;
+			}
+		}
+	}
+
+	for(int x = 0; x < tempBlock.points.size(); x++)
+	{
+		board[tempBlock.points[x].y][tempBlock.points[x].x] = activeChar;
+	}
+}
+
+//void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
+void updateFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
+{
+	for(int y = board.size() - 1; y > 0; y--)
+	{
+		bool rowIsFull = true;
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x] != inactiveChar)
+			{
+				rowIsFull = false;
+			}
+		}
+
+		if(rowIsFull)
+		{
+			for(int anotherY = y; anotherY > 0; anotherY--)
+			{
+				for(int x = 0; x < board[anotherY].size(); x++)
+				{
+					if(board[anotherY - 1][x] == inactiveChar || board[anotherY - 1][x] == blankChar)
+					{
+						board[anotherY][x] = board[anotherY - 1][x];
+					}
+				}
+			}
+			for(int x = 0; x > board[0].size(); x++)
+			{
+				if(board[0][x] == inactiveChar)
+				{
+					board[0][x] = blankChar;
+				}
+			}
+
+			y++;
 		}
 	}
 }
@@ -332,7 +539,7 @@ int main()
 	const char inactiveChar = 'i';
 	int boardWidth = 10;
 	int boardHeight = 30;
-	std::vector<std::vector<char>> board;
+	std::vector<std::vector<char>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
 		std::vector<char> pushBackRowVector(boardWidth);
@@ -433,24 +640,28 @@ int main()
 		{
 			window.close();
 		}
-
-		//controls
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::I))
+		if(debug && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		{
-			board[0][0] = activeChar;
-			board[1][0] = activeChar;
-			board[1][1] = activeChar;
-			board[1][2] = activeChar;
-			board[1][3] = activeChar;
-
-			/*
-			int x, y;
-			std::cin >> x;
-			std::cin >> y;
-			board[y][x] = activeChar;
-			*/
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::I)){for(int x = 0; x < iBlockCoords.points.size(); x++){board[iBlockCoords.points[x].x][iBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)){for(int x = 0; x < jBlockCoords.points.size(); x++){board[jBlockCoords.points[x].x][jBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::L)){for(int x = 0; x < lBlockCoords.points.size(); x++){board[lBlockCoords.points[x].x][lBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::O)){for(int x = 0; x < oBlockCoords.points.size(); x++){board[oBlockCoords.points[x].x][oBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){for(int x = 0; x < sBlockCoords.points.size(); x++){board[sBlockCoords.points[x].x][sBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){for(int x = 0; x < tBlockCoords.points.size(); x++){board[tBlockCoords.points[x].x][tBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){for(int x = 0; x < zBlockCoords.points.size(); x++){board[zBlockCoords.points[x].x][zBlockCoords.points[x].y] = activeChar;}}
 		}
 
+		//bool tick = false;
+		if(tickDelta.count() >= tickDeltaThreshold)
+		{
+			tickDelta = std::chrono::seconds::zero();
+			//tick = true;
+			updateBoard(board, blankChar, activeChar, inactiveChar);
+			updateFullRows(board, blankChar, activeChar, inactiveChar);
+
+			if(debug)
+			{
+				std::cout << std::string(boardWidth, '-') << std::endl;
+				printBoard(board);
+			}
+		}
+		tickDelta += deltaTime;
+
+		//controls
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			moveActivePiecesInDirection(board, directionUp, blankChar, activeChar, inactiveChar);
@@ -463,22 +674,29 @@ int main()
 		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
 			moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
-		}
-
-		//bool tick = false;
-		if(tickDelta.count() >= tickDeltaThreshold)
+		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
-			tickDelta = std::chrono::seconds::zero();
-			//tick = true;
-			updateBoard(board, blankChar, activeChar, inactiveChar);
-
-			if(debug)
+			/*
+			//potentially dangerous while loop here Wednesday, November 06, 2024, 10:44:24
+			while(canMoveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar))
 			{
-				std::cout << std::string(boardWidth, '-') << std::endl;
-				printBoard(board);
+				moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+			}
+
+			*/
+
+			for(int x = 0; x < board[0].size(); x++)
+			{
+				board[0][x] = activeChar;
 			}
 		}
-		tickDelta += deltaTime;
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+		{
+			rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
+		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+		{
+			rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
+		}
 
 		//draw stuff
 		lastlastframe = std::chrono::high_resolution_clock::now();
