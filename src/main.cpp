@@ -1,7 +1,8 @@
-#include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <cmath>
+#include <cstdlib>
 
 #include <SFML/Main.hpp>
 #include <SFML/Graphics.hpp>
@@ -48,6 +49,16 @@ struct Point
 	int y = 0;
 };
 
+struct FloatingPoint
+{
+	FloatingPoint(float x, float y) : x(x), y(y)
+	{
+	}
+
+	float x = 0;
+	float y = 0;
+};
+
 struct Block
 {
 //as of Tuesday, November 05, 2024, 09:44:34
@@ -62,6 +73,20 @@ struct Block
 	}
 
 	std::vector<Point> points;
+};
+
+struct FloatingBlock
+{
+	FloatingBlock(std::vector<FloatingPoint> points)
+	{
+		this->points.reserve(4);
+		this->points = points;
+	}
+	FloatingBlock()
+	{
+	}
+
+	std::vector<FloatingPoint> points;
 };
 
 enum direction { directionUp, directionDown, directionLeft, directionRight };
@@ -316,23 +341,23 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 	*/
 
 	//collect all points
-	Block tempBlock;
+	FloatingBlock tempBlock;
 	for(int y = 0; y < board.size(); y++)
 	{
 		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(board[y][x] == activeChar)
 			{
-				tempBlock.points.push_back(Point(x, y));
+				tempBlock.points.push_back(FloatingPoint(x, y));
 			}
 		}
 	}
 
 	//get 'middile point of all points'
-	int topMost = tempBlock.points[0].y;
-	int bottomMost = tempBlock.points[0].y;
-	int leftMost = tempBlock.points[0].x;
-	int rightMost = tempBlock.points[0].x;
+	float topMost = tempBlock.points[0].y;
+	float bottomMost = tempBlock.points[0].y;
+	float leftMost = tempBlock.points[0].x;
+	float rightMost = tempBlock.points[0].x;
 
 	for(int x = 0; x < tempBlock.points.size(); x++)
 	{
@@ -352,7 +377,18 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 			rightMost = tempBlock.points[x].x;
 		}
 	}
-	Point rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
+	float tempBlockWidth = rightMost - leftMost;
+	float tempBlockHeight = topMost - bottomMost;
+
+	FloatingPoint rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
+			std::cout << std::string(10, '-') << std::endl;
+			std::cout << "rotateAboutThisCoordinate --> (" << rotateAboutThisCoordinate.x << ", " << rotateAboutThisCoordinate.y << ")" << std::endl;
+
+			std::cout << "tempBlock coordinates before moving all points by \"new origin\"" << std::endl;
+			for(int x = 0; x < tempBlock.points.size(); x++)
+			{
+				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
+			}
 
 	//translate all points by newOrigin crap
 	for(int x = 0; x < tempBlock.points.size(); x++)
@@ -360,6 +396,12 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		tempBlock.points[x].x -= rotateAboutThisCoordinate.x;
 		tempBlock.points[x].y -= rotateAboutThisCoordinate.y;
 	}
+
+			std::cout << "tempBlock coordinates after moving all points by \"new origin\"" << std::endl;
+			for(int x = 0; x < tempBlock.points.size(); x++)
+			{
+				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
+			}
 
 	//rotate all points
 	for(int x = 0; x < tempBlock.points.size(); x++)
@@ -369,7 +411,7 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		(x, y) --> rotate CW  --> (y, -x)
 		*/
 
-		int tempNumberSwapPlaceholder;
+		float tempNumberSwapPlaceholder;
 		if(rotateInClockWiseDirection)
 		{
 			tempNumberSwapPlaceholder = tempBlock.points[x].x;
@@ -382,6 +424,11 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 			tempBlock.points[x].y = tempNumberSwapPlaceholder * -1;
 		}
 	}
+			std::cout << "tempBlock coordinates after rotating all points" << std::endl;
+			for(int x = 0; x < tempBlock.points.size(); x++)
+			{
+				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
+			}
 
 	//translate back all points by newOrigin crap
 	for(int x = 0; x < tempBlock.points.size(); x++)
@@ -389,6 +436,11 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		tempBlock.points[x].x += rotateAboutThisCoordinate.x;
 		tempBlock.points[x].y += rotateAboutThisCoordinate.y;
 	}
+			std::cout << "tempBlock coordinates after moving all points back by \"new origin\"" << std::endl;
+			for(int x = 0; x < tempBlock.points.size(); x++)
+			{
+				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
+			}
 
 	//clear all active points and draw new ones
 	for(int y = 0; y < board.size(); y++)
@@ -402,9 +454,32 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		}
 	}
 
+	//core dump here Thursday, November 07, 2024, 09:27:43 because trying to place points onto part of board that are out of bounds
+	//fix this
+	FloatingPoint crappyOffsetFixClockWise(0, 0);
+	FloatingPoint crappyOffsetFixCounterClockWise(0, 0);
+	if(tempBlockWidth != tempBlockHeight)
+	{
+		if(tempBlockWidth > tempBlockHeight)
+		{
+			crappyOffsetFixClockWise = FloatingPoint(1, 0);
+			crappyOffsetFixCounterClockWise = FloatingPoint(1, 0);
+		} else
+		{
+			crappyOffsetFixClockWise = FloatingPoint(0, 1);
+			crappyOffsetFixCounterClockWise = FloatingPoint(0, 1);
+		}
+	}
+	
 	for(int x = 0; x < tempBlock.points.size(); x++)
 	{
-		board[tempBlock.points[x].y][tempBlock.points[x].x] = activeChar;
+		if(rotateInClockWiseDirection)
+		{
+			board[std::floor(tempBlock.points[x].y + crappyOffsetFixClockWise.y)][std::floor(tempBlock.points[x].x + crappyOffsetFixClockWise.x)] = activeChar;
+		} else
+		{
+			board[std::floor(tempBlock.points[x].y + crappyOffsetFixCounterClockWise.y)][std::floor(tempBlock.points[x].x + crappyOffsetFixCounterClockWise.x)] = activeChar;
+		}
 	}
 }
 
@@ -447,7 +522,7 @@ void updateFullRows(std::vector<std::vector<char>> &board, const char &blankChar
 	}
 }
 
-void updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
+bool updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
 {
 	bool canMoveActivePieces = true;
 
@@ -505,7 +580,11 @@ void updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, c
 				}
 			}
 		}
+
+		return false;
 	}
+
+	return true;
 }
 
 void printBoard(std::vector<std::vector<char>> &board)
@@ -600,8 +679,17 @@ int main()
 		std::cerr << "failed to load \"textures/blocks/diamond_ore.png\"" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	sf::Texture wool_colored_pinkTexture;
+	if(!wool_colored_pinkTexture.loadFromFile("textures/blocks/wool_colored_pink.png"))
+	{
+		std::cerr << "failed to load \"textures/blocks/wool_colored_pink.png\"" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 	theBlock.setTexture(diamondOreTexture);
 	theBlock.setScale(sf::Vector2f(2, 2));
+
+	int theBlockStartX = (1920.f / 2) - (theBlock.getGlobalBounds().width / 2); //temp. will make prettier later
+	int theBlockStartY = 0;//(1080.f / 2) - (theBlock.getGlobalBounds().height / 2); //temp. will make prettier later
 
 	std::chrono::time_point<std::chrono::system_clock> lastlastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> lastframe = std::chrono::high_resolution_clock::now();
@@ -642,7 +730,7 @@ int main()
 		}
 		if(debug && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		{
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::I)){for(int x = 0; x < iBlockCoords.points.size(); x++){board[iBlockCoords.points[x].x][iBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)){for(int x = 0; x < jBlockCoords.points.size(); x++){board[jBlockCoords.points[x].x][jBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::L)){for(int x = 0; x < lBlockCoords.points.size(); x++){board[lBlockCoords.points[x].x][lBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::O)){for(int x = 0; x < oBlockCoords.points.size(); x++){board[oBlockCoords.points[x].x][oBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){for(int x = 0; x < sBlockCoords.points.size(); x++){board[sBlockCoords.points[x].x][sBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){for(int x = 0; x < tBlockCoords.points.size(); x++){board[tBlockCoords.points[x].x][tBlockCoords.points[x].y] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){for(int x = 0; x < zBlockCoords.points.size(); x++){board[zBlockCoords.points[x].x][zBlockCoords.points[x].y] = activeChar;}}
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::I)){for(int x = 0; x < iBlockCoords.points.size(); x++){board[iBlockCoords.points[x].y][iBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)){for(int x = 0; x < jBlockCoords.points.size(); x++){board[jBlockCoords.points[x].y][jBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::L)){for(int x = 0; x < lBlockCoords.points.size(); x++){board[lBlockCoords.points[x].y][lBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::O)){for(int x = 0; x < oBlockCoords.points.size(); x++){board[oBlockCoords.points[x].y][oBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){for(int x = 0; x < sBlockCoords.points.size(); x++){board[sBlockCoords.points[x].y][sBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){for(int x = 0; x < tBlockCoords.points.size(); x++){board[tBlockCoords.points[x].y][tBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){for(int x = 0; x < zBlockCoords.points.size(); x++){board[zBlockCoords.points[x].y][zBlockCoords.points[x].x] = activeChar;}}
 		}
 
 		//bool tick = false;
@@ -650,18 +738,22 @@ int main()
 		{
 			tickDelta = std::chrono::seconds::zero();
 			//tick = true;
-			updateBoard(board, blankChar, activeChar, inactiveChar);
+			//updateBoard(board, blankChar, activeChar, inactiveChar);
 			updateFullRows(board, blankChar, activeChar, inactiveChar);
 
+			/*
 			if(debug)
 			{
 				std::cout << std::string(boardWidth, '-') << std::endl;
 				printBoard(board);
 			}
+			*/
 		}
 		tickDelta += deltaTime;
 
 		//controls
+		if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+		{
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			moveActivePiecesInDirection(board, directionUp, blankChar, activeChar, inactiveChar);
@@ -692,10 +784,19 @@ int main()
 		}
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 		{
+			while(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+			{
+
+			}
 			rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
 		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 		{
+			while(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+			{
+
+			}
 			rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
+		}
 		}
 
 		//draw stuff
@@ -710,11 +811,19 @@ int main()
 				{
 					theBlock.setTexture(diamondOreTexture);
 					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+					theBlock.move(theBlockStartX, theBlockStartY);
 					window.draw(theBlock);
 				} else if(board[y][x] == inactiveChar)
 				{
 					theBlock.setTexture(diamondBlockTexture);
 					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+					theBlock.move(theBlockStartX, theBlockStartY);
+					window.draw(theBlock);
+				} else if(board[y][x] == blankChar)
+				{
+					theBlock.setTexture(wool_colored_pinkTexture);
+					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+					theBlock.move(theBlockStartX, theBlockStartY);
 					window.draw(theBlock);
 				}
 			}
@@ -723,7 +832,6 @@ int main()
 		window.display();
 		lastframe = std::chrono::high_resolution_clock::now();
 		deltaTime = lastframe - lastlastframe;
-
 	}
 
 	std::cout << "done!" << std::endl;
