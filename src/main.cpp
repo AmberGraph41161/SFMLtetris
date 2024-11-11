@@ -379,8 +379,8 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 			rightMost = transformationBlock.points[x].x;
 		}
 	}
-	int tempBlockWidth = rightMost - leftMost;
-	int tempBlockHeight = topMost - bottomMost;
+	int transformationBlockWidth = rightMost - leftMost; if(transformationBlockWidth > 1) { transformationBlockWidth++; }
+	int transformationBlockHeight = topMost - bottomMost; if(transformationBlockHeight > 1) { transformationBlockHeight++; }
 
 	FloatingPoint rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
 
@@ -422,9 +422,9 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 
 	//fix weird rotation offset math
 	Point rotationOffsetFix(0, 0);
-	if(tempBlockWidth != tempBlockHeight)
+	if(transformationBlockWidth != transformationBlockHeight)
 	{
-		if(tempBlockWidth > tempBlockHeight)
+		if(transformationBlockWidth > transformationBlockHeight)
 		{
 			rotationOffsetFix = Point(1, 0);
 		} else
@@ -439,22 +439,243 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		shimmyOriginalBlock.points.push_back(Point(std::floor(transformationBlock.points[x].x + rotationOffsetFix.x), std::floor(transformationBlock.points[x].y + rotationOffsetFix.y)));
 	}
 
-	Block shimmyLeftUpBlock = shimmyOriginalBlock;
-	Block shimmyRightUpBlock = shimmyOriginalBlock;
-	Block shimmyLeftDownBlock = shimmyOriginalBlock;
-	Block shimmyRightDownBlock = shimmyOriginalBlock;
 
-	bool shimmyLeftUpBlockPointsArePlaceable;
-	bool shimmyRightUpBlockPointsArePlaceable;
-	bool shimmyLeftDownBlockPointsArePlaceable;
-	bool shimmyRightDownBlockPointsArePlaceable;
+	Block shimmyUpBlock = shimmyOriginalBlock;
+	Block shimmyDownBlock = shimmyOriginalBlock;
+	Block shimmyLeftBlock = shimmyOriginalBlock;
+	Block shimmyRightBlock = shimmyOriginalBlock;
 
-	bool shimmyLeftBlocksAreCompletelyOutOfBounds;
-	bool shimmyRightBlocksAreCompletelyOutOfBounds;
+	bool shimmyUpBlockPointsArePlaceable;
+	bool shimmyDownBlockPointsArePlaceable;
+	bool shimmyLeftBlockPointsArePlaceable;
+	bool shimmyRightBlockPointsArePlaceable;
 
-	//first try and shimmy the transformed block half its width to left and right
-	//if can't shimmy left and right half its width, try to shimmy up/down up to +/- 1 it's feet/height
+	int shimmyLeftRightN = 3;
+	int shimmyUpDownN = 3;
 
+	//clear all active points before checking in rotated block area is safe to place
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x] == activeChar)
+			{
+				board[y][x] = blankChar;
+			}
+		}
+	}
+
+	//first try to shimmy up/down up to +/- 1 it's feet/height
+	//if doesn't work, try and shimmy the transformed block half its width to left and right
+	//if doesn't work, don't rotate at all.
+
+	for(int i = 0; i < shimmyLeftRightN; i++)
+	{
+		shimmyLeftBlockPointsArePlaceable = true;
+		shimmyRightBlockPointsArePlaceable = true;
+
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
+		{
+			if(shimmyLeftBlock.points[x].x < 0 || shimmyLeftBlock.points[x].x >= board[0].size() ||
+				shimmyLeftBlock.points[x].y < 0 || shimmyLeftBlock.points[x].y >= board.size())
+			{
+				shimmyLeftBlockPointsArePlaceable = false;
+				break;
+			}
+
+			if(board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] == inactiveChar || board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] != blankChar )
+			{
+				shimmyLeftBlockPointsArePlaceable = false;
+				break;
+			}
+		}
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
+		{
+			if(shimmyRightBlock.points[x].x < 0 || shimmyRightBlock.points[x].x >= board[0].size() ||
+				shimmyRightBlock.points[x].y < 0 || shimmyRightBlock.points[x].y >= board.size())
+			{
+				shimmyRightBlockPointsArePlaceable = false;
+				break;
+			}
+
+			if(board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] == inactiveChar || board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] != blankChar )
+			{
+				shimmyRightBlockPointsArePlaceable = false;
+				break;
+			}
+		}
+
+		if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)
+		{
+			break;
+		}
+
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
+		{
+			shimmyLeftBlock.points[x].x += -1;
+		}
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
+		{
+			shimmyRightBlock.points[x].x += 1;
+		}
+	}
+	for(int i = 0; i < shimmyUpDownN; i++)
+	{
+		shimmyUpBlockPointsArePlaceable = true;
+		shimmyDownBlockPointsArePlaceable = true;
+
+		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
+		{
+			if(shimmyUpBlock.points[x].x < 0 || shimmyUpBlock.points[x].x >= board[0].size() ||
+				shimmyUpBlock.points[x].y < 0 || shimmyUpBlock.points[x].y >= board.size())
+			{
+				shimmyUpBlockPointsArePlaceable = false;
+				break;
+			}
+
+			if(board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] == inactiveChar || board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] != blankChar )
+			{
+				shimmyUpBlockPointsArePlaceable = false;
+				break;
+			}
+		}
+		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
+		{
+			if(shimmyDownBlock.points[x].x < 0 || shimmyDownBlock.points[x].x >= board[0].size() ||
+				shimmyDownBlock.points[x].y < 0 || shimmyDownBlock.points[x].y >= board.size())
+			{
+				shimmyDownBlockPointsArePlaceable = false;
+				break;
+			}
+
+			if(board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] == inactiveChar || board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] != blankChar )
+			{
+				shimmyDownBlockPointsArePlaceable = false;
+				break;
+			}
+		}
+
+		if(shimmyUpBlockPointsArePlaceable || shimmyDownBlockPointsArePlaceable)
+		{
+			break;
+		}
+
+		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
+		{
+			shimmyUpBlock.points[x].y += -1;
+		}
+		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
+		{
+			shimmyDownBlock.points[x].y += 1;
+		}
+	}
+
+	/*
+	while(true)
+	{
+		shimmyLeftBlockPointsArePlaceable = true;
+		shimmyRightBlockPointsArePlaceable = true;
+
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
+		{
+			if(board[shimmyLeftBlock.points[x].y][shimmyUpBlock.points[x].x] == inactiveChar ||
+					shimmyLeftBlock.points[x].x < 0 || shimmyUpBlock.points[x].x >= board[0].size() ||
+					shimmyLeftBlock.points[x].y < 0 || shimmyUpBlock.points[x].y >= board.size())
+			{
+				shimmyLeftBlockPointsArePlaceable = false;
+				std::cout << "shimmyLeftBlockPointsArePlaceable = false;" << std::endl;
+				break;
+			}
+		}
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
+		{
+			if(board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] == inactiveChar ||
+					shimmyRightBlock.points[x].x < 0 || shimmyRightBlock.points[x].x >= board[0].size() ||
+					shimmyRightBlock.points[x].y < 0 || shimmyRightBlock.points[x].y >= board.size())
+			{
+				shimmyRightBlockPointsArePlaceable = false;
+				std::cout << "shimmyRightBlockPointsArePlaceable = false;" << std::endl;
+				break;
+			}
+		}
+
+		if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)
+		{
+			std::cout << "if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)" << std::endl;
+			break;
+		}
+
+		if(shimmyLeftRightN <= 0)
+		{
+			std::cout << "if(shimmyLeftRightN <= 0)" << std::endl;
+			break;
+		}
+
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
+		{
+			shimmyLeftBlock.points[x].x += -1;
+		}
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
+		{
+			shimmyRightBlock.points[x].x += 1;
+		}
+
+		shimmyLeftRightN--;
+	}
+
+	while(true)
+	{
+		shimmyUpBlockPointsArePlaceable = true;
+		shimmyDownBlockPointsArePlaceable = true;
+
+		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
+		{
+			if(board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] == inactiveChar ||
+					shimmyUpBlock.points[x].x < 0 || shimmyUpBlock.points[x].x >= board[0].size() ||
+					shimmyUpBlock.points[x].y < 0 || shimmyUpBlock.points[x].y >= board.size())
+			{
+				shimmyUpBlockPointsArePlaceable = false;
+				std::cout << "shimmyUpBlockPointsArePlaceable = false;" << std::endl;
+				break;
+			}
+		}
+		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
+		{
+			if(board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] == inactiveChar ||
+					shimmyDownBlock.points[x].x < 0 || shimmyDownBlock.points[x].x >= board[0].size() ||
+					shimmyDownBlock.points[x].y < 0 || shimmyDownBlock.points[x].y >= board.size())
+			{
+				shimmyDownBlockPointsArePlaceable = false;
+				std::cout << "shimmyDownBlockPointsArePlaceable = false;" << std::endl;
+				break;
+			}
+		}
+
+		if(shimmyUpBlockPointsArePlaceable || shimmyDownBlockPointsArePlaceable)
+		{
+			std::cout << "if(shimmyUpBlockPointsArePlaceable || shimmyDownBlockPointsArePlaceable)" << std::endl;
+			break;
+		}
+
+		if(shimmyUpDownN <= 0)
+		{
+			std::cout << "if(shimmyUpDownN <= 0)" << std::endl;
+			break;
+		}
+
+		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
+		{
+			shimmyUpBlock.points[x].y += -1;
+		}
+		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
+		{
+			shimmyDownBlock.points[x].y += 1;
+		}
+
+		shimmyUpDownN--;
+	}
+	*/
+	/*
 	while(true)
 	{
 		shimmyLeftUpBlockPointsArePlaceable = true;
@@ -565,47 +786,43 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 			}
 		}
 	}
-
-	//clear all active points and draw new ones
-	for(int y = 0; y < board.size(); y++)
-	{
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			if(board[y][x] == activeChar)
-			{
-				board[y][x] = blankChar;
-			}
-		}
-	}
+	*/
 
 	std::cout << std::string(30, '-') << std::endl;
-	if(shimmyLeftUpBlockPointsArePlaceable)
+	if(shimmyDownBlockPointsArePlaceable)
 	{
-		std::cout << "PLACING LEFT UP SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyLeftUpBlock.points.size(); x++)
+		std::cout << "PLACING DOWN SHIMMY" << std::endl;
+		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
 		{
-			board[shimmyLeftUpBlock.points[x].y][shimmyLeftUpBlock.points[x].x] = activeChar;
+			board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] = activeChar;
 		}
-	} else if(shimmyRightUpBlockPointsArePlaceable)
+	} else if(shimmyUpBlockPointsArePlaceable)
 	{
-		std::cout << "PLACING RIGHT UP SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyRightUpBlock.points.size(); x++)
+		std::cout << "PLACING UP SHIMMY" << std::endl;
+		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
 		{
-			board[shimmyRightUpBlock.points[x].y][shimmyRightUpBlock.points[x].x] = activeChar;
+			board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] = activeChar;
 		}
-	} else if(shimmyLeftDownBlockPointsArePlaceable)
+	} else if(shimmyLeftBlockPointsArePlaceable)
 	{
-		std::cout << "PLACING LEFT DOWN SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyLeftDownBlock.points.size(); x++)
+		std::cout << "PLACING LEFTUP SHIMMY" << std::endl;
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
 		{
-			board[shimmyLeftDownBlock.points[x].y][shimmyLeftDownBlock.points[x].x] = activeChar;
+			board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] = activeChar;
 		}
-	} else if(shimmyRightDownBlockPointsArePlaceable)
+	} else if(shimmyRightBlockPointsArePlaceable)
 	{
-		std::cout << "PLACING RIGHT DOWN SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyRightDownBlock.points.size(); x++)
+		std::cout << "PLACING RIGHTSHIMMY" << std::endl;
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
 		{
-			board[shimmyRightDownBlock.points[x].y][shimmyRightDownBlock.points[x].x] = activeChar;
+			board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] = activeChar;
+		}
+	} else
+	{
+		std::cout << "PLACING ORIGINAL BLOCK" << std::endl;
+		for(int x = 0; x < originalBlock.points.size(); x++)
+		{
+			board[originalBlock.points[x].y][originalBlock.points[x].x] = activeChar;
 		}
 	}
 }
