@@ -341,70 +341,56 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 	*/
 
 	//collect all points
-	FloatingBlock tempBlock;
+	FloatingBlock transformationBlock;
 	for(int y = 0; y < board.size(); y++)
 	{
 		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(board[y][x] == activeChar)
 			{
-				tempBlock.points.push_back(FloatingPoint(x, y));
+				transformationBlock.points.push_back(FloatingPoint(x, y));
 			}
 		}
 	}
 
 	//get 'middile point of all points'
-	float topMost = tempBlock.points[0].y;
-	float bottomMost = tempBlock.points[0].y;
-	float leftMost = tempBlock.points[0].x;
-	float rightMost = tempBlock.points[0].x;
+	float topMost = transformationBlock.points[0].y;
+	float bottomMost = transformationBlock.points[0].y;
+	float leftMost = transformationBlock.points[0].x;
+	float rightMost = transformationBlock.points[0].x;
 
-	for(int x = 0; x < tempBlock.points.size(); x++)
+	for(int x = 0; x < transformationBlock.points.size(); x++)
 	{
-		if(tempBlock.points[x].y > topMost)
+		if(transformationBlock.points[x].y > topMost)
 		{
-			topMost = tempBlock.points[x].y;
-		} else if(tempBlock.points[x].y < bottomMost)
+			topMost = transformationBlock.points[x].y;
+		} else if(transformationBlock.points[x].y < bottomMost)
 		{
-			bottomMost = tempBlock.points[x].y;
+			bottomMost = transformationBlock.points[x].y;
 		}
 
-		if(tempBlock.points[x].x < leftMost)
+		if(transformationBlock.points[x].x < leftMost)
 		{
-			leftMost = tempBlock.points[x].x;
-		} else if(tempBlock.points[x].x > rightMost)
+			leftMost = transformationBlock.points[x].x;
+		} else if(transformationBlock.points[x].x > rightMost)
 		{
-			rightMost = tempBlock.points[x].x;
+			rightMost = transformationBlock.points[x].x;
 		}
 	}
-	float tempBlockWidth = rightMost - leftMost;
-	float tempBlockHeight = topMost - bottomMost;
+	int tempBlockWidth = rightMost - leftMost;
+	int tempBlockHeight = topMost - bottomMost;
 
 	FloatingPoint rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
-			std::cout << std::string(10, '-') << std::endl;
-			std::cout << "rotateAboutThisCoordinate --> (" << rotateAboutThisCoordinate.x << ", " << rotateAboutThisCoordinate.y << ")" << std::endl;
-
-			std::cout << "tempBlock coordinates before moving all points by \"new origin\"" << std::endl;
-			for(int x = 0; x < tempBlock.points.size(); x++)
-			{
-				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
-			}
 
 	//translate all points by newOrigin crap
-	for(int x = 0; x < tempBlock.points.size(); x++)
+	for(int x = 0; x < transformationBlock.points.size(); x++)
 	{
-		tempBlock.points[x].x -= rotateAboutThisCoordinate.x;
-		tempBlock.points[x].y -= rotateAboutThisCoordinate.y;
+		transformationBlock.points[x].x -= rotateAboutThisCoordinate.x;
+		transformationBlock.points[x].y -= rotateAboutThisCoordinate.y;
 	}
 
-			std::cout << "tempBlock coordinates after moving all points by \"new origin\"" << std::endl;
-			for(int x = 0; x < tempBlock.points.size(); x++)
-			{
-				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
-			}
-
 	//rotate all points
-	for(int x = 0; x < tempBlock.points.size(); x++)
+	for(int x = 0; x < transformationBlock.points.size(); x++)
 	{
 		/*
 		(x, y) --> rotate CCW --> (-y, x)
@@ -414,33 +400,85 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		float tempNumberSwapPlaceholder;
 		if(rotateInClockWiseDirection)
 		{
-			tempNumberSwapPlaceholder = tempBlock.points[x].x;
-			tempBlock.points[x].x = tempBlock.points[x].y * -1;
-			tempBlock.points[x].y = tempNumberSwapPlaceholder;
+			tempNumberSwapPlaceholder = transformationBlock.points[x].x;
+			transformationBlock.points[x].x = transformationBlock.points[x].y * -1;
+			transformationBlock.points[x].y = tempNumberSwapPlaceholder;
 		} else
 		{
-			tempNumberSwapPlaceholder = tempBlock.points[x].x;
-			tempBlock.points[x].x = tempBlock.points[x].y;
-			tempBlock.points[x].y = tempNumberSwapPlaceholder * -1;
+			tempNumberSwapPlaceholder = transformationBlock.points[x].x;
+			transformationBlock.points[x].x = transformationBlock.points[x].y;
+			transformationBlock.points[x].y = tempNumberSwapPlaceholder * -1;
 		}
 	}
-			std::cout << "tempBlock coordinates after rotating all points" << std::endl;
-			for(int x = 0; x < tempBlock.points.size(); x++)
-			{
-				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
-			}
 
 	//translate back all points by newOrigin crap
-	for(int x = 0; x < tempBlock.points.size(); x++)
+	for(int x = 0; x < transformationBlock.points.size(); x++)
 	{
-		tempBlock.points[x].x += rotateAboutThisCoordinate.x;
-		tempBlock.points[x].y += rotateAboutThisCoordinate.y;
+		transformationBlock.points[x].x += rotateAboutThisCoordinate.x;
+		transformationBlock.points[x].y += rotateAboutThisCoordinate.y;
 	}
-			std::cout << "tempBlock coordinates after moving all points back by \"new origin\"" << std::endl;
-			for(int x = 0; x < tempBlock.points.size(); x++)
+
+	//fix weird rotation offset math
+	Point rotationOffsetFix(0, 0);
+	if(tempBlockWidth != tempBlockHeight)
+	{
+		if(tempBlockWidth > tempBlockHeight)
+		{
+			rotationOffsetFix = Point(1, 0);
+		} else
+		{
+			rotationOffsetFix = Point(0, 1);
+		}
+	}
+
+	Block shimmyOriginalBlock;
+	for(int x = 0; x < transformationBlock.points.size(); x++)
+	{
+		shimmyOriginalBlock.points.push_back(Point(std::floor(transformationBlock.points[x].x + rotationOffsetFix.x), std::floor(transformationBlock.points[x].y + rotationOffsetFix.y)));
+	}
+
+	Block shimmyLeftBlock = shimmyOriginalBlock;
+	Block shimmyRightBlock = shimmyOriginalBlock;
+
+	bool shimmyLeftBlockPointsArePlaceable;
+	bool shimmyRightBlockPointsArePlaceable;
+
+	while(true)
+	{
+		shimmyLeftBlockPointsArePlaceable = true;
+		shimmyRightBlockPointsArePlaceable = true;
+
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
+		{
+			if(board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] == inactiveChar || shimmyLeftBlock.points[x].x < 0 || shimmyLeftBlock.points[x].x >= board[0].size())
 			{
-				std::cout << "(" << tempBlock.points[x].x << ", " << tempBlock.points[x].y << ")" << std::endl;
+				shimmyLeftBlockPointsArePlaceable = false;
+				break;
 			}
+		}
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
+		{
+			if(board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] == inactiveChar || shimmyRightBlock.points[x].x < 0 || shimmyRightBlock.points[x].x >= board[0].size())
+			{
+				shimmyRightBlockPointsArePlaceable = false;
+				break;
+			}
+		}
+
+		if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)
+		{
+			break;
+		}
+
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
+		{
+			shimmyLeftBlock.points[x].x += -1;
+		}
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
+		{
+			shimmyRightBlock.points[x].x += 1;
+		}
+	}
 
 	//clear all active points and draw new ones
 	for(int y = 0; y < board.size(); y++)
@@ -454,31 +492,20 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 		}
 	}
 
-	//core dump here Thursday, November 07, 2024, 09:27:43 because trying to place points onto part of board that are out of bounds
-	//fix this
-	FloatingPoint crappyOffsetFixClockWise(0, 0);
-	FloatingPoint crappyOffsetFixCounterClockWise(0, 0);
-	if(tempBlockWidth != tempBlockHeight)
+	std::cout << std::string(30, '-') << std::endl;
+	if(shimmyLeftBlockPointsArePlaceable)
 	{
-		if(tempBlockWidth > tempBlockHeight)
+		std::cout << "PLACING LEFT SHIMMY" << std::endl;
+		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
 		{
-			crappyOffsetFixClockWise = FloatingPoint(1, 0);
-			crappyOffsetFixCounterClockWise = FloatingPoint(1, 0);
-		} else
-		{
-			crappyOffsetFixClockWise = FloatingPoint(0, 1);
-			crappyOffsetFixCounterClockWise = FloatingPoint(0, 1);
+			board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] = activeChar;
 		}
-	}
-	
-	for(int x = 0; x < tempBlock.points.size(); x++)
+	} else if(shimmyRightBlockPointsArePlaceable)
 	{
-		if(rotateInClockWiseDirection)
+		std::cout << "PLACING RIGHT SHIMMY" << std::endl;
+		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
 		{
-			board[std::floor(tempBlock.points[x].y + crappyOffsetFixClockWise.y)][std::floor(tempBlock.points[x].x + crappyOffsetFixClockWise.x)] = activeChar;
-		} else
-		{
-			board[std::floor(tempBlock.points[x].y + crappyOffsetFixCounterClockWise.y)][std::floor(tempBlock.points[x].x + crappyOffsetFixCounterClockWise.x)] = activeChar;
+			board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] = activeChar;
 		}
 	}
 }
