@@ -1,6 +1,8 @@
 #include <iostream>
+#include <queue>
 #include <vector>
 #include <chrono>
+#include <array>
 #include <cmath>
 #include <cstdlib>
 
@@ -11,6 +13,8 @@
 #include <SFML/Window/VideoMode.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
+
+#include "gamefunctions.hpp"
 
 /*
 
@@ -39,916 +43,20 @@
 	 xx
 */
 
-struct Point
+int RANDOM(int minimum, int maximum)
 {
-	Point(int x, int y) : x(x), y(y)
-	{
-	}
-
-	int x = 0;
-	int y = 0;
-};
-
-struct FloatingPoint
-{
-	FloatingPoint(float x, float y) : x(x), y(y)
-	{
-	}
-
-	float x = 0;
-	float y = 0;
-};
-
-struct Block
-{
-//as of Tuesday, November 05, 2024, 09:44:34
-	//thought that it might be nice to have a dynamic and not static n-points so that I can do some "cool custom stuff later"
-	Block(std::vector<Point> points)
-	{
-		this->points.reserve(4);
-		this->points = points;
-	}
-	Block()
-	{
-	}
-
-	std::vector<Point> points;
-};
-
-struct FloatingBlock
-{
-	FloatingBlock(std::vector<FloatingPoint> points)
-	{
-		this->points.reserve(4);
-		this->points = points;
-	}
-	FloatingBlock()
-	{
-	}
-
-	std::vector<FloatingPoint> points;
-};
-
-enum direction { directionUp, directionDown, directionLeft, directionRight };
-bool canMoveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
-{
-	bool canMoveActivePieces = true;
-	switch(upDownLeftRight)
-	{
-		case directionUp:
-		{
-			for(int x = 0; x < board[0].size(); x++)
-			{
-				if(board[0][x] == activeChar)
-				{
-					canMoveActivePieces = false;
-					break;
-				}
-			}
-			for(int y = 1; y < board.size(); y++)
-			{
-				if(!canMoveActivePieces)
-				{
-					break;
-				}
-
-				for(int x = 0; x < board[y].size(); x++)
-				{
-					if(!canMoveActivePieces)
-					{
-						break;
-					}
-
-					if(board[y][x] == activeChar && (board[y - 1][x] != blankChar && board[y - 1][x] != activeChar))
-					{
-						canMoveActivePieces = false;
-					}
-				}
-			}
-
-			break;
-		}
-
-		case directionDown:
-		{
-			for(int x = 0; x < board[board.size() - 1].size(); x++)
-			{
-				if(board[board.size() - 1][x] == activeChar)
-				{
-					canMoveActivePieces = false;
-					break;
-				}
-			}
-
-			for(int y = board.size() - 2; y >= 0; y--)
-			{
-				if(!canMoveActivePieces)
-				{
-					break;
-				}
-
-				for(int x = 0; x < board[y].size(); x++)
-				{
-					if(!canMoveActivePieces)
-					{
-						break;
-					}
-
-					if(board[y][x] == activeChar && (board[y + 1][x] != blankChar && board[y + 1][x] != activeChar))
-					{
-						canMoveActivePieces = false;
-					}
-				}
-			}
-
-			break;
-		}
-
-		case directionLeft:
-		{
-			for(int y = 0; y < board.size(); y++)
-			{
-				if(board[y][0] == activeChar)
-				{
-					canMoveActivePieces = false;
-					break;
-				}
-			}
-
-			for(int y = 0; y < board.size(); y++)
-			{
-				if(!canMoveActivePieces)
-				{
-					break;
-				}
-
-				for(int x = 1; x < board[y].size(); x++)
-				{
-					if(!canMoveActivePieces)
-					{
-						break;
-					}
-
-					if(board[y][x] == activeChar && (board[y][x - 1] != blankChar && board[y][x - 1] != activeChar))
-					{
-						canMoveActivePieces = false;
-					}
-				}
-			}
-
-			break;
-		}
-
-		case directionRight:
-		{
-			for(int y = 0; y < board.size(); y++)
-			{
-				if(board[y][board[y].size() - 1] == activeChar)
-				{
-					canMoveActivePieces = false;
-					break;
-				}
-			}
-
-			for(int y = 0; y < board.size(); y++)
-			{
-				if(!canMoveActivePieces)
-				{
-					break;
-				}
-
-				for(int x = board[y].size() - 2; x >= 0; x--)
-				{
-					if(!canMoveActivePieces)
-					{
-						break;
-					}
-
-					if(board[y][x] == activeChar && (board[y][x + 1] != blankChar && board[y][x + 1] != activeChar))
-					{
-						canMoveActivePieces = false;
-					}
-				}
-			}
-
-			break;
-		}
-
-		default:
-		{
-			canMoveActivePieces = false;
-			std::cout << "invalid direction to move???" << std::endl;
-			std::cout << "you've reached unreachable code" << std::endl;
-			break;
-		}
-	}
-
-	return canMoveActivePieces;
-}
-
-void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
-{
-	//move or don't move pieces after checking yo
-	if(canMoveActivePiecesInDirection(board, upDownLeftRight, blankChar, activeChar, inactiveChar))
-	{
-		switch(upDownLeftRight)
-		{
-			case directionUp:
-			{
-				for(int y = 1; y < board.size(); y++)
-				{
-					for(int x = 0; x < board[y].size(); x++)
-					{
-						if(board[y][x] == activeChar)
-						{
-							board[y - 1][x] = activeChar;
-							board[y][x] = blankChar;
-						}
-					}
-				}
-
-				break;
-			}
-			case directionDown:
-			{
-				for(int y = board.size() - 2; y >= 0; y--)
-				{
-					for(int x = 0; x < board[y].size(); x++)
-					{
-						if(board[y][x] == activeChar)
-						{
-							board[y + 1][x] = activeChar;
-							board[y][x] = blankChar;
-						}
-					}
-				}
-
-				break;
-			}
-			case directionLeft:
-			{
-				for(int y = 0; y < board.size(); y++)
-				{
-					for(int x = 1; x < board[y].size(); x++)
-					{
-						if(board[y][x] == activeChar)
-						{
-							board[y][x - 1] = activeChar;
-							board[y][x] = blankChar;
-						}
-					}
-				}
-
-				break;
-			}
-			case directionRight:
-			{
-				for(int y = 0; y < board.size(); y++)
-				{
-					for(int x = board[y].size() - 2; x >= 0; x--)
-					{
-						if(board[y][x] == activeChar)
-						{
-							board[y][x + 1] = activeChar;
-							board[y][x] = blankChar;
-						}
-					}
-				}
-
-				break;
-			}
-
-			default:
-			{
-				std::cout << "you've reached unreachable code" << std::endl;
-				break;
-			}
-		}
-	}
-}
-
-void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar, bool rotateInClockWiseDirection = true)
-{
-	/*
-	stupid math stuff
-	(x, y) --> rotate CCW --> (-y, x)
-	(x, y) --> rotate CW  --> (y, -x)
-
-	measure distance between point you want to rotate about and the origin, call it newOrigin
-	allPoints - newOrigin,
-	rotate allPoints,
-	allPoints + newOrigin
-	*/
-
-	//collect all points
-	Block originalBlock;
-	FloatingBlock transformationBlock;
-	for(int y = 0; y < board.size(); y++)
-	{
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			if(board[y][x] == activeChar)
-			{
-				transformationBlock.points.push_back(FloatingPoint(x, y));
-				originalBlock.points.push_back(Point(x, y));
-			}
-		}
-	}
-
-	//get 'middile point of all points'
-	float topMost = transformationBlock.points[0].y;
-	float bottomMost = transformationBlock.points[0].y;
-	float leftMost = transformationBlock.points[0].x;
-	float rightMost = transformationBlock.points[0].x;
-
-	for(int x = 0; x < transformationBlock.points.size(); x++)
-	{
-		if(transformationBlock.points[x].y > topMost)
-		{
-			topMost = transformationBlock.points[x].y;
-		} else if(transformationBlock.points[x].y < bottomMost)
-		{
-			bottomMost = transformationBlock.points[x].y;
-		}
-
-		if(transformationBlock.points[x].x < leftMost)
-		{
-			leftMost = transformationBlock.points[x].x;
-		} else if(transformationBlock.points[x].x > rightMost)
-		{
-			rightMost = transformationBlock.points[x].x;
-		}
-	}
-	int transformationBlockWidth = rightMost - leftMost; if(transformationBlockWidth > 1) { transformationBlockWidth++; }
-	int transformationBlockHeight = topMost - bottomMost; if(transformationBlockHeight > 1) { transformationBlockHeight++; }
-
-	FloatingPoint rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
-
-	//translate all points by newOrigin crap
-	for(int x = 0; x < transformationBlock.points.size(); x++)
-	{
-		transformationBlock.points[x].x -= rotateAboutThisCoordinate.x;
-		transformationBlock.points[x].y -= rotateAboutThisCoordinate.y;
-	}
-
-	//rotate all points
-	for(int x = 0; x < transformationBlock.points.size(); x++)
-	{
-		/*
-		(x, y) --> rotate CCW --> (-y, x)
-		(x, y) --> rotate CW  --> (y, -x)
-		*/
-
-		float tempNumberSwapPlaceholder;
-		if(rotateInClockWiseDirection)
-		{
-			tempNumberSwapPlaceholder = transformationBlock.points[x].x;
-			transformationBlock.points[x].x = transformationBlock.points[x].y * -1;
-			transformationBlock.points[x].y = tempNumberSwapPlaceholder;
-		} else
-		{
-			tempNumberSwapPlaceholder = transformationBlock.points[x].x;
-			transformationBlock.points[x].x = transformationBlock.points[x].y;
-			transformationBlock.points[x].y = tempNumberSwapPlaceholder * -1;
-		}
-	}
-
-	//translate back all points by newOrigin crap
-	for(int x = 0; x < transformationBlock.points.size(); x++)
-	{
-		transformationBlock.points[x].x += rotateAboutThisCoordinate.x;
-		transformationBlock.points[x].y += rotateAboutThisCoordinate.y;
-	}
-
-	//fix weird rotation offset math
-	Point rotationOffsetFix(0, 0);
-	if(transformationBlockWidth != transformationBlockHeight)
-	{
-		if(transformationBlockWidth > transformationBlockHeight)
-		{
-			rotationOffsetFix = Point(1, 0);
-		} else
-		{
-			rotationOffsetFix = Point(0, 1);
-		}
-	}
-
-	Block shimmyOriginalBlock;
-	for(int x = 0; x < transformationBlock.points.size(); x++)
-	{
-		shimmyOriginalBlock.points.push_back(Point(std::floor(transformationBlock.points[x].x + rotationOffsetFix.x), std::floor(transformationBlock.points[x].y + rotationOffsetFix.y)));
-	}
-
-
-	Block shimmyUpBlock = shimmyOriginalBlock;
-	Block shimmyDownBlock = shimmyOriginalBlock;
-	Block shimmyLeftBlock = shimmyOriginalBlock;
-	Block shimmyRightBlock = shimmyOriginalBlock;
-
-	bool shimmyUpBlockPointsArePlaceable;
-	bool shimmyDownBlockPointsArePlaceable;
-	bool shimmyLeftBlockPointsArePlaceable;
-	bool shimmyRightBlockPointsArePlaceable;
-
-	int shimmyLeftRightN = 3;
-	int shimmyUpDownN = 3;
-
-	//clear all active points before checking in rotated block area is safe to place
-	for(int y = 0; y < board.size(); y++)
-	{
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			if(board[y][x] == activeChar)
-			{
-				board[y][x] = blankChar;
-			}
-		}
-	}
-
-	//first try to shimmy up/down up to +/- 1 it's feet/height
-	//if doesn't work, try and shimmy the transformed block half its width to left and right
-	//if doesn't work, don't rotate at all.
-
-	for(int i = 0; i < shimmyLeftRightN; i++)
-	{
-		shimmyLeftBlockPointsArePlaceable = true;
-		shimmyRightBlockPointsArePlaceable = true;
-
-		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
-		{
-			if(shimmyLeftBlock.points[x].x < 0 || shimmyLeftBlock.points[x].x >= board[0].size() ||
-				shimmyLeftBlock.points[x].y < 0 || shimmyLeftBlock.points[x].y >= board.size())
-			{
-				shimmyLeftBlockPointsArePlaceable = false;
-				break;
-			}
-
-			if(board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] == inactiveChar || board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] != blankChar )
-			{
-				shimmyLeftBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
-		{
-			if(shimmyRightBlock.points[x].x < 0 || shimmyRightBlock.points[x].x >= board[0].size() ||
-				shimmyRightBlock.points[x].y < 0 || shimmyRightBlock.points[x].y >= board.size())
-			{
-				shimmyRightBlockPointsArePlaceable = false;
-				break;
-			}
-
-			if(board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] == inactiveChar || board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] != blankChar )
-			{
-				shimmyRightBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-
-		if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)
-		{
-			break;
-		}
-
-		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
-		{
-			shimmyLeftBlock.points[x].x += -1;
-		}
-		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
-		{
-			shimmyRightBlock.points[x].x += 1;
-		}
-	}
-	for(int i = 0; i < shimmyUpDownN; i++)
-	{
-		shimmyUpBlockPointsArePlaceable = true;
-		shimmyDownBlockPointsArePlaceable = true;
-
-		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
-		{
-			if(shimmyUpBlock.points[x].x < 0 || shimmyUpBlock.points[x].x >= board[0].size() ||
-				shimmyUpBlock.points[x].y < 0 || shimmyUpBlock.points[x].y >= board.size())
-			{
-				shimmyUpBlockPointsArePlaceable = false;
-				break;
-			}
-
-			if(board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] == inactiveChar || board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] != blankChar )
-			{
-				shimmyUpBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
-		{
-			if(shimmyDownBlock.points[x].x < 0 || shimmyDownBlock.points[x].x >= board[0].size() ||
-				shimmyDownBlock.points[x].y < 0 || shimmyDownBlock.points[x].y >= board.size())
-			{
-				shimmyDownBlockPointsArePlaceable = false;
-				break;
-			}
-
-			if(board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] == inactiveChar || board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] != blankChar )
-			{
-				shimmyDownBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-
-		if(shimmyUpBlockPointsArePlaceable || shimmyDownBlockPointsArePlaceable)
-		{
-			break;
-		}
-
-		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
-		{
-			shimmyUpBlock.points[x].y += -1;
-		}
-		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
-		{
-			shimmyDownBlock.points[x].y += 1;
-		}
-	}
-
-	/*
-	while(true)
-	{
-		shimmyLeftBlockPointsArePlaceable = true;
-		shimmyRightBlockPointsArePlaceable = true;
-
-		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
-		{
-			if(board[shimmyLeftBlock.points[x].y][shimmyUpBlock.points[x].x] == inactiveChar ||
-					shimmyLeftBlock.points[x].x < 0 || shimmyUpBlock.points[x].x >= board[0].size() ||
-					shimmyLeftBlock.points[x].y < 0 || shimmyUpBlock.points[x].y >= board.size())
-			{
-				shimmyLeftBlockPointsArePlaceable = false;
-				std::cout << "shimmyLeftBlockPointsArePlaceable = false;" << std::endl;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
-		{
-			if(board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] == inactiveChar ||
-					shimmyRightBlock.points[x].x < 0 || shimmyRightBlock.points[x].x >= board[0].size() ||
-					shimmyRightBlock.points[x].y < 0 || shimmyRightBlock.points[x].y >= board.size())
-			{
-				shimmyRightBlockPointsArePlaceable = false;
-				std::cout << "shimmyRightBlockPointsArePlaceable = false;" << std::endl;
-				break;
-			}
-		}
-
-		if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)
-		{
-			std::cout << "if(shimmyLeftBlockPointsArePlaceable || shimmyRightBlockPointsArePlaceable)" << std::endl;
-			break;
-		}
-
-		if(shimmyLeftRightN <= 0)
-		{
-			std::cout << "if(shimmyLeftRightN <= 0)" << std::endl;
-			break;
-		}
-
-		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
-		{
-			shimmyLeftBlock.points[x].x += -1;
-		}
-		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
-		{
-			shimmyRightBlock.points[x].x += 1;
-		}
-
-		shimmyLeftRightN--;
-	}
-
-	while(true)
-	{
-		shimmyUpBlockPointsArePlaceable = true;
-		shimmyDownBlockPointsArePlaceable = true;
-
-		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
-		{
-			if(board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] == inactiveChar ||
-					shimmyUpBlock.points[x].x < 0 || shimmyUpBlock.points[x].x >= board[0].size() ||
-					shimmyUpBlock.points[x].y < 0 || shimmyUpBlock.points[x].y >= board.size())
-			{
-				shimmyUpBlockPointsArePlaceable = false;
-				std::cout << "shimmyUpBlockPointsArePlaceable = false;" << std::endl;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
-		{
-			if(board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] == inactiveChar ||
-					shimmyDownBlock.points[x].x < 0 || shimmyDownBlock.points[x].x >= board[0].size() ||
-					shimmyDownBlock.points[x].y < 0 || shimmyDownBlock.points[x].y >= board.size())
-			{
-				shimmyDownBlockPointsArePlaceable = false;
-				std::cout << "shimmyDownBlockPointsArePlaceable = false;" << std::endl;
-				break;
-			}
-		}
-
-		if(shimmyUpBlockPointsArePlaceable || shimmyDownBlockPointsArePlaceable)
-		{
-			std::cout << "if(shimmyUpBlockPointsArePlaceable || shimmyDownBlockPointsArePlaceable)" << std::endl;
-			break;
-		}
-
-		if(shimmyUpDownN <= 0)
-		{
-			std::cout << "if(shimmyUpDownN <= 0)" << std::endl;
-			break;
-		}
-
-		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
-		{
-			shimmyUpBlock.points[x].y += -1;
-		}
-		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
-		{
-			shimmyDownBlock.points[x].y += 1;
-		}
-
-		shimmyUpDownN--;
-	}
-	*/
-	/*
-	while(true)
-	{
-		shimmyLeftUpBlockPointsArePlaceable = true;
-		shimmyRightUpBlockPointsArePlaceable = true;
-		shimmyLeftDownBlockPointsArePlaceable = true;
-		shimmyRightDownBlockPointsArePlaceable = true;
-
-		shimmyLeftBlocksAreCompletelyOutOfBounds = true;
-		shimmyRightBlocksAreCompletelyOutOfBounds = true;
-
-		for(int x = 0; x < shimmyLeftUpBlock.points.size(); x++)
-		{
-			if(shimmyLeftUpBlock.points[x].x > 0)
-			{
-				shimmyLeftBlocksAreCompletelyOutOfBounds = false;
-			}
-
-			if(board[shimmyLeftUpBlock.points[x].y][shimmyLeftUpBlock.points[x].x] == inactiveChar ||
-					shimmyLeftUpBlock.points[x].x < 0 || shimmyLeftUpBlock.points[x].x >= board[0].size() ||
-					shimmyLeftUpBlock.points[x].y < 0 || shimmyLeftUpBlock.points[x].y >= board.size())
-			{
-				shimmyLeftUpBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyRightUpBlock.points.size(); x++)
-		{
-			if(shimmyRightUpBlock.points[x].x < board[0].size())
-			{
-	 			shimmyRightBlocksAreCompletelyOutOfBounds = false;
-			}
-
-			if(board[shimmyRightUpBlock.points[x].y][shimmyRightUpBlock.points[x].x] == inactiveChar ||
-					shimmyRightUpBlock.points[x].x < 0 || shimmyRightUpBlock.points[x].x >= board[0].size() ||
-					shimmyRightUpBlock.points[x].y < 0 || shimmyRightUpBlock.points[x].y >= board.size())
-			{
-				shimmyRightUpBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyLeftDownBlock.points.size(); x++)
-		{
-			if(board[shimmyLeftDownBlock.points[x].y][shimmyLeftDownBlock.points[x].x] == inactiveChar ||
-					shimmyLeftDownBlock.points[x].x < 0 || shimmyLeftDownBlock.points[x].x >= board[0].size() ||
-					shimmyLeftDownBlock.points[x].y < 0 || shimmyLeftDownBlock.points[x].y >= board.size())
-			{
-				shimmyLeftDownBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-		for(int x = 0; x < shimmyRightDownBlock.points.size(); x++)
-		{
-			if(board[shimmyRightDownBlock.points[x].y][shimmyRightDownBlock.points[x].x] == inactiveChar ||
-					shimmyRightDownBlock.points[x].x < 0 || shimmyRightDownBlock.points[x].x >= board[0].size() ||
-					shimmyRightDownBlock.points[x].y < 0 || shimmyRightDownBlock.points[x].y >= board.size())
-			{
-				shimmyRightDownBlockPointsArePlaceable = false;
-				break;
-			}
-		}
-
-		if(shimmyLeftUpBlockPointsArePlaceable || shimmyRightUpBlockPointsArePlaceable || shimmyLeftDownBlockPointsArePlaceable || shimmyRightDownBlockPointsArePlaceable)
-		{
-			break;
-		}
-
-		if(shimmyLeftBlocksAreCompletelyOutOfBounds && shimmyRightBlocksAreCompletelyOutOfBounds)
-		{
-			std::cout << "SHIMMYING UP AND DOWN" << std::endl;
-			for(int x = 0; x < shimmyLeftUpBlock.points.size(); x++)
-			{
-				shimmyLeftUpBlock.points[x].x = shimmyOriginalBlock.points[x].x;
-				shimmyLeftUpBlock.points[x].y += -1; //board is reverse y coords, remember?
-			}
-			for(int x = 0; x < shimmyRightUpBlock.points.size(); x++)
-			{
-				shimmyRightUpBlock.points[x].x = shimmyOriginalBlock.points[x].x;
-				shimmyRightUpBlock.points[x].y += -1;
-			}
-			for(int x = 0; x < shimmyLeftDownBlock.points.size(); x++)
-			{
-				shimmyLeftDownBlock.points[x].x = shimmyOriginalBlock.points[x].x;
-				shimmyLeftDownBlock.points[x].y += 1;
-			}
-			for(int x = 0; x < shimmyRightDownBlock.points.size(); x++)
-			{
-				shimmyRightDownBlock.points[x].x = shimmyOriginalBlock.points[x].x;
-				shimmyRightDownBlock.points[x].y += 1;
-			}
-		} else
-		{
-			std::cout << "SHIMMYING LEFT AND RIGHT" << std::endl;
-			for(int x = 0; x < shimmyLeftUpBlock.points.size(); x++)
-			{
-				shimmyLeftUpBlock.points[x].x += -1;
-			}
-			for(int x = 0; x < shimmyRightUpBlock.points.size(); x++)
-			{
-				shimmyRightUpBlock.points[x].x += 1;
-			}
-			for(int x = 0; x < shimmyLeftDownBlock.points.size(); x++)
-			{
-				shimmyLeftDownBlock.points[x].x += -1;
-			}
-			for(int x = 0; x < shimmyRightDownBlock.points.size(); x++)
-			{
-				shimmyRightDownBlock.points[x].x += 1;
-			}
-		}
-	}
-	*/
-
-	std::cout << std::string(30, '-') << std::endl;
-	if(shimmyDownBlockPointsArePlaceable)
-	{
-		std::cout << "PLACING DOWN SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyDownBlock.points.size(); x++)
-		{
-			board[shimmyDownBlock.points[x].y][shimmyDownBlock.points[x].x] = activeChar;
-		}
-	} else if(shimmyUpBlockPointsArePlaceable)
-	{
-		std::cout << "PLACING UP SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyUpBlock.points.size(); x++)
-		{
-			board[shimmyUpBlock.points[x].y][shimmyUpBlock.points[x].x] = activeChar;
-		}
-	} else if(shimmyLeftBlockPointsArePlaceable)
-	{
-		std::cout << "PLACING LEFTUP SHIMMY" << std::endl;
-		for(int x = 0; x < shimmyLeftBlock.points.size(); x++)
-		{
-			board[shimmyLeftBlock.points[x].y][shimmyLeftBlock.points[x].x] = activeChar;
-		}
-	} else if(shimmyRightBlockPointsArePlaceable)
-	{
-		std::cout << "PLACING RIGHTSHIMMY" << std::endl;
-		for(int x = 0; x < shimmyRightBlock.points.size(); x++)
-		{
-			board[shimmyRightBlock.points[x].y][shimmyRightBlock.points[x].x] = activeChar;
-		}
-	} else
-	{
-		std::cout << "PLACING ORIGINAL BLOCK" << std::endl;
-		for(int x = 0; x < originalBlock.points.size(); x++)
-		{
-			board[originalBlock.points[x].y][originalBlock.points[x].x] = activeChar;
-		}
-	}
-}
-
-//void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
-void updateFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
-{
-	for(int y = board.size() - 1; y > 0; y--)
-	{
-		bool rowIsFull = true;
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			if(board[y][x] != inactiveChar)
-			{
-				rowIsFull = false;
-			}
-		}
-
-		if(rowIsFull)
-		{
-			for(int anotherY = y; anotherY > 0; anotherY--)
-			{
-				for(int x = 0; x < board[anotherY].size(); x++)
-				{
-					if(board[anotherY - 1][x] == inactiveChar || board[anotherY - 1][x] == blankChar)
-					{
-						board[anotherY][x] = board[anotherY - 1][x];
-					}
-				}
-			}
-			for(int x = 0; x > board[0].size(); x++)
-			{
-				if(board[0][x] == inactiveChar)
-				{
-					board[0][x] = blankChar;
-				}
-			}
-
-			y++;
-		}
-	}
-}
-
-bool updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
-{
-	bool canMoveActivePieces = true;
-
-	for(int x = 0; x < board[board.size() - 1].size(); x++)
-	{
-		if(board[board.size() - 1][x] == activeChar)
-		{
-			canMoveActivePieces = false;
-			break;
-		}
-	}
-	for(int y = board.size() - 2; y >= 0; y--)
-	{
-		if(!canMoveActivePieces)
-		{
-			break;
-		}
-
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			if(!canMoveActivePieces)
-			{
-				break;
-			}
-
-			if(board[y][x] == activeChar && (board[y + 1][x] != blankChar && board[y + 1][x] != activeChar))
-			{
-				canMoveActivePieces = false;
-			}
-		}
-	}
-
-	if(canMoveActivePieces)
-	{
-		for(int y = board.size() - 2; y >= 0; y--)
-		{
-			for(int x = 0; x < board[y].size(); x++)
-			{
-				if(board[y][x] == activeChar)
-				{
-					board[y + 1][x] = activeChar;
-					board[y][x] = blankChar;
-				}
-			}
-		}
-	} else
-	{
-		for(int y = 0; y < board.size(); y++)
-		{
-			for(int x = 0; x < board[y].size(); x++)
-			{
-				if(board[y][x] == activeChar)
-				{
-					board[y][x] = inactiveChar;
-				}
-			}
-		}
-
-		return false;
-	}
-
-	return true;
-}
-
-void printBoard(std::vector<std::vector<char>> &board)
-{
-	for(int y = 0; y < board.size(); y++)
-	{
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			std::cout << board[y][x];
-		}
-		std::cout << std::endl;
-	}
+	return (rand() % (maximum - minimum + 1)) + minimum;
 }
 
 int main()
 {
+	srand(time(0));
+
 	bool debug = true;
 
 	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock };
 
+	//as of Monday, November 11, 2024, 00:19:43, Block is vector for now. Might change to static array later. Dynamic cuz I might play around with it in future
 	Block iBlockCoords({ {0, 0}, {1, 0}, {2, 0}, {3, 0} });
 	Block jBlockCoords({ {0, 0}, {0, 1}, {1, 1}, {2, 1} });
 	Block lBlockCoords({ {2, 0}, {0, 1}, {1, 1}, {2, 1} });
@@ -956,6 +64,13 @@ int main()
 	Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} });
 	Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} });
 	Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} });
+	std::array<Block, 7> groupedBlockCollection;
+
+	std::queue<Block> blockQueue;
+	for(int x = 0; x <= 5; x++)
+	{
+		blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+	}
 
 	const char blankChar = 'b';
 	const char activeChar = 'a';
@@ -1072,9 +187,10 @@ int main()
 		{
 			window.close();
 		}
+		/*
 		if(debug && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
 		{
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::I)){for(int x = 0; x < iBlockCoords.points.size(); x++){board[iBlockCoords.points[x].y][iBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)){for(int x = 0; x < jBlockCoords.points.size(); x++){board[jBlockCoords.points[x].y][jBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::L)){for(int x = 0; x < lBlockCoords.points.size(); x++){board[lBlockCoords.points[x].y][lBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::O)){for(int x = 0; x < oBlockCoords.points.size(); x++){board[oBlockCoords.points[x].y][oBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){for(int x = 0; x < sBlockCoords.points.size(); x++){board[sBlockCoords.points[x].y][sBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){for(int x = 0; x < tBlockCoords.points.size(); x++){board[tBlockCoords.points[x].y][tBlockCoords.points[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){for(int x = 0; x < zBlockCoords.points.size(); x++){board[zBlockCoords.points[x].y][zBlockCoords.points[x].x] = activeChar;}}
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::I)){for(int x = 0; x < iBlockCoords.size(); x++){board[iBlockCoords[x].y][iBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)){for(int x = 0; x < jBlockCoords.size(); x++){board[jBlockCoords[x].y][jBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::L)){for(int x = 0; x < lBlockCoords.size(); x++){board[lBlockCoords[x].y][lBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::O)){for(int x = 0; x < oBlockCoords.size(); x++){board[oBlockCoords[x].y][oBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){for(int x = 0; x < sBlockCoords.size(); x++){board[sBlockCoords[x].y][sBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){for(int x = 0; x < tBlockCoords.size(); x++){board[tBlockCoords[x].y][tBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){for(int x = 0; x < zBlockCoords.size(); x++){board[zBlockCoords[x].y][zBlockCoords[x].x] = activeChar;}}
 			
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::G))
 			{
@@ -1090,13 +206,14 @@ int main()
 				}
 			}
 		}
+		*/
 
 		//bool tick = false;
 		if(tickDelta.count() >= tickDeltaThreshold)
 		{
 			tickDelta = std::chrono::seconds::zero();
 			//tick = true;
-			//updateBoard(board, blankChar, activeChar, inactiveChar);
+			updateBoard(board, blankChar, activeChar, inactiveChar);
 			updateFullRows(board, blankChar, activeChar, inactiveChar);
 
 			/*
@@ -1109,35 +226,43 @@ int main()
 		}
 		tickDelta += deltaTime;
 
-		//controls
-		if(!sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
+		if(!activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
 		{
+			placeBlockAsActivePieces(board, iBlockCoords, blankChar, activeChar, inactiveChar);
+			blockQueue.pop();
+			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+		}
+
+		//controls
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
-			moveActivePiecesInDirection(board, directionUp, blankChar, activeChar, inactiveChar);
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			{
+				moveActivePiecesInDirection(board, directionUp, blankChar, activeChar, inactiveChar);
+			}
 		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
-			moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			{
+				moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+			}
 		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
-			moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		{
-			moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			/*
-			//potentially dangerous while loop here Wednesday, November 06, 2024, 10:44:24
-			while(canMoveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar))
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
 			{
 				moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
 			}
-
-			*/
-
-			for(int x = 0; x < board[0].size(); x++)
+		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+		{
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
 			{
-				board[0][x] = activeChar;
+				moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
+			}
+		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+		{
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			{
+				slamActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
 			}
 		}
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
@@ -1146,15 +271,20 @@ int main()
 			{
 
 			}
-			rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			{
+				rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
+			}
 		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 		{
 			while(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 			{
 
 			}
-			rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
-		}
+			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			{
+				rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
+			}
 		}
 
 		//draw stuff
