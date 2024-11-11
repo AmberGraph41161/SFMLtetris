@@ -27,8 +27,9 @@ typedef std::vector<Point> Block;
 typedef std::vector<FloatingPoint> FloatingBlock;
 
 enum direction { directionUp, directionDown, directionLeft, directionRight };
-bool activePiecesExistOnBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
+bool activePiecesExistOnBoard(std::vector<std::vector<char>> &board, const char &activeChar);
 bool canMoveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
+void destroyActivePiecesOnBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar);
 void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
 void slamActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
 void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar, bool rotateInClockWiseDirection = true);

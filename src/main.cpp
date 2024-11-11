@@ -52,8 +52,6 @@ int main()
 {
 	srand(time(0));
 
-	bool debug = true;
-
 	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock };
 
 	//as of Monday, November 11, 2024, 00:19:43, Block is vector for now. Might change to static array later. Dynamic cuz I might play around with it in future
@@ -64,13 +62,15 @@ int main()
 	Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} });
 	Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} });
 	Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} });
-	std::array<Block, 7> groupedBlockCollection;
+	std::array<Block, 7> groupedBlockCollection = { iBlockCoords, jBlockCoords, lBlockCoords, oBlockCoords, sBlockCoords, tBlockCoords, zBlockCoords };
 
 	std::queue<Block> blockQueue;
 	for(int x = 0; x <= 5; x++)
 	{
 		blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
 	}
+	Block savedBlock;
+	Block currentBlockInPlay;
 
 	const char blankChar = 'b';
 	const char activeChar = 'a';
@@ -150,6 +150,11 @@ int main()
 	int theBlockStartX = (1920.f / 2) - (theBlock.getGlobalBounds().width / 2); //temp. will make prettier later
 	int theBlockStartY = 0;//(1080.f / 2) - (theBlock.getGlobalBounds().height / 2); //temp. will make prettier later
 
+	bool slamKeyPressedLastFrame = false;
+	bool rotateKeyPressedLastFrame = false;
+	bool saveblockKeyPressedLastFrame = false;
+	bool saveblockUsedForCurrentBlock = false;
+
 	std::chrono::time_point<std::chrono::system_clock> lastlastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> lastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> deltaTime = lastframe - lastlastframe;
@@ -215,75 +220,101 @@ int main()
 			//tick = true;
 			updateBoard(board, blankChar, activeChar, inactiveChar);
 			updateFullRows(board, blankChar, activeChar, inactiveChar);
-
-			/*
-			if(debug)
-			{
-				std::cout << std::string(boardWidth, '-') << std::endl;
-				printBoard(board);
-			}
-			*/
 		}
 		tickDelta += deltaTime;
 
-		if(!activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+		if(!activePiecesExistOnBoard(board, activeChar))
 		{
-			placeBlockAsActivePieces(board, iBlockCoords, blankChar, activeChar, inactiveChar);
+			placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
+			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+
+			saveblockUsedForCurrentBlock = false;
 		}
 
 		//controls
+		/*
 		if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			if(activePiecesExistOnBoard(board, activeChar))
 			{
 				moveActivePiecesInDirection(board, directionUp, blankChar, activeChar, inactiveChar);
 			}
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		}
+		*/
+		if(activePiecesExistOnBoard(board, activeChar))
 		{
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			{
 				moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
 			}
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-		{
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
 				moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
 			}
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		{
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 			{
 				moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
 			}
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 			{
-				slamActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+				if(!slamKeyPressedLastFrame)
+				{
+					slamActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+					slamKeyPressedLastFrame = true;
+				}
+			} else
+			{
+				slamKeyPressedLastFrame = false;
 			}
-		}
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-		{
-			while(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			{
 
-			}
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
-				rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
-			}
-		} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
-		{
-			while(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+				if(!rotateKeyPressedLastFrame)
+				{
+					rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
+					rotateKeyPressedLastFrame = true;
+				}
+			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && !rotateKeyPressedLastFrame)
 			{
+				if(!rotateKeyPressedLastFrame)
+				{
+					rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
+					rotateKeyPressedLastFrame = true;
+				}
+			} else
+			{
+				rotateKeyPressedLastFrame = false;
+			}
 
-			}
-			if(activePiecesExistOnBoard(board, blankChar, activeChar, inactiveChar))
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::C))
 			{
-				rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
+				if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
+				{
+					destroyActivePiecesOnBoard(board, blankChar, activeChar);
+					if(savedBlock.empty())
+					{
+						savedBlock = currentBlockInPlay;
+
+						placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
+						currentBlockInPlay = blockQueue.front();
+						blockQueue.pop();
+						blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+					} else
+					{
+						placeBlockAsActivePieces(board, savedBlock, blankChar, activeChar, inactiveChar);
+						savedBlock = currentBlockInPlay;
+					}
+
+
+					saveblockUsedForCurrentBlock = true;
+				}
+				saveblockKeyPressedLastFrame = true;
+			} else
+			{
+				saveblockKeyPressedLastFrame = false;
 			}
 		}
 
@@ -315,6 +346,20 @@ int main()
 					window.draw(theBlock);
 				}
 			}
+		}
+
+		for(int x = 0; x < blockQueue.front().size(); x++)
+		{
+			theBlock.setTexture(diamondOreTexture);
+			theBlock.setPosition(blockQueue.front()[x].x * theBlock.getGlobalBounds().width, blockQueue.front()[x].y * theBlock.getGlobalBounds().height);
+			theBlock.move(0, 64 * 3);
+			window.draw(theBlock);
+		}
+		for(int x = 0; x < savedBlock.size(); x++)
+		{
+			theBlock.setTexture(diamondOreTexture);
+			theBlock.setPosition(savedBlock[x].x * theBlock.getGlobalBounds().width, savedBlock[x].y * theBlock.getGlobalBounds().height);
+			window.draw(theBlock);
 		}
 
 		window.display();

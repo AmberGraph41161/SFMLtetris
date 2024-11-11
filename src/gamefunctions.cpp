@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 
-bool activePiecesExistOnBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
+bool activePiecesExistOnBoard(std::vector<std::vector<char>> &board, const char &activeChar)
 {
 	for(int y = 0; y < board.size(); y++)
 	{
@@ -174,6 +174,20 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<char>> &board, direc
 	}
 
 	return canMoveActivePieces;
+}
+
+void destroyActivePiecesOnBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x] == activeChar)
+			{
+				board[y][x] = blankChar;
+			}
+		}
+	}
 }
 
 void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
