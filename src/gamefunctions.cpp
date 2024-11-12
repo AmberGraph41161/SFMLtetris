@@ -572,8 +572,22 @@ void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blank
 	}
 }
 
+void hardenActivePieces(std::vector<std::vector<char>> &board, const char &activeChar, const char &inactiveChar)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x] == activeChar)
+			{
+				board[y][x] = inactiveChar;
+			}
+		}
+	}
+}
+
 //void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
-void updateFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
+void clearFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
 {
 	for(int y = board.size() - 1; y > 0; y--)
 	{

@@ -158,8 +158,18 @@ int main()
 	std::chrono::time_point<std::chrono::system_clock> lastlastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> lastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> deltaTime = lastframe - lastlastframe;
-	std::chrono::duration<double> tickDelta = deltaTime;
-	double tickDeltaThreshold = 0.4;
+
+	std::chrono::duration<double> fallingBlocksTickDelta = deltaTime;
+	double fallingBlocksTickDeltaThreshold = 0.4;
+
+	std::chrono::duration<double> hardenActivePiecesTickDelta = deltaTime;
+	double hardenActivePiecesTickDeltaThreshold = 1.3;
+	
+	std::chrono::duration<double> hardenActivePiecesAbsoluteTickDelta = deltaTime;
+	double hardenActivePiecesAbsoluteTickDeltaThreshold = hardenActivePiecesTickDeltaThreshold * 2;
+
+	std::chrono::duration<double> leftRightMovementTickDelta = deltaTime;
+	double leftRightMovementTickDeltaThreshold = 0.1;
 
 	int screenWidth = 1920;
 	int screenHeight = 1080;
@@ -213,16 +223,35 @@ int main()
 		}
 		*/
 
-		//bool tick = false;
-		if(tickDelta.count() >= tickDeltaThreshold)
+		//falling blocks tick delta
+		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 		{
-			tickDelta = std::chrono::seconds::zero();
-			//tick = true;
-			updateBoard(board, blankChar, activeChar, inactiveChar);
-			updateFullRows(board, blankChar, activeChar, inactiveChar);
+			fallingBlocksTickDelta = std::chrono::seconds::zero();
+			//updateBoard(board, blankChar, activeChar, inactiveChar);
+			moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+			clearFullRows(board, blankChar, activeChar, inactiveChar);
 		}
-		tickDelta += deltaTime;
+		fallingBlocksTickDelta += deltaTime;
 
+		//hardening blocks tick delta
+		if(!canMoveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar))
+		{
+			if(hardenActivePiecesTickDelta.count() >= hardenActivePiecesTickDeltaThreshold)
+			{
+				hardenActivePieces(board, activeChar, inactiveChar);
+				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
+			} else if(hardenActivePiecesAbsoluteTickDelta.count() >= hardenActivePiecesAbsoluteTickDeltaThreshold)
+			{
+				hardenActivePieces(board, activeChar, inactiveChar);
+				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
+			}
+			hardenActivePiecesTickDelta += deltaTime;
+			hardenActivePiecesAbsoluteTickDelta += deltaTime;
+		}
+
+		//block queue update and stuff
 		if(!activePiecesExistOnBoard(board, activeChar))
 		{
 			placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
@@ -234,30 +263,51 @@ int main()
 		}
 
 		//controls
-		/*
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		{
-			if(activePiecesExistOnBoard(board, activeChar))
-			{
-				moveActivePiecesInDirection(board, directionUp, blankChar, activeChar, inactiveChar);
-			}
-		}
-		*/
 		if(activePiecesExistOnBoard(board, activeChar))
 		{
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			{
-				moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+				if(leftRightMovementTickDelta.count() == 0)
+				{
+					moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+					leftRightMovementTickDelta += deltaTime;
+				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
+				{
+					moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+				} else
+				{
+					leftRightMovementTickDelta += deltaTime;
+				}
+			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+			{
+				if(leftRightMovementTickDelta.count() == 0)
+				{
+					moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
+					leftRightMovementTickDelta += deltaTime;
+				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
+				{
+					moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
+				} else
+				{
+					leftRightMovementTickDelta += deltaTime;
+				}
+			} else
+			{
+				leftRightMovementTickDelta = std::chrono::seconds::zero();
 			}
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
+				/*
+				if(!canMoveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar))
+				{
+					hardenActivePieces(board, activeChar, inactiveChar);
+					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
+				}
+				*/
 				moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
 			}
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			{
-				moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
-			}
-			
+
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 			{
 				if(!slamKeyPressedLastFrame)
@@ -276,6 +326,7 @@ int main()
 				{
 					rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
 					rotateKeyPressedLastFrame = true;
+					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				}
 			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 			{
@@ -283,6 +334,7 @@ int main()
 				{
 					rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
 					rotateKeyPressedLastFrame = true;
+					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				}
 			} else
 			{

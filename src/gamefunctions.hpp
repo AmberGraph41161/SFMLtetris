@@ -33,8 +33,9 @@ void destroyActivePiecesOnBoard(std::vector<std::vector<char>> &board, const cha
 void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
 void slamActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
 void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar, bool rotateInClockWiseDirection = true);
+void hardenActivePieces(std::vector<std::vector<char>> &board, const char &activeChar, const char &inactiveChar);
 //void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
-void updateFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
+void clearFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
 bool placeBlockAsActivePieces(std::vector<std::vector<char>> &board, Block block, const char &blankChar, const char &activeChar, const char &inactiveChar);
 bool updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
 void printBoard(std::vector<std::vector<char>> &board);
