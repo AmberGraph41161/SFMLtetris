@@ -277,7 +277,7 @@ int main()
 					rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
 					rotateKeyPressedLastFrame = true;
 				}
-			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z) && !rotateKeyPressedLastFrame)
+			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
