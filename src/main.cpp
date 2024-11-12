@@ -229,7 +229,6 @@ int main()
 			fallingBlocksTickDelta = std::chrono::seconds::zero();
 			//updateBoard(board, blankChar, activeChar, inactiveChar);
 			moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
-			clearFullRows(board, blankChar, activeChar, inactiveChar);
 		}
 		fallingBlocksTickDelta += deltaTime;
 
@@ -254,6 +253,8 @@ int main()
 		//block queue update and stuff
 		if(!activePiecesExistOnBoard(board, activeChar))
 		{
+			clearFullRows(board, blankChar, activeChar, inactiveChar);
+
 			placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
