@@ -668,7 +668,7 @@ void clearFullRows(std::vector<std::vector<char>> &board, const char &blankChar,
 
 bool placeBlockAsActivePieces(std::vector<std::vector<char>> &board, Block block, const char &blankChar, const char &activeChar, const char &inactiveChar)
 {
-	Point offset(4, 0);
+	Point offset(4, 0); //probably bad. will fix later. Wednesday, November 13, 2024, 14:00:17
 
 	for(int x = 0; x < block.size(); x++)
 	{

@@ -78,6 +78,7 @@ int main()
 	Block savedBlock;
 	Block currentBlockInPlay;
 
+	bool wasAbleToPlaceNextBlockSuccessfully = false;
 	const char blankChar = 'b';
 	const char activeChar = 'a';
 	const char inactiveChar = 'i';
@@ -268,10 +269,15 @@ int main()
 		{
 			clearFullRows(board, blankChar, activeChar, inactiveChar);
 
-			placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
+			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+
+			if(!wasAbleToPlaceNextBlockSuccessfully)
+			{
+				break; //for now. Wednesday, November 13, 2024, 14:02:51
+			}
 
 			saveblockUsedForCurrentBlock = false;
 		}
