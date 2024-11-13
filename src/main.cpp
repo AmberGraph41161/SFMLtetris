@@ -1,3 +1,4 @@
+#include <SFML/Graphics/CircleShape.hpp>
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -46,6 +47,11 @@
 int RANDOM(int minimum, int maximum)
 {
 	return (rand() % (maximum - minimum + 1)) + minimum;
+}
+
+double RANDOMDOUBLE(double minimum, double maximum)
+{
+	return (((double)rand() / RAND_MAX) * (maximum - minimum)) + minimum;
 }
 
 int main()
@@ -149,7 +155,7 @@ int main()
 
 	int theBlockStartX = (1920.f / 2) - (theBlock.getGlobalBounds().width / 2); //temp. will make prettier later
 	int theBlockStartY = 0;//(1080.f / 2) - (theBlock.getGlobalBounds().height / 2); //temp. will make prettier later
-
+	
 	bool slamKeyPressedLastFrame = false;
 	bool rotateKeyPressedLastFrame = false;
 	bool saveblockKeyPressedLastFrame = false;
