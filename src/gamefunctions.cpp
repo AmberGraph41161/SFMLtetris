@@ -586,6 +586,47 @@ void hardenActivePieces(std::vector<std::vector<char>> &board, const char &activ
 	}
 }
 
+void fakeOverlayShadowChars(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &shadowChar, const char &blankChar, const char &activeChar, const char &inactiveChar, bool showShadowChars)
+{
+	if(showShadowChars)
+	{
+		std::vector<std::vector<char>> tempShadowBoard = board;
+		while(true)
+		{
+			if(!canMoveActivePiecesInDirection(tempShadowBoard, upDownLeftRight, blankChar, activeChar, inactiveChar))
+			{
+				break;
+			} else
+			{
+				moveActivePiecesInDirection(tempShadowBoard, upDownLeftRight, blankChar, activeChar, inactiveChar);
+			}
+		}
+
+		for(int y = 0; y < tempShadowBoard.size(); y++)
+		{
+			for(int x = 0; x < tempShadowBoard[y].size(); x++)
+			{
+				if(tempShadowBoard[y][x] == activeChar && board[y][x] != activeChar)
+				{
+					board[y][x] = shadowChar;
+				}
+			}
+		}
+	} else
+	{
+		for(int y = 0; y < board.size(); y++)
+		{
+			for(int x = 0; x < board[y].size(); x++)
+			{
+				if(board[y][x] == shadowChar)
+				{
+					board[y][x] = blankChar;
+				}
+			}
+		}
+	}
+}
+
 //void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
 void clearFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar)
 {

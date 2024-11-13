@@ -81,6 +81,7 @@ int main()
 	const char blankChar = 'b';
 	const char activeChar = 'a';
 	const char inactiveChar = 'i';
+	const char shadowChar = 's';
 	int boardWidth = 10;
 	int boardHeight = 30;
 	std::vector<std::vector<char>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
@@ -148,6 +149,12 @@ int main()
 	if(!wool_colored_pinkTexture.loadFromFile("textures/blocks/wool_colored_pink.png"))
 	{
 		std::cerr << "failed to load \"textures/blocks/wool_colored_pink.png\"" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	sf::Texture glassTexture;
+	if(!glassTexture.loadFromFile("textures/blocks/glass.png"))
+	{
+		std::cerr << "failed to load \"textures/blocks/glass.png\"" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	theBlock.setTexture(diamondOreTexture);
@@ -377,6 +384,12 @@ int main()
 			}
 		}
 
+		//fake-overlay shadowChars before drawing
+		if(activePiecesExistOnBoard(board, activeChar))
+		{
+			fakeOverlayShadowChars(board, directionDown, shadowChar, blankChar, activeChar, inactiveChar, true);
+		}
+
 		//draw stuff
 		lastlastframe = std::chrono::high_resolution_clock::now();
 		window.clear(sf::Color::Black);
@@ -388,22 +401,19 @@ int main()
 				if(board[y][x] == activeChar)
 				{
 					theBlock.setTexture(diamondOreTexture);
-					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-					theBlock.move(theBlockStartX, theBlockStartY);
-					window.draw(theBlock);
 				} else if(board[y][x] == inactiveChar)
 				{
 					theBlock.setTexture(diamondBlockTexture);
-					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-					theBlock.move(theBlockStartX, theBlockStartY);
-					window.draw(theBlock);
 				} else if(board[y][x] == blankChar)
 				{
 					theBlock.setTexture(wool_colored_pinkTexture);
-					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-					theBlock.move(theBlockStartX, theBlockStartY);
-					window.draw(theBlock);
+				} else if(board[y][x] == shadowChar)
+				{
+					theBlock.setTexture(glassTexture);
 				}
+				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+				theBlock.move(theBlockStartX, theBlockStartY);
+				window.draw(theBlock);
 			}
 		}
 
@@ -424,6 +434,12 @@ int main()
 		window.display();
 		lastframe = std::chrono::high_resolution_clock::now();
 		deltaTime = lastframe - lastlastframe;
+
+		//remove fake-overlay of shadowChars
+		if(activePiecesExistOnBoard(board, activeChar))
+		{
+			fakeOverlayShadowChars(board, directionDown, shadowChar, blankChar, activeChar, inactiveChar, false);
+		}
 	}
 
 	std::cout << "done!" << std::endl;

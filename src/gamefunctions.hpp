@@ -34,6 +34,7 @@ void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, directio
 void slamActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
 void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar, bool rotateInClockWiseDirection = true);
 void hardenActivePieces(std::vector<std::vector<char>> &board, const char &activeChar, const char &inactiveChar);
+void fakeOverlayShadowChars(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &shadowChar, const char &blankChar, const char &activeChar, const char &inactiveChar, bool showShadowChars);
 //void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
 void clearFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
 bool placeBlockAsActivePieces(std::vector<std::vector<char>> &board, Block block, const char &blankChar, const char &activeChar, const char &inactiveChar);
