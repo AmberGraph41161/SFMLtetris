@@ -85,7 +85,7 @@ int main()
 	const char inactiveChar = 'i';
 	const char shadowChar = 's';
 	int boardWidth = 10;
-	int boardHeight = 30;
+	int boardHeight = 20;
 	std::vector<std::vector<char>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
@@ -137,6 +137,8 @@ int main()
 	//SFML stuff
 	const int screenWidth = 1920;
 	const int screenHeight = 1080;
+	const int screenWidth16PixelScaleToFitMultiplier = 3;
+	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
 	sf::Sprite theBlock;
 	std::string blankCharTexturePath = "textures/blocks/wool_colored_pink.png";
@@ -169,10 +171,27 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	theBlock.setTexture(activeCharTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
-	theBlock.setScale(sf::Vector2f(2, 2));
+	theBlock.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
-	int theBlockStartX = (1920.f / 2) - (theBlock.getGlobalBounds().width / 2); //temp. will make prettier later
-	int theBlockStartY = 0;//(1080.f / 2) - (theBlock.getGlobalBounds().height / 2); //temp. will make prettier later
+	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
+	//int theBlockStartY = ((float)screenHeight / 2) - ((theBlock.getGlobalBounds().height * boardHeight) / 2);
+	int theBlockStartX = 16 * screenWidth16PixelScaleToFitMultiplier;
+	int theBlockStartY = (16 + 8) * screenHeight16PixelScaleToFitMultiplier;
+	int theBlockQueuedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
+	int theBlockQueuedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
+	int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
+	int theBlockSavedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
+
+	sf::Sprite background;
+	sf::Texture backgroundTexture;
+	std::string backgroundTexturePath = "textures/default/background.png";
+	if(!backgroundTexture.loadFromFile(backgroundTexturePath))
+	{
+		std::cerr << "[failed to load [backgroundTexturePath] \"" << backgroundTexturePath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	background.setTexture(backgroundTexture);
+	background.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 	
 	bool slamKeyPressedLastFrame = false;
 	bool rotateKeyPressedLastFrame = false;
@@ -407,6 +426,8 @@ int main()
 		lastlastframe = std::chrono::high_resolution_clock::now();
 		window.clear(sf::Color::Black);
 
+		window.draw(background);
+
 		for(int y = 0; y < board.size(); y++)
 		{
 			for(int x = 0; x < board[y].size(); x++)
@@ -433,14 +454,13 @@ int main()
 		for(int x = 0; x < blockQueue.front().size(); x++)
 		{
 			theBlock.setTexture(activeCharTexture);
-			theBlock.setPosition(blockQueue.front()[x].x * theBlock.getGlobalBounds().width, blockQueue.front()[x].y * theBlock.getGlobalBounds().height);
-			theBlock.move(0, 64 * 3);
+			theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
 			window.draw(theBlock);
 		}
 		for(int x = 0; x < savedBlock.size(); x++)
 		{
 			theBlock.setTexture(activeCharTexture);
-			theBlock.setPosition(savedBlock[x].x * theBlock.getGlobalBounds().width, savedBlock[x].y * theBlock.getGlobalBounds().height);
+			theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
 			window.draw(theBlock);
 		}
 
