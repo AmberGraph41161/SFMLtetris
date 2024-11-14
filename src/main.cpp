@@ -58,6 +58,7 @@ int main()
 {
 	srand(time(0));
 
+	//init backend
 	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock };
 
 	//as of Monday, November 11, 2024, 00:19:43, Block is vector for now. Might change to static array later. Dynamic cuz I might play around with it in future
@@ -133,6 +134,10 @@ int main()
 		when moving active pieces, start from bottom of the board to the top of the board when shimming pieces down.
 	*/
 
+	//SFML stuff
+	const int screenWidth = 1920;
+	const int screenHeight = 1080;
+
 	sf::Sprite theBlock;
 	std::string blankCharTexturePath = "textures/blocks/wool_colored_pink.png";
 	std::string activeCharTexturePath = "textures/blocks/diamond_ore.png";
@@ -163,7 +168,7 @@ int main()
 		std::cerr << "[failed to load [shadowCharTexturePath] \"" << shadowCharTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	theBlock.setTexture(activeCharTexture);
+	theBlock.setTexture(activeCharTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
 	theBlock.setScale(sf::Vector2f(2, 2));
 
 	int theBlockStartX = (1920.f / 2) - (theBlock.getGlobalBounds().width / 2); //temp. will make prettier later
@@ -190,8 +195,6 @@ int main()
 	std::chrono::duration<double> leftRightMovementTickDelta = deltaTime;
 	double leftRightMovementTickDeltaThreshold = 0.1;
 
-	const int screenWidth = 1920;
-	const int screenHeight = 1080;
 	sf::View view(sf::FloatRect(0, 0, screenWidth, screenHeight));
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "title goes here lol", sf::Style::Default);
 	window.setFramerateLimit(60);
