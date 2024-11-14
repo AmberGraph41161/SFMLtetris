@@ -134,31 +134,36 @@ int main()
 	*/
 
 	sf::Sprite theBlock;
-	sf::Texture diamondBlockTexture;
-	if(!diamondBlockTexture.loadFromFile("textures/blocks/diamond_block.png"))
+	std::string blankCharTexturePath = "textures/blocks/wool_colored_pink.png";
+	std::string activeCharTexturePath = "textures/blocks/diamond_ore.png";
+	std::string inactiveCharTexturePath = "textures/blocks/diamond_block.png";
+	std::string shadowCharTexturePath = "textures/blocks/glass.png";
+
+	sf::Texture blankCharTexture;
+	if(!blankCharTexture.loadFromFile(blankCharTexturePath))
 	{
-		std::cerr << "failed to load \"textures/blocks/diamond_block.png\"" << std::endl;
+		std::cerr << "[failed to load [blankCharTexturePath] \"" << blankCharTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture diamondOreTexture;
-	if(!diamondOreTexture.loadFromFile("textures/blocks/diamond_ore.png"))
+	sf::Texture activeCharTexture;
+	if(!activeCharTexture.loadFromFile(activeCharTexturePath))
 	{
-		std::cerr << "failed to load \"textures/blocks/diamond_ore.png\"" << std::endl;
+		std::cerr << "[failed to load [activeCharTexturePath] \"" << activeCharTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture wool_colored_pinkTexture;
-	if(!wool_colored_pinkTexture.loadFromFile("textures/blocks/wool_colored_pink.png"))
+	sf::Texture inactiveCharTexture;
+	if(!inactiveCharTexture.loadFromFile(inactiveCharTexturePath))
 	{
-		std::cerr << "failed to load \"textures/blocks/wool_colored_pink.png\"" << std::endl;
+		std::cerr << "[failed to load [inactiveCharTexturePath] \"" << inactiveCharTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture glassTexture;
-	if(!glassTexture.loadFromFile("textures/blocks/glass.png"))
+	sf::Texture shadowCharTexture;
+	if(!shadowCharTexture.loadFromFile(shadowCharTexturePath))
 	{
-		std::cerr << "failed to load \"textures/blocks/glass.png\"" << std::endl;
+		std::cerr << "[failed to load [shadowCharTexturePath] \"" << shadowCharTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	theBlock.setTexture(diamondOreTexture);
+	theBlock.setTexture(activeCharTexture);
 	theBlock.setScale(sf::Vector2f(2, 2));
 
 	int theBlockStartX = (1920.f / 2) - (theBlock.getGlobalBounds().width / 2); //temp. will make prettier later
@@ -185,8 +190,8 @@ int main()
 	std::chrono::duration<double> leftRightMovementTickDelta = deltaTime;
 	double leftRightMovementTickDeltaThreshold = 0.1;
 
-	int screenWidth = 1920;
-	int screenHeight = 1080;
+	const int screenWidth = 1920;
+	const int screenHeight = 1080;
 	sf::View view(sf::FloatRect(0, 0, screenWidth, screenHeight));
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "title goes here lol", sf::Style::Default);
 	window.setFramerateLimit(60);
@@ -328,18 +333,6 @@ int main()
 				moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
 			}
 
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-			{
-				if(!slamKeyPressedLastFrame)
-				{
-					slamActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
-					slamKeyPressedLastFrame = true;
-				}
-			} else
-			{
-				slamKeyPressedLastFrame = false;
-			}
-
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
 				if(!rotateKeyPressedLastFrame)
@@ -380,13 +373,24 @@ int main()
 						savedBlock = currentBlockInPlay;
 					}
 
-
 					saveblockUsedForCurrentBlock = true;
 				}
 				saveblockKeyPressedLastFrame = true;
 			} else
 			{
 				saveblockKeyPressedLastFrame = false;
+			}
+
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+			{
+				if(!slamKeyPressedLastFrame)
+				{
+					slamActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+					slamKeyPressedLastFrame = true;
+				}
+			} else
+			{
+				slamKeyPressedLastFrame = false;
 			}
 		}
 
@@ -404,18 +408,18 @@ int main()
 		{
 			for(int x = 0; x < board[y].size(); x++)
 			{
-				if(board[y][x] == activeChar)
+				if(board[y][x] == blankChar)
 				{
-					theBlock.setTexture(diamondOreTexture);
+					theBlock.setTexture(blankCharTexture);
+				} else if(board[y][x] == activeChar)
+				{
+					theBlock.setTexture(activeCharTexture);
 				} else if(board[y][x] == inactiveChar)
 				{
-					theBlock.setTexture(diamondBlockTexture);
-				} else if(board[y][x] == blankChar)
-				{
-					theBlock.setTexture(wool_colored_pinkTexture);
+					theBlock.setTexture(inactiveCharTexture);
 				} else if(board[y][x] == shadowChar)
 				{
-					theBlock.setTexture(glassTexture);
+					theBlock.setTexture(shadowCharTexture);
 				}
 				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
 				theBlock.move(theBlockStartX, theBlockStartY);
@@ -425,14 +429,14 @@ int main()
 
 		for(int x = 0; x < blockQueue.front().size(); x++)
 		{
-			theBlock.setTexture(diamondOreTexture);
+			theBlock.setTexture(activeCharTexture);
 			theBlock.setPosition(blockQueue.front()[x].x * theBlock.getGlobalBounds().width, blockQueue.front()[x].y * theBlock.getGlobalBounds().height);
 			theBlock.move(0, 64 * 3);
 			window.draw(theBlock);
 		}
 		for(int x = 0; x < savedBlock.size(); x++)
 		{
-			theBlock.setTexture(diamondOreTexture);
+			theBlock.setTexture(activeCharTexture);
 			theBlock.setPosition(savedBlock[x].x * theBlock.getGlobalBounds().width, savedBlock[x].y * theBlock.getGlobalBounds().height);
 			window.draw(theBlock);
 		}
