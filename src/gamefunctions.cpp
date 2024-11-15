@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <vector>
+#include <array>
 #include <cmath>
 
 bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair)
@@ -225,6 +226,9 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
+	int intLowerUpperPairJumpDistanceActiveToBlank = blankIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+	int intLowerUpperPairJumpDistanceBlankToActive = activeIntLowerUpperPair.first - blankIntLowerUpperPair.first;
+
 	//move or don't move pieces after checking yo
 	if(canMoveActivePiecesInDirection(board, upDownLeftRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
 	{
@@ -238,8 +242,8 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y - 1][x] = activeIntLowerUpperPair.first;
-							board[y][x] = blankIntLowerUpperPair.first;
+							board[y - 1][x] = board[y - 1][x] + intLowerUpperPairJumpDistanceBlankToActive;
+							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -254,8 +258,8 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y + 1][x] = activeIntLowerUpperPair.first;
-							board[y][x] = blankIntLowerUpperPair.first;
+							board[y + 1][x] = board[y + 1][x] + intLowerUpperPairJumpDistanceBlankToActive;
+							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -270,8 +274,8 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y][x - 1] = activeIntLowerUpperPair.first;
-							board[y][x] = blankIntLowerUpperPair.first;
+							board[y][x - 1] = board[y][x - 1] + intLowerUpperPairJumpDistanceBlankToActive;
+							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -286,8 +290,8 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y][x + 1] = activeIntLowerUpperPair.first;
-							board[y][x] = blankIntLowerUpperPair.first;
+							board[y][x + 1] = board[y][x + 1] + intLowerUpperPairJumpDistanceBlankToActive;
+							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -309,6 +313,8 @@ void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
+	int intLowerUpperPairJumpDistanceActiveToInactive = inactiveIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+
 	while(true)
 	{
 		if(!canMoveActivePiecesInDirection(board, upDownLeftRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
@@ -326,7 +332,7 @@ void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = inactiveIntLowerUpperPair.first;
+				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToInactive;
 			}
 		}
 	}
@@ -337,6 +343,9 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair, bool rotateInClockWiseDirection)
 {
+	int intLowerUpperPairJumpDistanceActiveToBlank = blankIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+	int intLowerUpperPairJumpDistanceBlankToActive = activeIntLowerUpperPair.first - blankIntLowerUpperPair.first;
+
 	/*
 	stupid math stuff
 	(x, y) --> rotate CCW --> (-y, x)
@@ -468,7 +477,7 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = blankIntLowerUpperPair.first;
+				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
 			}
 		}
 	}
@@ -586,31 +595,31 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 	{
 		for(int x = 0; x < shimmyDownBlock.size(); x++)
 		{
-			board[shimmyDownBlock[x].y][shimmyDownBlock[x].x] = activeIntLowerUpperPair.first;
+			board[shimmyDownBlock[x].y][shimmyDownBlock[x].x] = intLowerUpperPairJumpDistanceBlankToActive;
 		}
 	} else if(shimmyUpBlocArePlaceable)
 	{
 		for(int x = 0; x < shimmyUpBlock.size(); x++)
 		{
-			board[shimmyUpBlock[x].y][shimmyUpBlock[x].x] = activeIntLowerUpperPair.first;
+			board[shimmyUpBlock[x].y][shimmyUpBlock[x].x] = intLowerUpperPairJumpDistanceBlankToActive;
 		}
 	} else if(shimmyLeftBlocArePlaceable)
 	{
 		for(int x = 0; x < shimmyLeftBlock.size(); x++)
 		{
-			board[shimmyLeftBlock[x].y][shimmyLeftBlock[x].x] = activeIntLowerUpperPair.first;
+			board[shimmyLeftBlock[x].y][shimmyLeftBlock[x].x] = intLowerUpperPairJumpDistanceBlankToActive;
 		}
 	} else if(shimmyRightBlocArePlaceable)
 	{
 		for(int x = 0; x < shimmyRightBlock.size(); x++)
 		{
-			board[shimmyRightBlock[x].y][shimmyRightBlock[x].x] = activeIntLowerUpperPair.first;
+			board[shimmyRightBlock[x].y][shimmyRightBlock[x].x] = intLowerUpperPairJumpDistanceBlankToActive;
 		}
 	} else
 	{
 		for(int x = 0; x < originalBlock.size(); x++)
 		{
-			board[originalBlock[x].y][originalBlock[x].x] = activeIntLowerUpperPair.first;
+			board[originalBlock[x].y][originalBlock[x].x] = intLowerUpperPairJumpDistanceBlankToActive;
 		}
 	}
 }
@@ -619,13 +628,15 @@ void hardenActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
+	int intLowerUpperPairJumpDistanceActiveToInactive = inactiveIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+
 	for(int y = 0; y < board.size(); y++)
 	{
 		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = inactiveIntLowerUpperPair.first;
+				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToInactive;
 			}
 		}
 	}
@@ -637,8 +648,11 @@ void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDo
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair, bool showShadowChars)
 {
+
 	if(showShadowChars)
 	{
+		int intLowerUpperPairJumpDistanceActiveToShadow = shadowIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+
 		std::vector<std::vector<int>> tempShadowBoard = board;
 		while(true)
 		{
@@ -658,19 +672,21 @@ void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDo
 				if(withinIntPairRange(tempShadowBoard[y][x], activeIntLowerUpperPair) &&
 						!withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
-					board[y][x] = shadowIntLowerUpperPair.first;
+					board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToShadow;
 				}
 			}
 		}
 	} else
 	{
+		int intLowerUpperPairJumpDistanceShadowToActive = activeIntLowerUpperPair.first - shadowIntLowerUpperPair.first;
+
 		for(int y = 0; y < board.size(); y++)
 		{
 			for(int x = 0; x < board[y].size(); x++)
 			{
 				if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
 				{
-					board[y][x] = blankIntLowerUpperPair.first;
+					board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceShadowToActive;
 				}
 			}
 		}
@@ -682,6 +698,8 @@ void clearFullRows(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
+	int intLowerUpperPairJumpDistanceInactiveToBlank = blankIntLowerUpperPair.first - inactiveIntLowerUpperPair.first;
+
 	for(int y = board.size() - 1; y > 0; y--)
 	{
 		bool rowIsFull = true;
@@ -710,7 +728,7 @@ void clearFullRows(std::vector<std::vector<int>> &board,
 			{
 				if(withinIntPairRange(board[0][x], inactiveIntLowerUpperPair))
 				{
-					board[0][x] = blankIntLowerUpperPair.first;
+					board[0][x] = intLowerUpperPairJumpDistanceInactiveToBlank;
 				}
 			}
 
@@ -719,7 +737,8 @@ void clearFullRows(std::vector<std::vector<int>> &board,
 	}
 }
 
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Block block,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block,
+		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
@@ -734,9 +753,36 @@ bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Block block,
 		}
 	}
 
+	intColor color;
+	if(block == groupedBlockCollection[0]) //kind of gross, but this array should be const throughout the entire execution of the program so ye...
+	{
+		color = intColorCyan;
+	} else if(block == groupedBlockCollection[1])
+	{
+		color = intColorBlue;
+	} else if(block == groupedBlockCollection[2])
+	{
+		color = intColorOrange;
+	} else if(block == groupedBlockCollection[3])
+	{
+		color = intColorYellow;
+	} else if(block == groupedBlockCollection[4])
+	{
+		color = intColorGreen;
+	} else if(block == groupedBlockCollection[5])
+	{
+		color = intColorPurple;
+	} else if(block == groupedBlockCollection[6])
+	{
+		color = intColorRed;
+	} else
+	{
+		color = intColorCustom;
+	}
+
 	for(int x = 0; x < block.size(); x++)
 	{
-		board[block[x].y + offset.y][block[x].x + offset.x] = activeIntLowerUpperPair.first;
+		board[block[x].y + offset.y][block[x].x + offset.x] = activeIntLowerUpperPair.first + color;
 	}
 	return true;
 }
@@ -746,6 +792,10 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
+	int intLowerUpperPairJumpDistanceActiveToBlank = blankIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+	int intLowerUpperPairJumpDistanceActiveToInactive = inactiveIntLowerUpperPair.first - activeIntLowerUpperPair.first;
+	int intLowerUpperPairJumpDistanceBlankToActive = activeIntLowerUpperPair.first - blankIntLowerUpperPair.first;
+
 	bool canMoveActivePieces = true;
 
 	for(int x = 0; x < board[board.size() - 1].size(); x++)
@@ -789,8 +839,8 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 			{
 				if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
-					board[y + 1][x] = activeIntLowerUpperPair.first;
-					board[y][x] = blankIntLowerUpperPair.first;
+					board[y + 1][x] = board[y + 1][x] + intLowerUpperPairJumpDistanceBlankToActive;
+					board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
 				}
 			}
 		}
@@ -802,7 +852,7 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 			{
 				if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
-					board[y][x] = inactiveIntLowerUpperPair.first;
+					board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToInactive;
 				}
 			}
 		}

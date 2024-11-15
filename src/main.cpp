@@ -58,17 +58,18 @@ int main()
 	srand(time(0));
 
 	//init backend
-	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock };
+	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock, customBlock };
 
 	//as of Monday, November 11, 2024, 00:19:43, Block is vector for now. Might change to static array later. Dynamic cuz I might play around with it in future
-	Block iBlockCoords({ {0, 0}, {1, 0}, {2, 0}, {3, 0} });
-	Block jBlockCoords({ {0, 0}, {0, 1}, {1, 1}, {2, 1} });
-	Block lBlockCoords({ {2, 0}, {0, 1}, {1, 1}, {2, 1} });
-	Block oBlockCoords({ {0, 0}, {1, 0}, {0, 1}, {1, 1} });
-	Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} });
-	Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} });
-	Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} });
-	std::array<Block, 7> groupedBlockCollection = { iBlockCoords, jBlockCoords, lBlockCoords, oBlockCoords, sBlockCoords, tBlockCoords, zBlockCoords };
+	const Block iBlockCoords({ {0, 0}, {1, 0}, {2, 0}, {3, 0} }); //1. cyan
+	const Block jBlockCoords({ {0, 0}, {0, 1}, {1, 1}, {2, 1} }); //2. blue (dark)
+	const Block lBlockCoords({ {2, 0}, {0, 1}, {1, 1}, {2, 1} }); //3. orange
+	const Block oBlockCoords({ {0, 0}, {1, 0}, {0, 1}, {1, 1} }); //4. yellow
+	const Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} }); //5. green (lime)
+	const Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} }); //6. purple
+	const Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} }); //7. red
+															//8. [custom block color goes here]
+	const std::array<const Block, 7> groupedBlockCollection = { iBlockCoords, jBlockCoords, lBlockCoords, oBlockCoords, sBlockCoords, tBlockCoords, zBlockCoords };
 
 	std::queue<Block> blockQueue;
 	for(int x = 0; x <= 5; x++)
@@ -79,10 +80,25 @@ int main()
 	Block currentBlockInPlay;
 
 	bool wasAbleToPlaceNextBlockSuccessfully = false;
-	const std::pair<int, int> blankIntLowerUpperPair = std::make_pair<int, int>(0, 9);
-	const std::pair<int, int> activeIntLowerUpperPair = std::make_pair<int, int>(10, 19);
-	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 29);
-	const std::pair<int, int> shadowIntLowerUpperPair = std::make_pair<int, int>(30, 39);
+		/*
+		SFML DEFAULT SET COLORS:
+			1. Red
+			2. Blue
+			3. Cyan
+			4. Black
+			5. Green
+			6. White
+			7. Yellow
+			8. Magenta
+			9. Transparent
+
+			all color channels (RGBA) are from [0 - 255]
+		*/
+	const std::pair<int, int> blankIntLowerUpperPair = std::make_pair<int, int>(0, 8); //all these pair values MUST be in sync and in order!!! Friday, November 15, 2024, 13:09:58
+	const std::pair<int, int> activeIntLowerUpperPair = std::make_pair<int, int>(10, 18);
+	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 28);
+	const std::pair<int, int> shadowIntLowerUpperPair = std::make_pair<int, int>(30, 38);
+
 	int boardWidth = 10;
 	int boardHeight = 20;
 	std::vector<std::vector<int>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
@@ -128,7 +144,7 @@ int main()
 			0000000000
 			0000000000
 			0000000000
-						(10, 30) bottom right of the board
+						(10, 20) bottom right of the board
 	
 		when moving active pieces, start from bottom of the board to the top of the board when shimming pieces down.
 	*/
@@ -247,7 +263,9 @@ int main()
 		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 		{
 			fallingBlocksTickDelta = std::chrono::seconds::zero();
+																																													std::cout << "updateBoard..." << std::endl;
 			moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+																																													std::cout << "updateBoard!" << std::endl;
 		}
 		fallingBlocksTickDelta += deltaTime;
 
@@ -272,9 +290,13 @@ int main()
 		//block queue update and stuff
 		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
+																																													std::cout << "clearingFullRows..." << std::endl;
 			clearFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+																																													std::cout << "clearedFullRows!" << std::endl;
 
-			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+																																													std::cout << "placingNewBlcok..." << std::endl;
+			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+																																													std::cout << "placedNewBlock!" << std::endl;
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
@@ -363,13 +385,13 @@ int main()
 					{
 						savedBlock = currentBlockInPlay;
 
-						placeBlockAsActivePieces(board, blockQueue.front(), blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						placeBlockAsActivePieces(board, blockQueue.front(), groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						currentBlockInPlay = blockQueue.front();
 						blockQueue.pop();
 						blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
 					} else
 					{
-						placeBlockAsActivePieces(board, savedBlock, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						placeBlockAsActivePieces(board, savedBlock, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						savedBlock = currentBlockInPlay;
 					}
 
@@ -397,7 +419,9 @@ int main()
 		//fake-overlay shadowInts before drawing
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
+																																													std::cout << "fakeoverlayTrue..." << std::endl;
+			//fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
+																																													std::cout << "fakeoverlayTrue!" << std::endl;
 		}
 
 		//draw stuff
@@ -449,8 +473,12 @@ int main()
 		//remove fake-overlay of shadowInts
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
+																																													std::cout << "fakeoverlayFalse..." << std::endl;
+			//fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
+																																													std::cout << "fakeoverlayFalse!" << std::endl;
 		}
+
+		printBoard(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 	}
 
 	std::cout << "done!" << std::endl;

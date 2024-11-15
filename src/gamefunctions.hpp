@@ -9,6 +9,16 @@ struct Point
 	{
 	}
 
+	bool operator==(const Point &point) const
+	{
+		if(point.x == this->x && point.y == this->y)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	int x = 0;
 	int y = 0;
 };
@@ -19,12 +29,24 @@ struct FloatingPoint
 	{
 	}
 
+	bool operator==(const FloatingPoint &floatingPoint) const
+	{
+		if(floatingPoint.x == this->x && floatingPoint.y == this->y)
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	float x = 0;
 	float y = 0;
 };
 
 typedef std::vector<Point> Block;
 typedef std::vector<FloatingPoint> FloatingBlock;
+
+enum intColor { intColorCyan = 0, intColorBlue, intColorOrange, intColorYellow, intColorGreen, intColorPurple, intColorRed, intColorCustom };
 
 bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair);
 
@@ -61,7 +83,8 @@ void clearFullRows(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Block block,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block,
+		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
@@ -72,6 +95,7 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 void printBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
-		const std::pair<int, int> &inactiveIntLowerUpperPair);
+		const std::pair<int, int> &inactiveIntLowerUpperPair,
+		const std::pair<int, int> &shadowIntLowerUpperPair);
 
 #endif
