@@ -1,4 +1,3 @@
-#include <SFML/Graphics/CircleShape.hpp>
 #include <iostream>
 #include <queue>
 #include <vector>
@@ -80,19 +79,19 @@ int main()
 	Block currentBlockInPlay;
 
 	bool wasAbleToPlaceNextBlockSuccessfully = false;
-	const char blankChar = 'b';
-	const char activeChar = 'a';
-	const char inactiveChar = 'i';
-	const char shadowChar = 's';
+	const std::pair<int, int> blankIntLowerUpperPair = std::make_pair<int, int>(0, 9);
+	const std::pair<int, int> activeIntLowerUpperPair = std::make_pair<int, int>(10, 19);
+	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 29);
+	const std::pair<int, int> shadowIntLowerUpperPair = std::make_pair<int, int>(30, 39);
 	int boardWidth = 10;
 	int boardHeight = 20;
-	std::vector<std::vector<char>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
+	std::vector<std::vector<int>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
-		std::vector<char> pushBackRowVector(boardWidth);
+		std::vector<int> pushBackRowVector(boardWidth);
 		for(int x = 0; x < boardWidth; x++)
 		{
-			pushBackRowVector[x] = blankChar;
+			pushBackRowVector[x] = blankIntLowerUpperPair.first;
 		}
 		board.push_back(pushBackRowVector);
 	}
@@ -141,36 +140,36 @@ int main()
 	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
 	sf::Sprite theBlock;
-	std::string blankCharTexturePath = "textures/blocks/wool_colored_pink.png";
-	std::string activeCharTexturePath = "textures/blocks/diamond_ore.png";
-	std::string inactiveCharTexturePath = "textures/blocks/diamond_block.png";
-	std::string shadowCharTexturePath = "textures/blocks/glass.png";
+	std::string blankIntTexturePath = "textures/blocks/wool_colored_pink.png";
+	std::string activeIntTexturePath = "textures/blocks/diamond_ore.png";
+	std::string inactiveIntTexturePath = "textures/blocks/diamond_block.png";
+	std::string shadowIntTexturePath = "textures/blocks/glass.png";
 
-	sf::Texture blankCharTexture;
-	if(!blankCharTexture.loadFromFile(blankCharTexturePath))
+	sf::Texture blankIntTexture;
+	if(!blankIntTexture.loadFromFile(blankIntTexturePath))
 	{
-		std::cerr << "[failed to load [blankCharTexturePath] \"" << blankCharTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [blankIntTexturePath] \"" << blankIntTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture activeCharTexture;
-	if(!activeCharTexture.loadFromFile(activeCharTexturePath))
+	sf::Texture activeIntTexture;
+	if(!activeIntTexture.loadFromFile(activeIntTexturePath))
 	{
-		std::cerr << "[failed to load [activeCharTexturePath] \"" << activeCharTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [activeIntTexturePath] \"" << activeIntTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture inactiveCharTexture;
-	if(!inactiveCharTexture.loadFromFile(inactiveCharTexturePath))
+	sf::Texture inactiveIntTexture;
+	if(!inactiveIntTexture.loadFromFile(inactiveIntTexturePath))
 	{
-		std::cerr << "[failed to load [inactiveCharTexturePath] \"" << inactiveCharTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [inactiveIntTexturePath] \"" << inactiveIntTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture shadowCharTexture;
-	if(!shadowCharTexture.loadFromFile(shadowCharTexturePath))
+	sf::Texture shadowIntTexture;
+	if(!shadowIntTexture.loadFromFile(shadowIntTexturePath))
 	{
-		std::cerr << "[failed to load [shadowCharTexturePath] \"" << shadowCharTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [shadowIntTexturePath] \"" << shadowIntTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	theBlock.setTexture(activeCharTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
+	theBlock.setTexture(activeIntTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
 	theBlock.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
 	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
@@ -178,9 +177,9 @@ int main()
 	int theBlockStartX = 16 * screenWidth16PixelScaleToFitMultiplier;
 	int theBlockStartY = (16 + 8) * screenHeight16PixelScaleToFitMultiplier;
 	int theBlockQueuedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
-	int theBlockQueuedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
+	int theBlockQueuedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
 	int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
-	int theBlockSavedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
+	int theBlockSavedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
 
 	sf::Sprite background;
 	sf::Texture backgroundTexture;
@@ -243,47 +242,26 @@ int main()
 		{
 			window.close();
 		}
-		/*
-		if(debug && sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-		{
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::I)){for(int x = 0; x < iBlockCoords.size(); x++){board[iBlockCoords[x].y][iBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::J)){for(int x = 0; x < jBlockCoords.size(); x++){board[jBlockCoords[x].y][jBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::L)){for(int x = 0; x < lBlockCoords.size(); x++){board[lBlockCoords[x].y][lBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::O)){for(int x = 0; x < oBlockCoords.size(); x++){board[oBlockCoords[x].y][oBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){for(int x = 0; x < sBlockCoords.size(); x++){board[sBlockCoords[x].y][sBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::T)){for(int x = 0; x < tBlockCoords.size(); x++){board[tBlockCoords[x].y][tBlockCoords[x].x] = activeChar;}}if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z)){for(int x = 0; x < zBlockCoords.size(); x++){board[zBlockCoords[x].y][zBlockCoords[x].x] = activeChar;}}
-			
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::G))
-			{
-				for(int y = 0; y < board.size(); y++)
-				{
-					for(int x = 0; x < board[y].size(); x++)
-					{
-						if(board[y][x] == activeChar)
-						{
-							board[y][x] = inactiveChar;
-						}
-					}
-				}
-			}
-		}
-		*/
 
 		//falling blocks tick delta
 		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 		{
 			fallingBlocksTickDelta = std::chrono::seconds::zero();
-			//updateBoard(board, blankChar, activeChar, inactiveChar);
-			moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+			moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 		}
 		fallingBlocksTickDelta += deltaTime;
 
 		//hardening blocks tick delta
-		if(!canMoveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar))
+		if(!canMoveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
 		{
 			if(hardenActivePiecesTickDelta.count() >= hardenActivePiecesTickDeltaThreshold)
 			{
-				hardenActivePieces(board, activeChar, inactiveChar);
+				hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 			} else if(hardenActivePiecesAbsoluteTickDelta.count() >= hardenActivePiecesAbsoluteTickDeltaThreshold)
 			{
-				hardenActivePieces(board, activeChar, inactiveChar);
+				hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 			}
@@ -292,11 +270,11 @@ int main()
 		}
 
 		//block queue update and stuff
-		if(!activePiecesExistOnBoard(board, activeChar))
+		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			clearFullRows(board, blankChar, activeChar, inactiveChar);
+			clearFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 
-			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
+			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
@@ -310,17 +288,17 @@ int main()
 		}
 
 		//controls
-		if(activePiecesExistOnBoard(board, activeChar))
+		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			{
 				if(leftRightMovementTickDelta.count() == 0)
 				{
-					moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+					moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					leftRightMovementTickDelta += deltaTime;
 				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 				{
-					moveActivePiecesInDirection(board, directionLeft, blankChar, activeChar, inactiveChar);
+					moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 				} else
 				{
 					leftRightMovementTickDelta += deltaTime;
@@ -329,11 +307,11 @@ int main()
 			{
 				if(leftRightMovementTickDelta.count() == 0)
 				{
-					moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
+					moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					leftRightMovementTickDelta += deltaTime;
 				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 				{
-					moveActivePiecesInDirection(board, directionRight, blankChar, activeChar, inactiveChar);
+					moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 				} else
 				{
 					leftRightMovementTickDelta += deltaTime;
@@ -345,21 +323,21 @@ int main()
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
 				/*
-				if(!canMoveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar))
+				if(!canMoveActivePiecesInDirection(board, directionDown, blankInt, activeInt, inactiveInt))
 				{
-					hardenActivePieces(board, activeChar, inactiveChar);
+					hardenActivePieces(board, activeInt, inactiveInt);
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 				}
 				*/
-				moveActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+				moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			}
 
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
-					rotateActivePieces(board, blankChar, activeChar, inactiveChar, true);
+					rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
 					rotateKeyPressedLastFrame = true;
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				}
@@ -367,7 +345,7 @@ int main()
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
-					rotateActivePieces(board, blankChar, activeChar, inactiveChar, false);
+					rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
 					rotateKeyPressedLastFrame = true;
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				}
@@ -380,18 +358,18 @@ int main()
 			{
 				if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
 				{
-					destroyActivePiecesOnBoard(board, blankChar, activeChar);
+					destroyActivePiecesOnBoard(board, blankIntLowerUpperPair, activeIntLowerUpperPair);
 					if(savedBlock.empty())
 					{
 						savedBlock = currentBlockInPlay;
 
-						placeBlockAsActivePieces(board, blockQueue.front(), blankChar, activeChar, inactiveChar);
+						placeBlockAsActivePieces(board, blockQueue.front(), blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						currentBlockInPlay = blockQueue.front();
 						blockQueue.pop();
 						blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
 					} else
 					{
-						placeBlockAsActivePieces(board, savedBlock, blankChar, activeChar, inactiveChar);
+						placeBlockAsActivePieces(board, savedBlock, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						savedBlock = currentBlockInPlay;
 					}
 
@@ -407,7 +385,7 @@ int main()
 			{
 				if(!slamKeyPressedLastFrame)
 				{
-					slamActivePiecesInDirection(board, directionDown, blankChar, activeChar, inactiveChar);
+					slamActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					slamKeyPressedLastFrame = true;
 				}
 			} else
@@ -416,10 +394,10 @@ int main()
 			}
 		}
 
-		//fake-overlay shadowChars before drawing
-		if(activePiecesExistOnBoard(board, activeChar))
+		//fake-overlay shadowInts before drawing
+		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			fakeOverlayShadowChars(board, directionDown, shadowChar, blankChar, activeChar, inactiveChar, true);
+			fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
 		}
 
 		//draw stuff
@@ -432,18 +410,18 @@ int main()
 		{
 			for(int x = 0; x < board[y].size(); x++)
 			{
-				if(board[y][x] == blankChar)
+				if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
 				{
-					theBlock.setTexture(blankCharTexture);
-				} else if(board[y][x] == activeChar)
+					theBlock.setTexture(blankIntTexture);
+				} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
-					theBlock.setTexture(activeCharTexture);
-				} else if(board[y][x] == inactiveChar)
+					theBlock.setTexture(activeIntTexture);
+				} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
 				{
-					theBlock.setTexture(inactiveCharTexture);
-				} else if(board[y][x] == shadowChar)
+					theBlock.setTexture(inactiveIntTexture);
+				} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
 				{
-					theBlock.setTexture(shadowCharTexture);
+					theBlock.setTexture(shadowIntTexture);
 				}
 				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
 				theBlock.move(theBlockStartX, theBlockStartY);
@@ -453,13 +431,13 @@ int main()
 
 		for(int x = 0; x < blockQueue.front().size(); x++)
 		{
-			theBlock.setTexture(activeCharTexture);
+			theBlock.setTexture(activeIntTexture);
 			theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
 			window.draw(theBlock);
 		}
 		for(int x = 0; x < savedBlock.size(); x++)
 		{
-			theBlock.setTexture(activeCharTexture);
+			theBlock.setTexture(activeIntTexture);
 			theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
 			window.draw(theBlock);
 		}
@@ -468,10 +446,10 @@ int main()
 		lastframe = std::chrono::high_resolution_clock::now();
 		deltaTime = lastframe - lastlastframe;
 
-		//remove fake-overlay of shadowChars
-		if(activePiecesExistOnBoard(board, activeChar))
+		//remove fake-overlay of shadowInts
+		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			fakeOverlayShadowChars(board, directionDown, shadowChar, blankChar, activeChar, inactiveChar, false);
+			fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
 		}
 	}
 

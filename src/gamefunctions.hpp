@@ -26,19 +26,52 @@ struct FloatingPoint
 typedef std::vector<Point> Block;
 typedef std::vector<FloatingPoint> FloatingBlock;
 
+bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair);
+
 enum direction { directionUp, directionDown, directionLeft, directionRight };
-bool activePiecesExistOnBoard(std::vector<std::vector<char>> &board, const char &activeChar);
-bool canMoveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
-void destroyActivePiecesOnBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar);
-void moveActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
-void slamActivePiecesInDirection(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar);
-void rotateActivePieces(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar, bool rotateInClockWiseDirection = true);
-void hardenActivePieces(std::vector<std::vector<char>> &board, const char &activeChar, const char &inactiveChar);
-void fakeOverlayShadowChars(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &shadowChar, const char &blankChar, const char &activeChar, const char &inactiveChar, bool showShadowChars);
-//void updateFullRows(std::vector<std::vector<char>> &board, direction upDownLeftRight, const char &blankChar, const char &activeChar, const char &inactiveChar)
-void clearFullRows(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
-bool placeBlockAsActivePieces(std::vector<std::vector<char>> &board, Block block, const char &blankChar, const char &activeChar, const char &inactiveChar);
-bool updateBoard(std::vector<std::vector<char>> &board, const char &blankChar, const char &activeChar, const char &inactiveChar);
-void printBoard(std::vector<std::vector<char>> &board);
+bool activePiecesExistOnBoard(std::vector<std::vector<int>> &board, const std::pair<int, int> &activeIntLowerUpperPair);
+bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+void destroyActivePiecesOnBoard(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair);
+void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+void rotateActivePieces(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &blankintlowerupperpair,
+		const std::pair<int, int> &activeintlowerupperpair,
+		const std::pair<int, int> &inactiveintlowerupperpair, bool rotateInClockWiseDirection = true);
+void hardenActivePieces(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+		const std::pair<int, int> &shadowIntLowerUpperPair,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair, bool showShadowChars);
+void clearFullRows(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Block block,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+bool updateBoard(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
+void printBoard(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair);
 
 #endif
