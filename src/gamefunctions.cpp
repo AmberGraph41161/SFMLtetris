@@ -15,9 +15,9 @@ bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair
 
 bool activePiecesExistOnBoard(std::vector<std::vector<int>> &board, const std::pair<int, int> &activeIntLowerUpperPair)
 {
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
@@ -39,22 +39,22 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 	{
 		case directionUp:
 		{
-			for(int x = 1; x < board[0].size(); x++)
+			for(int x = 0; x < board[0].size(); x++)
 			{
-				if(withinIntPairRange(board[1][x], activeIntLowerUpperPair))
+				if(withinIntPairRange(board[0][x], activeIntLowerUpperPair))
 				{
 					canMoveActivePieces = false;
 					break;
 				}
 			}
-			for(int y = 2; y < board.size(); y++)
+			for(int y = 1; y < board.size(); y++)
 			{
 				if(!canMoveActivePieces)
 				{
 					break;
 				}
 
-				for(int x = 1; x < board[y].size(); x++)
+				for(int x = 0; x < board[y].size(); x++)
 				{
 					if(!canMoveActivePieces)
 					{
@@ -63,8 +63,8 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 
 					if(withinIntPairRange(board[y][x], activeIntLowerUpperPair) &&
 							(
-								!withinIntPairRange(board[y - 2][x], blankIntLowerUpperPair) &&
-								!withinIntPairRange(board[y - 2][x], activeIntLowerUpperPair)
+								!withinIntPairRange(board[y - 1][x], blankIntLowerUpperPair) &&
+								!withinIntPairRange(board[y - 1][x], activeIntLowerUpperPair)
 							))
 					{
 						canMoveActivePieces = false;
@@ -77,16 +77,55 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 
 		case directionDown:
 		{
-			for(int x = 1; x < board[board.size() - 1].size(); x++)
+			for(int x = 0; x < board[board.size() - 1].size(); x++)
 			{
-				if(withinIntPairRange(board[board.size() - 2][x], activeIntLowerUpperPair))
+				if(withinIntPairRange(board[board.size() - 1][x], activeIntLowerUpperPair))
 				{
 					canMoveActivePieces = false;
 					break;
 				}
 			}
 
-			for(int y = board.size() - 3; y >= 0; y--)
+			for(int y = board.size() - 2; y >= 0; y--)
+			{
+				if(!canMoveActivePieces)
+				{
+					break;
+				}
+
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(!canMoveActivePieces)
+					{
+						break;
+					}
+
+					if(withinIntPairRange(board[y][x], activeIntLowerUpperPair) &&
+							(
+								!withinIntPairRange(board[y + 1][x], blankIntLowerUpperPair) &&
+								!withinIntPairRange(board[y + 1][x], activeIntLowerUpperPair)
+							))
+					{
+						canMoveActivePieces = false;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case directionLeft:
+		{
+			for(int y = 0; y < board.size(); y++)
+			{
+				if(withinIntPairRange(board[y][0], activeIntLowerUpperPair))
+				{
+					canMoveActivePieces = false;
+					break;
+				}
+			}
+
+			for(int y = 0; y < board.size(); y++)
 			{
 				if(!canMoveActivePieces)
 				{
@@ -102,47 +141,8 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 
 					if(withinIntPairRange(board[y][x], activeIntLowerUpperPair) &&
 							(
-								!withinIntPairRange(board[y + 2][x], blankIntLowerUpperPair) &&
-								!withinIntPairRange(board[y + 2][x], activeIntLowerUpperPair)
-							))
-					{
-						canMoveActivePieces = false;
-					}
-				}
-			}
-
-			break;
-		}
-
-		case directionLeft:
-		{
-			for(int y = 1; y < board.size(); y++)
-			{
-				if(withinIntPairRange(board[y][1], activeIntLowerUpperPair))
-				{
-					canMoveActivePieces = false;
-					break;
-				}
-			}
-
-			for(int y = 1; y < board.size(); y++)
-			{
-				if(!canMoveActivePieces)
-				{
-					break;
-				}
-
-				for(int x = 2; x < board[y].size(); x++)
-				{
-					if(!canMoveActivePieces)
-					{
-						break;
-					}
-
-					if(withinIntPairRange(board[y][x], activeIntLowerUpperPair) &&
-							(
-								!withinIntPairRange(board[y][x - 2], blankIntLowerUpperPair) &&
-								!withinIntPairRange(board[y][x - 2], activeIntLowerUpperPair)
+								!withinIntPairRange(board[y][x - 1], blankIntLowerUpperPair) &&
+								!withinIntPairRange(board[y][x - 1], activeIntLowerUpperPair)
 							))
 					{
 						canMoveActivePieces = false;
@@ -155,23 +155,23 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 
 		case directionRight:
 		{
-			for(int y = 1; y < board.size(); y++)
+			for(int y = 0; y < board.size(); y++)
 			{
-				if(withinIntPairRange(board[y][board[y].size() - 2], activeIntLowerUpperPair))
+				if(withinIntPairRange(board[y][board[y].size() - 1], activeIntLowerUpperPair))
 				{
 					canMoveActivePieces = false;
 					break;
 				}
 			}
 
-			for(int y = 1; y < board.size(); y++)
+			for(int y = 0; y < board.size(); y++)
 			{
 				if(!canMoveActivePieces)
 				{
 					break;
 				}
 
-				for(int x = board[y].size() - 3; x >= 0; x--)
+				for(int x = board[y].size() - 2; x >= 0; x--)
 				{
 					if(!canMoveActivePieces)
 					{
@@ -180,8 +180,8 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 
 					if(withinIntPairRange(board[y][x], activeIntLowerUpperPair) &&
 							(
-								!withinIntPairRange(board[y][x + 2], blankIntLowerUpperPair) &&
-								!withinIntPairRange(board[y][x + 2], activeIntLowerUpperPair)
+								!withinIntPairRange(board[y][x + 1], blankIntLowerUpperPair) &&
+								!withinIntPairRange(board[y][x + 1], activeIntLowerUpperPair)
 							))
 					{
 						canMoveActivePieces = false;
@@ -208,9 +208,9 @@ void destroyActivePiecesOnBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair)
 {
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
@@ -232,13 +232,13 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		{
 			case directionUp:
 			{
-				for(int y = 2; y < board.size(); y++)
+				for(int y = 1; y < board.size(); y++)
 				{
-					for(int x = 1; x < board[y].size(); x++)
+					for(int x = 0; x < board[y].size(); x++)
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y - 2][x] = activeIntLowerUpperPair.first;
+							board[y - 1][x] = activeIntLowerUpperPair.first;
 							board[y][x] = blankIntLowerUpperPair.first;
 						}
 					}
@@ -248,13 +248,13 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 			}
 			case directionDown:
 			{
-				for(int y = board.size() - 3; y >= 0; y--)
+				for(int y = board.size() - 2; y >= 0; y--)
 				{
-					for(int x = 1; x < board[y].size(); x++)
+					for(int x = 0; x < board[y].size(); x++)
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y + 2][x] = activeIntLowerUpperPair.first;
+							board[y + 1][x] = activeIntLowerUpperPair.first;
 							board[y][x] = blankIntLowerUpperPair.first;
 						}
 					}
@@ -264,13 +264,13 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 			}
 			case directionLeft:
 			{
-				for(int y = 1; y < board.size(); y++)
+				for(int y = 0; y < board.size(); y++)
 				{
-					for(int x = 2; x < board[y].size(); x++)
+					for(int x = 1; x < board[y].size(); x++)
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y][x - 2] = activeIntLowerUpperPair.first;
+							board[y][x - 1] = activeIntLowerUpperPair.first;
 							board[y][x] = blankIntLowerUpperPair.first;
 						}
 					}
@@ -280,13 +280,13 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 			}
 			case directionRight:
 			{
-				for(int y = 1; y < board.size(); y++)
+				for(int y = 0; y < board.size(); y++)
 				{
-					for(int x = board[y].size() - 3; x >= 0; x--)
+					for(int x = board[y].size() - 2; x >= 0; x--)
 					{
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
-							board[y][x + 2] = activeIntLowerUpperPair.first;
+							board[y][x + 1] = activeIntLowerUpperPair.first;
 							board[y][x] = blankIntLowerUpperPair.first;
 						}
 					}
@@ -320,9 +320,9 @@ void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		}
 	}
 
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
@@ -351,9 +351,9 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 	//collect all
 	Block originalBlock;
 	FloatingBlock transformationBlock;
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
@@ -364,12 +364,12 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 	}
 
 	//get 'middile point of all'
-	float topMost = transformationBlock[1].y;
-	float bottomMost = transformationBlock[1].y;
-	float leftMost = transformationBlock[1].x;
-	float rightMost = transformationBlock[1].x;
+	float topMost = transformationBlock[0].y;
+	float bottomMost = transformationBlock[0].y;
+	float leftMost = transformationBlock[0].x;
+	float rightMost = transformationBlock[0].x;
 
-	for(int x = 1; x < transformationBlock.size(); x++)
+	for(int x = 0; x < transformationBlock.size(); x++)
 	{
 		if(transformationBlock[x].y > topMost)
 		{
@@ -387,20 +387,20 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 			rightMost = transformationBlock[x].x;
 		}
 	}
-	int transformationBlockWidth = rightMost - leftMost; if(transformationBlockWidth > 2) { transformationBlockWidth++; }
-	int transformationBlockHeight = topMost - bottomMost; if(transformationBlockHeight > 2) { transformationBlockHeight++; }
+	int transformationBlockWidth = rightMost - leftMost; if(transformationBlockWidth > 1) { transformationBlockWidth++; }
+	int transformationBlockHeight = topMost - bottomMost; if(transformationBlockHeight > 1) { transformationBlockHeight++; }
 
-	FloatingPoint rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 3), bottomMost + ((topMost - bottomMost) / 2));
+	FloatingPoint rotateAboutThisCoordinate(leftMost + ((rightMost - leftMost) / 2), bottomMost + ((topMost - bottomMost) / 2));
 
 	//translate all by newOrigin crap
-	for(int x = 1; x < transformationBlock.size(); x++)
+	for(int x = 0; x < transformationBlock.size(); x++)
 	{
 		transformationBlock[x].x -= rotateAboutThisCoordinate.x;
 		transformationBlock[x].y -= rotateAboutThisCoordinate.y;
 	}
 
 	//rotate all
-	for(int x = 1; x < transformationBlock.size(); x++)
+	for(int x = 0; x < transformationBlock.size(); x++)
 	{
 		/*
 		(x, y) --> rotate CCW --> (-y, x)
@@ -411,38 +411,38 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 		if(rotateInClockWiseDirection)
 		{
 			tempNumberSwapPlaceholder = transformationBlock[x].x;
-			transformationBlock[x].x = transformationBlock[x].y * 0;
+			transformationBlock[x].x = transformationBlock[x].y * -1;
 			transformationBlock[x].y = tempNumberSwapPlaceholder;
 		} else
 		{
 			tempNumberSwapPlaceholder = transformationBlock[x].x;
 			transformationBlock[x].x = transformationBlock[x].y;
-			transformationBlock[x].y = tempNumberSwapPlaceholder * 0;
+			transformationBlock[x].y = tempNumberSwapPlaceholder * -1;
 		}
 	}
 
 	//translate back all by newOrigin crap
-	for(int x = 1; x < transformationBlock.size(); x++)
+	for(int x = 0; x < transformationBlock.size(); x++)
 	{
 		transformationBlock[x].x += rotateAboutThisCoordinate.x;
 		transformationBlock[x].y += rotateAboutThisCoordinate.y;
 	}
 
 	//fix weird rotation offset math
-	Point rotationOffsetFix(1, 0);
+	Point rotationOffsetFix(0, 0);
 	if(transformationBlockWidth != transformationBlockHeight)
 	{
 		if(transformationBlockWidth > transformationBlockHeight)
 		{
-			rotationOffsetFix = Point(2, 0);
+			rotationOffsetFix = Point(1, 0);
 		} else
 		{
-			rotationOffsetFix = Point(1, 1);
+			rotationOffsetFix = Point(0, 1);
 		}
 	}
 
 	Block shimmyOriginalBlock;
-	for(int x = 1; x < transformationBlock.size(); x++)
+	for(int x = 0; x < transformationBlock.size(); x++)
 	{
 		shimmyOriginalBlock.push_back(Point(std::floor(transformationBlock[x].x + rotationOffsetFix.x), std::floor(transformationBlock[x].y + rotationOffsetFix.y)));
 	}
@@ -458,13 +458,13 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 	bool shimmyLeftBlocArePlaceable;
 	bool shimmyRightBlocArePlaceable;
 
-	int shimmyLeftRightN = 4;
-	int shimmyUpDownN = 4;
+	int shimmyLeftRightN = 3;
+	int shimmyUpDownN = 3;
 
 	//clear all active before checking in rotated block area is safe to place
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
@@ -477,15 +477,15 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 	//if doesn't work, try and shimmy the transformed block half its width to left and right
 	//if doesn't work, don't rotate at all.
 
-	for(int i = 1; i < shimmyLeftRightN; i++)
+	for(int i = 0; i < shimmyLeftRightN; i++)
 	{
 		shimmyLeftBlocArePlaceable = true;
 		shimmyRightBlocArePlaceable = true;
 
-		for(int x = 1; x < shimmyLeftBlock.size(); x++)
+		for(int x = 0; x < shimmyLeftBlock.size(); x++)
 		{
-			if(shimmyLeftBlock[x].x < 1 || shimmyLeftBlock[x].x >= board[0].size() ||
-				shimmyLeftBlock[x].y < 1 || shimmyLeftBlock[x].y >= board.size())
+			if(shimmyLeftBlock[x].x < 0 || shimmyLeftBlock[x].x >= board[0].size() ||
+				shimmyLeftBlock[x].y < 0 || shimmyLeftBlock[x].y >= board.size())
 			{
 				shimmyLeftBlocArePlaceable = false;
 				break;
@@ -498,10 +498,10 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 				break;
 			}
 		}
-		for(int x = 1; x < shimmyRightBlock.size(); x++)
+		for(int x = 0; x < shimmyRightBlock.size(); x++)
 		{
-			if(shimmyRightBlock[x].x < 1 || shimmyRightBlock[x].x >= board[0].size() ||
-				shimmyRightBlock[x].y < 1 || shimmyRightBlock[x].y >= board.size())
+			if(shimmyRightBlock[x].x < 0 || shimmyRightBlock[x].x >= board[0].size() ||
+				shimmyRightBlock[x].y < 0 || shimmyRightBlock[x].y >= board.size())
 			{
 				shimmyRightBlocArePlaceable = false;
 				break;
@@ -520,24 +520,24 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 			break;
 		}
 
-		for(int x = 1; x < shimmyLeftBlock.size(); x++)
+		for(int x = 0; x < shimmyLeftBlock.size(); x++)
 		{
-			shimmyLeftBlock[x].x += 0;
+			shimmyLeftBlock[x].x += -1;
 		}
-		for(int x = 1; x < shimmyRightBlock.size(); x++)
+		for(int x = 0; x < shimmyRightBlock.size(); x++)
 		{
-			shimmyRightBlock[x].x += 2;
+			shimmyRightBlock[x].x += 1;
 		}
 	}
-	for(int i = 1; i < shimmyUpDownN; i++)
+	for(int i = 0; i < shimmyUpDownN; i++)
 	{
 		shimmyUpBlocArePlaceable = true;
 		shimmyDownBlocArePlaceable = true;
 
-		for(int x = 1; x < shimmyUpBlock.size(); x++)
+		for(int x = 0; x < shimmyUpBlock.size(); x++)
 		{
-			if(shimmyUpBlock[x].x < 1 || shimmyUpBlock[x].x >= board[0].size() ||
-				shimmyUpBlock[x].y < 1 || shimmyUpBlock[x].y >= board.size())
+			if(shimmyUpBlock[x].x < 0 || shimmyUpBlock[x].x >= board[0].size() ||
+				shimmyUpBlock[x].y < 0 || shimmyUpBlock[x].y >= board.size())
 			{
 				shimmyUpBlocArePlaceable = false;
 				break;
@@ -550,10 +550,10 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 				break;
 			}
 		}
-		for(int x = 1; x < shimmyDownBlock.size(); x++)
+		for(int x = 0; x < shimmyDownBlock.size(); x++)
 		{
-			if(shimmyDownBlock[x].x < 1 || shimmyDownBlock[x].x >= board[0].size() ||
-				shimmyDownBlock[x].y < 1 || shimmyDownBlock[x].y >= board.size())
+			if(shimmyDownBlock[x].x < 0 || shimmyDownBlock[x].x >= board[0].size() ||
+				shimmyDownBlock[x].y < 0 || shimmyDownBlock[x].y >= board.size())
 			{
 				shimmyDownBlocArePlaceable = false;
 				break;
@@ -572,43 +572,43 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 			break;
 		}
 
-		for(int x = 1; x < shimmyUpBlock.size(); x++)
+		for(int x = 0; x < shimmyUpBlock.size(); x++)
 		{
-			shimmyUpBlock[x].y += 0;
+			shimmyUpBlock[x].y += -1;
 		}
-		for(int x = 1; x < shimmyDownBlock.size(); x++)
+		for(int x = 0; x < shimmyDownBlock.size(); x++)
 		{
-			shimmyDownBlock[x].y += 2;
+			shimmyDownBlock[x].y += 1;
 		}
 	}
 
 	if(shimmyDownBlocArePlaceable)
 	{
-		for(int x = 1; x < shimmyDownBlock.size(); x++)
+		for(int x = 0; x < shimmyDownBlock.size(); x++)
 		{
 			board[shimmyDownBlock[x].y][shimmyDownBlock[x].x] = activeIntLowerUpperPair.first;
 		}
 	} else if(shimmyUpBlocArePlaceable)
 	{
-		for(int x = 1; x < shimmyUpBlock.size(); x++)
+		for(int x = 0; x < shimmyUpBlock.size(); x++)
 		{
 			board[shimmyUpBlock[x].y][shimmyUpBlock[x].x] = activeIntLowerUpperPair.first;
 		}
 	} else if(shimmyLeftBlocArePlaceable)
 	{
-		for(int x = 1; x < shimmyLeftBlock.size(); x++)
+		for(int x = 0; x < shimmyLeftBlock.size(); x++)
 		{
 			board[shimmyLeftBlock[x].y][shimmyLeftBlock[x].x] = activeIntLowerUpperPair.first;
 		}
 	} else if(shimmyRightBlocArePlaceable)
 	{
-		for(int x = 1; x < shimmyRightBlock.size(); x++)
+		for(int x = 0; x < shimmyRightBlock.size(); x++)
 		{
 			board[shimmyRightBlock[x].y][shimmyRightBlock[x].x] = activeIntLowerUpperPair.first;
 		}
 	} else
 	{
-		for(int x = 1; x < originalBlock.size(); x++)
+		for(int x = 0; x < originalBlock.size(); x++)
 		{
 			board[originalBlock[x].y][originalBlock[x].x] = activeIntLowerUpperPair.first;
 		}
@@ -619,9 +619,9 @@ void hardenActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
@@ -651,9 +651,9 @@ void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDo
 			}
 		}
 
-		for(int y = 1; y < tempShadowBoard.size(); y++)
+		for(int y = 0; y < tempShadowBoard.size(); y++)
 		{
-			for(int x = 1; x < tempShadowBoard[y].size(); x++)
+			for(int x = 0; x < tempShadowBoard[y].size(); x++)
 			{
 				if(withinIntPairRange(tempShadowBoard[y][x], activeIntLowerUpperPair) &&
 						!withinIntPairRange(board[y][x], activeIntLowerUpperPair))
@@ -664,9 +664,9 @@ void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDo
 		}
 	} else
 	{
-		for(int y = 1; y < board.size(); y++)
+		for(int y = 0; y < board.size(); y++)
 		{
-			for(int x = 1; x < board[y].size(); x++)
+			for(int x = 0; x < board[y].size(); x++)
 			{
 				if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
 				{
@@ -682,10 +682,10 @@ void clearFullRows(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
-	for(int y = board.size() - 2; y > 0; y--)
+	for(int y = board.size() - 1; y > 0; y--)
 	{
 		bool rowIsFull = true;
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(!withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
 			{
@@ -695,22 +695,22 @@ void clearFullRows(std::vector<std::vector<int>> &board,
 
 		if(rowIsFull)
 		{
-			for(int anotherY = y; anotherY > 1; anotherY--)
+			for(int anotherY = y; anotherY > 0; anotherY--)
 			{
-				for(int x = 1; x < board[anotherY].size(); x++)
+				for(int x = 0; x < board[anotherY].size(); x++)
 				{
-					if(withinIntPairRange(board[anotherY - 2][x], inactiveIntLowerUpperPair) ||
+					if(withinIntPairRange(board[anotherY - 1][x], inactiveIntLowerUpperPair) ||
 							withinIntPairRange(board[anotherY - 1][x], blankIntLowerUpperPair))
 					{
-						board[anotherY][x] = board[anotherY - 2][x];
+						board[anotherY][x] = board[anotherY - 1][x];
 					}
 				}
 			}
-			for(int x = 1; x > board[0].size(); x++)
+			for(int x = 0; x > board[0].size(); x++)
 			{
-				if(withinIntPairRange(board[1][x], inactiveIntLowerUpperPair))
+				if(withinIntPairRange(board[0][x], inactiveIntLowerUpperPair))
 				{
-					board[1][x] = blankIntLowerUpperPair.first;
+					board[0][x] = blankIntLowerUpperPair.first;
 				}
 			}
 
@@ -724,9 +724,9 @@ bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Block block,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
-	Point offset(5, 0); //probably bad. will fix later. Wednesday, November 13, 2024, 14:00:17
+	Point offset(4, 0); //probably bad. will fix later. Wednesday, November 13, 2024, 14:00:17
 
-	for(int x = 1; x < block.size(); x++)
+	for(int x = 0; x < block.size(); x++)
 	{
 		if(!withinIntPairRange(board[block[x].y + offset.y][block[x].x + offset.x], blankIntLowerUpperPair))
 		{
@@ -734,7 +734,7 @@ bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Block block,
 		}
 	}
 
-	for(int x = 1; x < block.size(); x++)
+	for(int x = 0; x < block.size(); x++)
 	{
 		board[block[x].y + offset.y][block[x].x + offset.x] = activeIntLowerUpperPair.first;
 	}
@@ -748,22 +748,22 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 {
 	bool canMoveActivePieces = true;
 
-	for(int x = 1; x < board[board.size() - 1].size(); x++)
+	for(int x = 0; x < board[board.size() - 1].size(); x++)
 	{
-		if(withinIntPairRange(board[board.size() - 2][x], activeIntLowerUpperPair))
+		if(withinIntPairRange(board[board.size() - 1][x], activeIntLowerUpperPair))
 		{
 			canMoveActivePieces = false;
 			break;
 		}
 	}
-	for(int y = board.size() - 3; y >= 0; y--)
+	for(int y = board.size() - 2; y >= 0; y--)
 	{
 		if(!canMoveActivePieces)
 		{
 			break;
 		}
 
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(!canMoveActivePieces)
 			{
@@ -772,7 +772,7 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair) &&
 					(
-					 	!withinIntPairRange(board[y + 2][x], blankIntLowerUpperPair) &&
+					 	!withinIntPairRange(board[y + 1][x], blankIntLowerUpperPair) &&
 						!withinIntPairRange(board[y + 1][x], activeIntLowerUpperPair)
 					))
 			{
@@ -783,22 +783,22 @@ bool updateBoard(std::vector<std::vector<int>> &board,
 
 	if(canMoveActivePieces)
 	{
-		for(int y = board.size() - 3; y >= 0; y--)
+		for(int y = board.size() - 2; y >= 0; y--)
 		{
-			for(int x = 1; x < board[y].size(); x++)
+			for(int x = 0; x < board[y].size(); x++)
 			{
 				if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
-					board[y + 2][x] = activeIntLowerUpperPair.first;
+					board[y + 1][x] = activeIntLowerUpperPair.first;
 					board[y][x] = blankIntLowerUpperPair.first;
 				}
 			}
 		}
 	} else
 	{
-		for(int y = 1; y < board.size(); y++)
+		for(int y = 0; y < board.size(); y++)
 		{
-			for(int x = 1; x < board[y].size(); x++)
+			for(int x = 0; x < board[y].size(); x++)
 			{
 				if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
@@ -819,9 +819,9 @@ void printBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &inactiveIntLowerUpperPair,
 		const std::pair<int, int> &shadowIntLowerUpperPair)
 {
-	for(int y = 1; y < board.size(); y++)
+	for(int y = 0; y < board.size(); y++)
 	{
-		for(int x = 1; x < board[y].size(); x++)
+		for(int x = 0; x < board[y].size(); x++)
 		{
 			if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
 			{
