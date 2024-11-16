@@ -171,7 +171,7 @@ int main()
 	//SFML stuff
 	sf::Sound lineClearSFX;
 	sf::SoundBuffer lineClearSFXbuffer;
-	std::string lineClearSFXbufferPath = "sounds/default/lineClear0.wav";
+	std::string lineClearSFXbufferPath = "sounds/default/lineClear1.wav";
 	if(!lineClearSFXbuffer.loadFromFile(lineClearSFXbufferPath))
 	{
 		std::cerr << "[failed to load [lineClearSFXbufferPath] \"" << lineClearSFXbufferPath << "\"]" << std::endl;
@@ -201,7 +201,7 @@ int main()
 	
 	sf::Sound blockSlamSFX;
 	sf::SoundBuffer blockSlamSFXbuffer;
-	std::string blockSlamSFXbufferPath = "sounds/default/blockSlam0.wav";
+	std::string blockSlamSFXbufferPath = "sounds/default/blockSlam1.wav";
 	if(!blockSlamSFXbuffer.loadFromFile(blockSlamSFXbufferPath))
 	{
 		std::cerr << "[failed to load [blockSlamSFXbufferPath] \"" << blockSlamSFXbufferPath << "\"]" << std::endl;
