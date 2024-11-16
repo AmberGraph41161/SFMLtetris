@@ -63,6 +63,23 @@ bool activePiecesExistOnBoard(std::vector<std::vector<int>> &board, const std::p
 	return false;
 }
 
+bool intPiecesExistInHiddenGrace(std::vector<std::vector<int>> &board, int boardHiddenGrace,
+		const std::pair<int, int> &intPiecesLowerUpperPair)
+{
+	for(int y = 0; y < boardHiddenGrace; y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(withinIntPairRange(board[y][x], intPiecesLowerUpperPair))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
@@ -837,13 +854,20 @@ int calculateScoreFromRowsCleared(int nRowsCleared)
 	return 0;
 }
 
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block, int boardHiddenGrace,
 		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
-	Point offset(4, 0); //probably bad. will fix later. Wednesday, November 13, 2024, 14:00:17
+	Point offset(0, 0);
+	if(intPiecesExistInHiddenGrace(board, boardHiddenGrace + 3, inactiveIntLowerUpperPair))
+	{
+		offset = Point((board[0].size() / 2) - (4 / 2), 0);
+	} else
+	{
+		offset = Point((board[0].size() / 2) - (4 / 2), boardHiddenGrace);
+	}
 
 	for(int x = 0; x < block.size(); x++)
 	{

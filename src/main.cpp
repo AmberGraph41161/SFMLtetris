@@ -115,8 +115,9 @@ int main()
 	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 28);
 	const std::pair<int, int> shadowIntLowerUpperPair = std::make_pair<int, int>(30, 38);
 
+	int boardHiddenGrace = 7;
 	int boardWidth = 10;
-	int boardHeight = 20;
+	int boardHeight = 20 + boardHiddenGrace;
 	std::vector<std::vector<int>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
@@ -208,7 +209,7 @@ int main()
 	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
 	//int theBlockStartY = ((float)screenHeight / 2) - ((theBlock.getGlobalBounds().height * boardHeight) / 2);
 	int theBlockStartX = 16 * screenWidth16PixelScaleToFitMultiplier;
-	int theBlockStartY = (16 + 8) * screenHeight16PixelScaleToFitMultiplier;
+	int theBlockStartY = ((16 + 8) - (16 * boardHiddenGrace))* screenHeight16PixelScaleToFitMultiplier;
 	int theBlockQueuedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
 	int theBlockQueuedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
 	int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
@@ -245,6 +246,9 @@ int main()
 
 	std::chrono::duration<double> leftRightMovementTickDelta = deltaTime;
 	double leftRightMovementTickDeltaThreshold = 0.1;
+
+	std::chrono::duration<double> hiddenGraceAreaViewZoomTickDelta = deltaTime;
+	double hiddenGraceAreaViewZoomTickDeltaThreshold = 3;
 
 	sf::View view(sf::FloatRect(0, 0, screenWidth, screenHeight));
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "title goes here lol", sf::Style::Default);
@@ -317,7 +321,7 @@ int main()
 			std::cout << "SCORE: " << score << std::endl;
 			std::cout << "totalRowsCleared: " << totalRowsCleared << std::endl;
 
-			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
@@ -406,13 +410,13 @@ int main()
 					{
 						savedBlock = currentBlockInPlay;
 
-						placeBlockAsActivePieces(board, blockQueue.front(), groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						placeBlockAsActivePieces(board, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						currentBlockInPlay = blockQueue.front();
 						blockQueue.pop();
 						blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
 					} else
 					{
-						placeBlockAsActivePieces(board, savedBlock, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						placeBlockAsActivePieces(board, savedBlock, boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						savedBlock = currentBlockInPlay;
 					}
 
@@ -451,6 +455,11 @@ int main()
 
 		for(int y = 0; y < board.size(); y++)
 		{
+			if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
+			{
+				continue;
+			}
+
 			for(int x = 0; x < board[y].size(); x++)
 			{
 				if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
@@ -492,6 +501,27 @@ int main()
 			window.draw(theBlock);
 		}
 		theBlock.setColor(sf::Color::White);
+
+		if(intPiecesExistInHiddenGrace(board, boardHiddenGrace, inactiveIntLowerUpperPair))
+		{
+			hiddenGraceAreaViewZoomTickDelta += deltaTime;
+			hiddenGraceAreaViewZoomTickDelta += std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.00001);
+			double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
+			if(hiddenGraceAreaViewZoomTickDelta.count() >= hiddenGraceAreaViewZoomTickDeltaThreshold)
+			{
+				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDeltaThreshold);
+				zoomMultiplier = 1.5;
+			}
+
+			view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
+			window.setView(view);
+		} else
+		{
+			hiddenGraceAreaViewZoomTickDelta = std::chrono::seconds::zero();
+
+			view.setSize(screenWidth, screenHeight);
+			window.setView(view);
+		}
 
 		window.display();
 		lastframe = std::chrono::high_resolution_clock::now();

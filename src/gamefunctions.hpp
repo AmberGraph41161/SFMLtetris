@@ -52,6 +52,8 @@ bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair
 
 enum direction { directionUp, directionDown, directionLeft, directionRight };
 bool activePiecesExistOnBoard(std::vector<std::vector<int>> &board, const std::pair<int, int> &activeIntLowerUpperPair);
+bool intPiecesExistInHiddenGrace(std::vector<std::vector<int>> &board, int boardHiddenGrace,
+		const std::pair<int, int> &intPiecesLowerUpperPair);
 bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
@@ -85,7 +87,7 @@ std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
 int calculateScoreFromRowsCleared(int nRowsCleared);
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block, int boardHiddenGrace,
 		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
