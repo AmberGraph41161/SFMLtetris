@@ -94,6 +94,17 @@ int main()
 
 			all color channels (RGBA) are from [0 - 255]
 		*/
+	const std::array<sf::Color, 8> sfColorValues =
+	{
+		sf::Color::Cyan, //cyan
+		sf::Color::Blue, //blue
+		sf::Color(223, 113, 38, 255), //orange
+		sf::Color::Yellow, //yellow
+		sf::Color::Green, //green
+		sf::Color::Magenta, //purple
+		sf::Color::Red, //red
+		sf::Color(3, 2, 123, 255), //custom
+	};
 	const std::pair<int, int> blankIntLowerUpperPair = std::make_pair<int, int>(0, 8); //all these pair values MUST be in sync and in order!!! Friday, November 15, 2024, 13:09:58
 	const std::pair<int, int> activeIntLowerUpperPair = std::make_pair<int, int>(10, 18);
 	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 28);
@@ -111,6 +122,7 @@ int main()
 		}
 		board.push_back(pushBackRowVector);
 	}
+
 	//board structure:
 	/*
 	(0, 0) top left of the board
@@ -260,12 +272,11 @@ int main()
 		}
 
 		//falling blocks tick delta
+																								printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 		{
 			fallingBlocksTickDelta = std::chrono::seconds::zero();
-																																													std::cout << "updateBoard..." << std::endl;
 			moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-																																													std::cout << "updateBoard!" << std::endl;
 		}
 		fallingBlocksTickDelta += deltaTime;
 
@@ -290,19 +301,17 @@ int main()
 		//block queue update and stuff
 		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-																																													std::cout << "clearingFullRows..." << std::endl;
 			clearFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-																																													std::cout << "clearedFullRows!" << std::endl;
 
-																																													std::cout << "placingNewBlcok..." << std::endl;
 			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-																																													std::cout << "placedNewBlock!" << std::endl;
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
 
 			if(!wasAbleToPlaceNextBlockSuccessfully)
 			{
+																								std::cout << "FINAL" << std::endl;
+																								printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 				break; //for now. Wednesday, November 13, 2024, 14:02:51
 			}
 
@@ -419,11 +428,9 @@ int main()
 		//fake-overlay shadowInts before drawing
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-																																													std::cout << "fakeoverlayTrue..." << std::endl;
-			//fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
-																																													std::cout << "fakeoverlayTrue!" << std::endl;
+			//fakeoverlayshadowchars(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
 		}
-
+		
 		//draw stuff
 		lastlastframe = std::chrono::high_resolution_clock::now();
 		window.clear(sf::Color::Black);
@@ -437,19 +444,25 @@ int main()
 				if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
 				{
 					theBlock.setTexture(blankIntTexture);
+					//theBlock.setColor(sfColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+					theBlock.setColor(sf::Color::White);
 				} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
 					theBlock.setTexture(activeIntTexture);
+					theBlock.setColor(sfColorValues[board[y][x] - activeIntLowerUpperPair.first]);
 				} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
 				{
 					theBlock.setTexture(inactiveIntTexture);
+					theBlock.setColor(sfColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
 				} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
 				{
 					theBlock.setTexture(shadowIntTexture);
+					theBlock.setColor(sfColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
 				}
 				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
 				theBlock.move(theBlockStartX, theBlockStartY);
 				window.draw(theBlock);
+				theBlock.setColor(sf::Color::White);
 			}
 		}
 
@@ -473,12 +486,8 @@ int main()
 		//remove fake-overlay of shadowInts
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-																																													std::cout << "fakeoverlayFalse..." << std::endl;
-			//fakeOverlayShadowChars(board, directionDown, shadowIntLowerUpperPair, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
-																																													std::cout << "fakeoverlayFalse!" << std::endl;
+			//fakeoverlayshadowchars(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
 		}
-
-		printBoard(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 	}
 
 	std::cout << "done!" << std::endl;

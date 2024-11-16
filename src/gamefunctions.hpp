@@ -74,11 +74,12 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 void hardenActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDownLeftRight,
-		const std::pair<int, int> &shadowIntLowerUpperPair,
+void fakeoverlayshadowchars(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
-		const std::pair<int, int> &inactiveIntLowerUpperPair, bool showShadowChars);
+		const std::pair<int, int> &inactiveIntLowerUpperPair,
+		const std::pair<int, int> &shadowIntLowerUpperPair,
+		bool showShadowChars);
 void clearFullRows(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
@@ -97,5 +98,9 @@ void printBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair,
 		const std::pair<int, int> &shadowIntLowerUpperPair);
-
+void printBoardInt(std::vector<std::vector<int>> &board,
+		const std::pair<int, int> &blankIntLowerUpperPair,
+		const std::pair<int, int> &activeIntLowerUpperPair,
+		const std::pair<int, int> &inactiveIntLowerUpperPair,
+		const std::pair<int, int> &shadowIntLowerUpperPair);
 #endif
