@@ -60,6 +60,9 @@ int main()
 	bool debug = false;
 
 	//init backend
+	int totalRowsCleared = 0;
+	int score = 0;
+
 	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock, customBlock };
 
 	//as of Monday, November 11, 2024, 00:19:43, Block is vector for now. Might change to static array later. Dynamic cuz I might play around with it in future
@@ -307,7 +310,12 @@ int main()
 		//block queue update and stuff
 		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			clearFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			std::vector<int> rowsCleared = clearAndGetFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			totalRowsCleared += rowsCleared.size();
+			score += calculateScoreFromRowsCleared(rowsCleared.size());
+
+			std::cout << "SCORE: " << score << std::endl;
+			std::cout << "totalRowsCleared: " << totalRowsCleared << std::endl;
 
 			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			currentBlockInPlay = blockQueue.front();
