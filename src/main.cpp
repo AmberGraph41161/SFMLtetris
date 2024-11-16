@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdlib>
 
+#include <SFML/Audio.hpp>
 #include <SFML/Main.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
@@ -168,6 +169,46 @@ int main()
 	*/
 
 	//SFML stuff
+	sf::Sound lineClearSFX;
+	sf::SoundBuffer lineClearSFXbuffer;
+	std::string lineClearSFXbufferPath = "sounds/default/lineClear0.wav";
+	if(!lineClearSFXbuffer.loadFromFile(lineClearSFXbufferPath))
+	{
+		std::cerr << "[failed to load [lineClearSFXbufferPath] \"" << lineClearSFXbufferPath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	lineClearSFX.setBuffer(lineClearSFXbuffer);
+	
+	sf::Sound blockMoveSFX;
+	sf::SoundBuffer blockMoveSFXbuffer;
+	std::string blockMoveSFXbufferPath = "sounds/default/blockMove0.wav";
+	if(!blockMoveSFXbuffer.loadFromFile(blockMoveSFXbufferPath))
+	{
+		std::cerr << "[failed to load [blockMoveSFXbufferPath] \"" << blockMoveSFXbufferPath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	blockMoveSFX.setBuffer(blockMoveSFXbuffer);
+	
+	sf::Sound blockRotateSFX;
+	sf::SoundBuffer blockRotateSFXbuffer;
+	std::string blockRotateSFXbufferPath = "sounds/default/blockRotate0.wav";
+	if(!blockRotateSFXbuffer.loadFromFile(blockRotateSFXbufferPath))
+	{
+		std::cerr << "[failed to load [blockRotateSFXbufferPath] \"" << blockRotateSFXbufferPath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	blockRotateSFX.setBuffer(blockRotateSFXbuffer);
+	
+	sf::Sound blockSlamSFX;
+	sf::SoundBuffer blockSlamSFXbuffer;
+	std::string blockSlamSFXbufferPath = "sounds/default/blockSlam0.wav";
+	if(!blockSlamSFXbuffer.loadFromFile(blockSlamSFXbufferPath))
+	{
+		std::cerr << "[failed to load [blockSlamSFXbufferPath] \"" << blockSlamSFXbufferPath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	blockSlamSFX.setBuffer(blockSlamSFXbuffer);
+
 	const int screenWidth = 1920;
 	const int screenHeight = 1080;
 	const int screenWidth16PixelScaleToFitMultiplier = 3;
@@ -315,6 +356,10 @@ int main()
 		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
 			std::vector<int> rowsCleared = clearAndGetFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			if(!rowsCleared.empty())
+			{
+				lineClearSFX.play();
+			}
 			totalRowsCleared += rowsCleared.size();
 			score += calculateScoreFromRowsCleared(rowsCleared.size());
 
@@ -341,10 +386,12 @@ int main()
 			{
 				if(leftRightMovementTickDelta.count() == 0)
 				{
+					blockMoveSFX.play();
 					moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					leftRightMovementTickDelta += deltaTime;
 				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 				{
+					blockMoveSFX.play();
 					moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 				} else
 				{
@@ -354,10 +401,12 @@ int main()
 			{
 				if(leftRightMovementTickDelta.count() == 0)
 				{
+					blockMoveSFX.play();
 					moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					leftRightMovementTickDelta += deltaTime;
 				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 				{
+					blockMoveSFX.play();
 					moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 				} else
 				{
@@ -377,6 +426,7 @@ int main()
 					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 				}
 				*/
+				blockMoveSFX.play();
 				moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			}
 
@@ -384,6 +434,7 @@ int main()
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
+					blockRotateSFX.play();
 					rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
 					rotateKeyPressedLastFrame = true;
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
@@ -392,6 +443,7 @@ int main()
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
+					blockRotateSFX.play();
 					rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
 					rotateKeyPressedLastFrame = true;
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
@@ -432,6 +484,7 @@ int main()
 			{
 				if(!slamKeyPressedLastFrame)
 				{
+					blockSlamSFX.play();
 					slamActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					slamKeyPressedLastFrame = true;
 				}
