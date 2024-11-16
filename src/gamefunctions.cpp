@@ -6,6 +6,38 @@
 #include <array>
 #include <cmath>
 
+intColor getIntColorFromBlockAndGroupedBLockCollection(Block block, const std::array<const Block, 7> &groupedBlockCollection)
+{
+	intColor color;
+	if(block == groupedBlockCollection[0]) //kind of gross, but this array should be const throughout the entire execution of the program so ye...
+	{
+		color = intColorCyan;
+	} else if(block == groupedBlockCollection[1])
+	{
+		color = intColorBlue;
+	} else if(block == groupedBlockCollection[2])
+	{
+		color = intColorOrange;
+	} else if(block == groupedBlockCollection[3])
+	{
+		color = intColorYellow;
+	} else if(block == groupedBlockCollection[4])
+	{
+		color = intColorGreen;
+	} else if(block == groupedBlockCollection[5])
+	{
+		color = intColorPurple;
+	} else if(block == groupedBlockCollection[6])
+	{
+		color = intColorRed;
+	} else
+	{
+		color = intColorCustom;
+	}
+
+	return color;
+}
+
 bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair)
 {
 	if(number >= intLowerUpperPair.first && number <= intLowerUpperPair.second)
@@ -649,54 +681,7 @@ void hardenActivePieces(std::vector<std::vector<int>> &board,
 	}
 }
 
-/* //old legacy version
-void fakeOverlayShadowChars(std::vector<std::vector<int>> &board, direction upDownLeftRight,
-		const std::pair<int, int> &shadowIntLowerUpperPair,
-		const std::pair<int, int> &blankIntLowerUpperPair,
-		const std::pair<int, int> &activeIntLowerUpperPair,
-		const std::pair<int, int> &inactiveIntLowerUpperPair, bool showShadowChars)
-{
-	if(showShadowChars)
-	{
-		std::vector<std::vector<int>> tempShadowBoard = board;
-		while(true)
-		{
-			if(!canMoveActivePiecesInDirection(tempShadowBoard, upDownLeftRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-			{
-				break;
-			} else
-			{
-				moveActivePiecesInDirection(tempShadowBoard, upDownLeftRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-			}
-		}
-
-		for(int y = 0; y < tempShadowBoard.size(); y++)
-		{
-			for(int x = 0; x < tempShadowBoard[y].size(); x++)
-			{
-				if(withinIntPairRange(tempShadowBoard[y][x], activeIntLowerUpperPair) &&
-						!withinIntPairRange(board[y][x], activeIntLowerUpperPair))
-				{
-					board[y][x] = shadowIntLowerUpperPair.first;
-				}
-			}
-		}
-	} else
-	{
-		for(int y = 0; y < board.size(); y++)
-		{
-			for(int x = 0; x < board[y].size(); x++)
-			{
-				if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
-				{
-					board[y][x] = blankIntLowerUpperPair.first;
-				}
-			}
-		}
-	}
-}
-*/
-void fakeoverlayshadowchars(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+void fakeOverlayShadowInts(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair,
@@ -708,6 +693,24 @@ void fakeoverlayshadowchars(std::vector<std::vector<int>> &board, direction upDo
 	{
 		int intLowerUpperPairJumpDistanceActiveToShadow = shadowIntLowerUpperPair.first - activeIntLowerUpperPair.first;
 
+		int originalActiveInt = -1;
+		for(int y = 0; y < board.size(); y++)
+		{
+			for(int x = 0; x < board[y].size(); x++)
+			{
+				if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
+				{
+					originalActiveInt = board[y][x];
+					break;
+				}
+			}
+
+			if(originalActiveInt != -1)
+			{
+				break;
+			}
+		}
+
 		std::vector<std::vector<int>> tempShadowBoard = board;
 		while(true)
 		{
@@ -727,7 +730,7 @@ void fakeoverlayshadowchars(std::vector<std::vector<int>> &board, direction upDo
 				if(withinIntPairRange(tempShadowBoard[y][x], activeIntLowerUpperPair) &&
 						!withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
-					board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToShadow;
+					board[y][x] = originalActiveInt + intLowerUpperPairJumpDistanceActiveToShadow;
 				}
 			}
 		}
@@ -808,32 +811,7 @@ bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block 
 		}
 	}
 
-	intColor color;
-	if(block == groupedBlockCollection[0]) //kind of gross, but this array should be const throughout the entire execution of the program so ye...
-	{
-		color = intColorCyan;
-	} else if(block == groupedBlockCollection[1])
-	{
-		color = intColorBlue;
-	} else if(block == groupedBlockCollection[2])
-	{
-		color = intColorOrange;
-	} else if(block == groupedBlockCollection[3])
-	{
-		color = intColorYellow;
-	} else if(block == groupedBlockCollection[4])
-	{
-		color = intColorGreen;
-	} else if(block == groupedBlockCollection[5])
-	{
-		color = intColorPurple;
-	} else if(block == groupedBlockCollection[6])
-	{
-		color = intColorRed;
-	} else
-	{
-		color = intColorCustom;
-	}
+	intColor color = getIntColorFromBlockAndGroupedBLockCollection(block, groupedBlockCollection);
 
 	for(int x = 0; x < block.size(); x++)
 	{

@@ -47,7 +47,7 @@ typedef std::vector<Point> Block;
 typedef std::vector<FloatingPoint> FloatingBlock;
 
 enum intColor { intColorCyan = 0, intColorBlue, intColorOrange, intColorYellow, intColorGreen, intColorPurple, intColorRed, intColorCustom };
-
+intColor getIntColorFromBlockAndGroupedBLockCollection(Block block, const std::array<const Block, 7> &groupedBlockCollection);
 bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair);
 
 enum direction { directionUp, directionDown, directionLeft, directionRight };
@@ -74,7 +74,7 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 void hardenActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-void fakeoverlayshadowchars(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+void fakeOverlayShadowInts(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair,

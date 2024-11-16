@@ -57,6 +57,8 @@ int main()
 {
 	srand(time(0));
 
+	bool debug = false;
+
 	//init backend
 	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock, customBlock };
 
@@ -271,8 +273,12 @@ int main()
 			window.close();
 		}
 
+		if(debug)
+		{
+			printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
+		}
+
 		//falling blocks tick delta
-																								printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 		{
 			fallingBlocksTickDelta = std::chrono::seconds::zero();
@@ -310,8 +316,6 @@ int main()
 
 			if(!wasAbleToPlaceNextBlockSuccessfully)
 			{
-																								std::cout << "FINAL" << std::endl;
-																								printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 				break; //for now. Wednesday, November 13, 2024, 14:02:51
 			}
 
@@ -428,7 +432,7 @@ int main()
 		//fake-overlay shadowInts before drawing
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			//fakeoverlayshadowchars(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+			fakeOverlayShadowInts(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
 		}
 		
 		//draw stuff
@@ -462,7 +466,6 @@ int main()
 				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
 				theBlock.move(theBlockStartX, theBlockStartY);
 				window.draw(theBlock);
-				theBlock.setColor(sf::Color::White);
 			}
 		}
 
@@ -470,14 +473,17 @@ int main()
 		{
 			theBlock.setTexture(activeIntTexture);
 			theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
+			theBlock.setColor(sfColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
 			window.draw(theBlock);
 		}
 		for(int x = 0; x < savedBlock.size(); x++)
 		{
 			theBlock.setTexture(activeIntTexture);
 			theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
+			theBlock.setColor(sfColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
 			window.draw(theBlock);
 		}
+		theBlock.setColor(sf::Color::White);
 
 		window.display();
 		lastframe = std::chrono::high_resolution_clock::now();
@@ -486,7 +492,7 @@ int main()
 		//remove fake-overlay of shadowInts
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			//fakeoverlayshadowchars(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+			fakeOverlayShadowInts(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
 		}
 	}
 
