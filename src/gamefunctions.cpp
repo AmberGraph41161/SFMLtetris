@@ -273,7 +273,7 @@ void destroyActivePiecesOnBoard(std::vector<std::vector<int>> &board,
 	}
 }
 
-void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+bool moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
@@ -356,7 +356,11 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 				break;
 			}
 		}
+
+		return true;
 	}
+
+	return false;
 }
 
 void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
@@ -389,7 +393,7 @@ void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 	}
 }
 
-void rotateActivePieces(std::vector<std::vector<int>> &board,
+bool rotateActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair, bool rotateInClockWiseDirection)
@@ -677,7 +681,10 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 		{
 			board[originalBlock[x].y][originalBlock[x].x] = originalActiveInt;
 		}
+		return false;
 	}
+
+	return true;
 }
 
 void hardenActivePieces(std::vector<std::vector<int>> &board,

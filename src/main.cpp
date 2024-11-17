@@ -395,13 +395,17 @@ int main()
 			{
 				if(leftRightMovementTickDelta.count() == 0)
 				{
-					blockMoveSFX.play();
-					moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+					{
+						blockMoveSFX.play();
+					}
 					leftRightMovementTickDelta += deltaTime;
 				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 				{
-					blockMoveSFX.play();
-					moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+					{
+						blockMoveSFX.play();
+					}
 				} else
 				{
 					leftRightMovementTickDelta += deltaTime;
@@ -410,13 +414,17 @@ int main()
 			{
 				if(leftRightMovementTickDelta.count() == 0)
 				{
-					blockMoveSFX.play();
-					moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+					{
+						blockMoveSFX.play();
+					}
 					leftRightMovementTickDelta += deltaTime;
 				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 				{
-					blockMoveSFX.play();
-					moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+					{
+						blockMoveSFX.play();
+					}
 				} else
 				{
 					leftRightMovementTickDelta += deltaTime;
@@ -435,16 +443,20 @@ int main()
 					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 				}
 				*/
-				blockMoveSFX.play();
-				moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+				if(moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+				{
+					blockMoveSFX.play();
+				}
 			}
 
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
-					blockRotateSFX.play();
-					rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true);
+					if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true))
+					{
+						blockRotateSFX.play();
+					}
 					rotateKeyPressedLastFrame = true;
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				}
@@ -452,8 +464,10 @@ int main()
 			{
 				if(!rotateKeyPressedLastFrame)
 				{
-					blockRotateSFX.play();
-					rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false);
+					if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false))
+					{
+						blockRotateSFX.play();
+					}
 					rotateKeyPressedLastFrame = true;
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 				}

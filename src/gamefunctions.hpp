@@ -61,7 +61,7 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direct
 void destroyActivePiecesOnBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair);
-void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+bool moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
@@ -69,7 +69,7 @@ void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-void rotateActivePieces(std::vector<std::vector<int>> &board,
+bool rotateActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankintlowerupperpair,
 		const std::pair<int, int> &activeintlowerupperpair,
 		const std::pair<int, int> &inactiveintlowerupperpair, bool rotateInClockWiseDirection = true);
