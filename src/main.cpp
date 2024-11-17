@@ -100,6 +100,7 @@ int main()
 
 			all color channels (RGBA) are from [0 - 255]
 		*/
+	bool blankIntRetainColor = false;
 	const std::array<sf::Color, 8> sfColorValues =
 	{
 		sf::Color::Cyan, //cyan
@@ -224,10 +225,10 @@ int main()
 	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
 	sf::Sprite theBlock;
-	std::string blankIntTexturePath = "textures/blocks/wool_colored_pink.png";
-	std::string activeIntTexturePath = "textures/blocks/diamond_ore.png";
-	std::string inactiveIntTexturePath = "textures/blocks/diamond_block.png";
-	std::string shadowIntTexturePath = "textures/blocks/glass.png";
+	std::string blankIntTexturePath = "textures/default/blank0.png"; //"textures/blocks/wool_colored_pink.png";
+	std::string activeIntTexturePath = "textures/default/active0.png"; //"textures/blocks/diamond_ore.png";
+	std::string inactiveIntTexturePath = "textures/default/inactive0.png"; //"textures/blocks/diamond_block.png";
+	std::string shadowIntTexturePath = "textures/default/shadow0.png"; //"textures/blocks/glass.png";
 
 	sf::Texture blankIntTexture;
 	if(!blankIntTexture.loadFromFile(blankIntTexturePath))
@@ -267,7 +268,7 @@ int main()
 
 	sf::Sprite background;
 	sf::Texture backgroundTexture;
-	std::string backgroundTexturePath = "textures/default/background.png";
+	std::string backgroundTexturePath = "textures/default/background0.png";
 	if(!backgroundTexture.loadFromFile(backgroundTexturePath))
 	{
 		std::cerr << "[failed to load [backgroundTexturePath] \"" << backgroundTexturePath << "\"]" << std::endl;
@@ -541,8 +542,13 @@ int main()
 				if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
 				{
 					theBlock.setTexture(blankIntTexture);
-					//theBlock.setColor(sfColorValues[board[y][x] - blankIntLowerUpperPair.first]);
-					theBlock.setColor(sf::Color::White);
+					if(blankIntRetainColor)
+					{
+						theBlock.setColor(sfColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+					} else
+					{
+						theBlock.setColor(sf::Color::White);
+					}
 				} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
 					theBlock.setTexture(activeIntTexture);
