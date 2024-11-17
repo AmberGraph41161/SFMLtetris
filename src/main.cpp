@@ -130,6 +130,15 @@ int main()
 		board.push_back(pushBackRowVector);
 	}
 
+	direction gravityDirection = directionDown;
+	direction canMoveDirection = gravityDirection;
+	direction moveActiveDirection = gravityDirection;
+	direction slamActiveDirection = gravityDirection;
+	direction shadowDirection = gravityDirection;
+	direction clearFullRowsDirection = gravityDirection;
+	direction placeBlocksDirection = gravityDirection;
+
+
 	//board structure:
 	/*
 	(0, 0) top left of the board
@@ -330,12 +339,12 @@ int main()
 		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 		{
 			fallingBlocksTickDelta = std::chrono::seconds::zero();
-			moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			moveActivePiecesInDirection(board, moveActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 		}
 		fallingBlocksTickDelta += deltaTime;
 
 		//hardening blocks tick delta
-		if(!canMoveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+		if(!canMoveActivePiecesInDirection(board, canMoveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
 		{
 			if(hardenActivePiecesTickDelta.count() >= hardenActivePiecesTickDeltaThreshold)
 			{
@@ -355,7 +364,7 @@ int main()
 		//block queue update and stuff
 		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			std::vector<int> rowsCleared = clearAndGetFullRows(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			std::vector<int> rowsCleared = clearAndGetFullRows(board, clearFullRowsDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			if(!rowsCleared.empty())
 			{
 				lineClearSFX.play();
@@ -366,7 +375,7 @@ int main()
 			std::cout << "SCORE: " << score << std::endl;
 			std::cout << "totalRowsCleared: " << totalRowsCleared << std::endl;
 
-			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			currentBlockInPlay = blockQueue.front();
 			blockQueue.pop();
 			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
@@ -462,13 +471,13 @@ int main()
 					{
 						savedBlock = currentBlockInPlay;
 
-						placeBlockAsActivePieces(board, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						currentBlockInPlay = blockQueue.front();
 						blockQueue.pop();
 						blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
 					} else
 					{
-						placeBlockAsActivePieces(board, savedBlock, boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						placeBlockAsActivePieces(board, placeBlocksDirection, savedBlock, boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 						savedBlock = currentBlockInPlay;
 					}
 
@@ -485,7 +494,7 @@ int main()
 				if(!slamKeyPressedLastFrame)
 				{
 					blockSlamSFX.play();
-					slamActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					slamActivePiecesInDirection(board, slamActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					slamKeyPressedLastFrame = true;
 				}
 			} else
@@ -497,7 +506,7 @@ int main()
 		//fake-overlay shadowInts before drawing
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			fakeOverlayShadowInts(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+			fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
 		}
 		
 		//draw stuff
@@ -583,7 +592,7 @@ int main()
 		//remove fake-overlay of shadowInts
 		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 		{
-			fakeOverlayShadowInts(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+			fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
 		}
 	}
 

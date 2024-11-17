@@ -82,12 +82,12 @@ void fakeOverlayShadowInts(std::vector<std::vector<int>> &board, direction upDow
 		const std::pair<int, int> &inactiveIntLowerUpperPair,
 		const std::pair<int, int> &shadowIntLowerUpperPair,
 		bool showShadowChars);
-std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board,
+std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
 int calculateScoreFromRowsCleared(int nRowsCleared);
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block, int boardHiddenGrace,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, direction gravityDirection, const Block &block, int boardHiddenGrace,
 		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,

@@ -267,7 +267,7 @@ void destroyActivePiecesOnBoard(std::vector<std::vector<int>> &board,
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
+				board[y][x] += intLowerUpperPairJumpDistanceActiveToBlank;
 			}
 		}
 	}
@@ -294,7 +294,7 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
 							board[y - 1][x] = board[y][x];
-							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
+							board[y][x] += intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -310,7 +310,7 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
 							board[y + 1][x] = board[y][x];
-							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
+							board[y][x] += intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -326,7 +326,7 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
 							board[y][x - 1] = board[y][x];
-							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
+							board[y][x] += intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -342,7 +342,7 @@ void moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 						if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 						{
 							board[y][x + 1] = board[y][x];
-							board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
+							board[y][x] += intLowerUpperPairJumpDistanceActiveToBlank;
 						}
 					}
 				}
@@ -383,7 +383,7 @@ void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToInactive;
+				board[y][x] += intLowerUpperPairJumpDistanceActiveToInactive;
 			}
 		}
 	}
@@ -533,7 +533,7 @@ void rotateActivePieces(std::vector<std::vector<int>> &board,
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToBlank;
+				board[y][x] += intLowerUpperPairJumpDistanceActiveToBlank;
 			}
 		}
 	}
@@ -692,7 +692,7 @@ void hardenActivePieces(std::vector<std::vector<int>> &board,
 		{
 			if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 			{
-				board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceActiveToInactive;
+				board[y][x] += intLowerUpperPairJumpDistanceActiveToInactive;
 			}
 		}
 	}
@@ -761,14 +761,14 @@ void fakeOverlayShadowInts(std::vector<std::vector<int>> &board, direction upDow
 			{
 				if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
 				{
-					board[y][x] = board[y][x] + intLowerUpperPairJumpDistanceShadowToBlank;
+					board[y][x] += intLowerUpperPairJumpDistanceShadowToBlank;
 				}
 			}
 		}
 	}
 }
 
-std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board,
+std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board, direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
@@ -777,41 +777,183 @@ std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board,
 
 	int intLowerUpperPairJumpDistanceInactiveToBlank = blankIntLowerUpperPair.first - inactiveIntLowerUpperPair.first;
 
-	for(int y = board.size() - 1; y > 0; y--)
+	switch(upDownLeftRight)
 	{
-		bool rowIsFull = true;
-		for(int x = 0; x < board[y].size(); x++)
+		case directionUp:
 		{
-			if(!withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+			for(int y = 0; y < board.size() - 1; y++)
 			{
-				rowIsFull = false;
-			}
-		}
-
-		if(rowIsFull)
-		{
-			for(int anotherY = y; anotherY > 0; anotherY--)
-			{
-				for(int x = 0; x < board[anotherY].size(); x++)
+				bool rowIsFull = true;
+				for(int x = 0; x < board[y].size(); x++)
 				{
-					if(withinIntPairRange(board[anotherY - 1][x], inactiveIntLowerUpperPair) ||
-							withinIntPairRange(board[anotherY - 1][x], blankIntLowerUpperPair))
+					if(!withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 					{
-						board[anotherY][x] = board[anotherY - 1][x];
+						rowIsFull = false;
+						break;
 					}
 				}
-			}
-			for(int x = 0; x > board[0].size(); x++)
-			{
-				if(withinIntPairRange(board[0][x], inactiveIntLowerUpperPair))
+
+				if(rowIsFull)
 				{
-					board[0][x] = intLowerUpperPairJumpDistanceInactiveToBlank;
+					for(int anotherY = y; anotherY < board.size() - 1; anotherY++)
+					{
+						for(int x = 0; x < board[anotherY].size(); anotherY++)
+						{
+							if(withinIntPairRange(board[y + 1][x], inactiveIntLowerUpperPair) ||
+									withinIntPairRange(board[y + 1][x], blankIntLowerUpperPair))
+							{
+								board[y][x] = board[y + 1][x];
+							}
+						}
+					}
+					for(int x = 0; x < board[board.size() - 1][x]; x++)
+					{
+						if(withinIntPairRange(board[board.size() - 1][x], inactiveIntLowerUpperPair))
+						{
+							board[board.size() - 1][x] += intLowerUpperPairJumpDistanceInactiveToBlank;
+						}
+					}
+
+					rowsCleared.push_back(y);
+					y--;
+				}
+
+			}
+			break;
+		}
+		case directionDown:
+		{
+			for(int y = board.size() - 1; y > 0; y--)
+			{
+				bool rowIsFull = true;
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(!withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherY = y; anotherY > 0; anotherY--)
+					{
+						for(int x = 0; x < board[anotherY].size(); x++)
+						{
+							if(withinIntPairRange(board[anotherY - 1][x], inactiveIntLowerUpperPair) ||
+									withinIntPairRange(board[anotherY - 1][x], blankIntLowerUpperPair))
+							{
+								board[anotherY][x] = board[anotherY - 1][x];
+							}
+						}
+					}
+					for(int x = 0; x < board[0].size(); x++)
+					{
+						if(withinIntPairRange(board[0][x], inactiveIntLowerUpperPair))
+						{
+							board[0][x] += intLowerUpperPairJumpDistanceInactiveToBlank;
+						}
+					}
+
+					rowsCleared.push_back(y);
+					y++;
+				}
+			}
+			break;
+		}
+		case directionLeft:
+		{
+			//board should always have same width and height without fail, so as iffy as the following directionLeft and directionRight code is, it should be fine
+			for(int x = 0; x < board[0].size() - 1; x++)
+			{
+				bool rowIsFull = true;
+				for(int y = 0; y < board.size(); y++)
+				{
+					if(!withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherX = x; anotherX < board[0].size() - 1; anotherX++)
+					{
+						for(int y = 0; y < board.size(); y++)
+						{
+							if(withinIntPairRange(board[y][anotherX + 1], inactiveIntLowerUpperPair) ||
+									withinIntPairRange(board[y][anotherX + 1], blankIntLowerUpperPair))
+							{
+								board[y][anotherX] = board[y][anotherX + 1];
+							}
+						}
+					}
+					for(int y = 0; y < board.size(); y++)
+					{
+						if(withinIntPairRange(board[y][board.size() - 1], inactiveIntLowerUpperPair))
+						{
+							board[y][board.size() - 1] += intLowerUpperPairJumpDistanceInactiveToBlank;
+						}
+					}
+
+					rowsCleared.push_back(x);
+					x--;
+				}
+			}
+			break;
+		}
+		case directionRight:
+		{
+			for(int x = board[0].size() - 1; x > 0; x--)
+			{
+				bool rowIsFull = true;
+				for(int y = 0; y < board.size(); y++)
+				{
+					if(!withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherX = x; anotherX > 0; anotherX--)
+					{
+						for(int y = 0; y < board.size(); y++)
+						{
+							if(withinIntPairRange(board[y][anotherX - 1], inactiveIntLowerUpperPair) ||
+									withinIntPairRange(board[y][anotherX - 1], blankIntLowerUpperPair))
+							{
+								board[y][anotherX] = board[y][anotherX - 1];
+							}
+						}
+					}
+					for(int y = 0; y < board.size(); y++)
+					{
+						if(withinIntPairRange(board[y][0], inactiveIntLowerUpperPair))
+						{
+							board[y][0] += intLowerUpperPairJumpDistanceInactiveToBlank;
+						}
+					}
+
+					rowsCleared.push_back(x);
+					x++;
 				}
 			}
 
-			rowsCleared.push_back(y);
-			y++;
+			break;
 		}
+
+		default:
+		{
+			std::cout << "invalid direction to clearAndGetFullRows???" << std::endl;
+			std::cout << "you've reached unreachable code" << std::endl;
+			break;
+		}
+
 	}
 
 	return rowsCleared;
@@ -854,19 +996,73 @@ int calculateScoreFromRowsCleared(int nRowsCleared)
 	return 0;
 }
 
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, const Block &block, int boardHiddenGrace,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, direction gravityDirection, const Block &block, int boardHiddenGrace,
 		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair)
 {
+	int highestBlockYLevel = -1; //for future custom block placements and what not in non-down direction
+	int rightMostBlockXLevel = -1;
+	for(int x = 0; x < block.size(); x++)
+	{
+		if(block[x].y > highestBlockYLevel)
+		{
+			highestBlockYLevel = block[x].y;
+		}
+		if(block[x].x > rightMostBlockXLevel)
+		{
+			rightMostBlockXLevel = block[x].x;
+		}
+	}
+
 	Point offset(0, 0);
 	if(intPiecesExistInHiddenGrace(board, boardHiddenGrace + 3, inactiveIntLowerUpperPair))
 	{
-		offset = Point((board[0].size() / 2) - (4 / 2), 0);
+		switch(gravityDirection)
+		{
+			case directionUp:
+				offset = Point((board[0].size() / 2) - ((rightMostBlockXLevel + 1) / 2), board.size() - (highestBlockYLevel + 1));
+				break;
+			case directionDown:
+				offset = Point((board[0].size() / 2) - ((rightMostBlockXLevel + 1) / 2), 0);
+				break;
+			case directionLeft:
+				offset = Point(board[0].size() - (rightMostBlockXLevel + 1), (board.size() / 2) - ((rightMostBlockXLevel + 1) / 2));
+				break;
+			case directionRight:
+				offset = Point(0, (board.size() / 2) - ((rightMostBlockXLevel + 1) / 2));
+				break;
+			default:
+				std::cout << "invalid direction to move???" << std::endl;
+				std::cout << "you've reached unreachable code" << std::endl;
+				break;
+		}
 	} else
 	{
-		offset = Point((board[0].size() / 2) - (4 / 2), boardHiddenGrace);
+		//note to self:
+		//for now, the code assumes that the boardHiddenGrace area is "above" the board (top of your screen IRL)
+		//change this later if you chang the boardHiddenGrace functionality; Sunday, November 17, 2024, 00:25:18
+
+		switch(gravityDirection)
+		{
+			case directionUp:
+				offset = Point((board[0].size() / 2) - ((rightMostBlockXLevel + 1) / 2), board.size() - (highestBlockYLevel + 1));
+				break;
+			case directionDown:
+				offset = Point((board[0].size() / 2) - ((rightMostBlockXLevel + 1) / 2), boardHiddenGrace);
+				break;
+			case directionLeft:
+				offset = Point(board[0].size() - (rightMostBlockXLevel + 1), (board.size() / 2) - ((rightMostBlockXLevel + 1) / 2));
+				break;
+			case directionRight:
+				offset = Point(0, (board.size() / 2) - ((rightMostBlockXLevel + 1) / 2));
+				break;
+			default:
+				std::cout << "invalid direction to move???" << std::endl;
+				std::cout << "you've reached unreachable code" << std::endl;
+				break;
+		}
 	}
 
 	for(int x = 0; x < block.size(); x++)
