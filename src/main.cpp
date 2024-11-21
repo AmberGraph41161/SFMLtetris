@@ -74,7 +74,7 @@ int main()
 	const Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} }); //5. green (lime)
 	const Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} }); //6. purple
 	const Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} }); //7. red
-															//8. [custom block color goes here]
+	
 	const std::array<const Block, 7> groupedBlockCollection = { iBlockCoords, jBlockCoords, lBlockCoords, oBlockCoords, sBlockCoords, tBlockCoords, zBlockCoords };
 
 	std::queue<Block> blockQueue;
@@ -101,17 +101,60 @@ int main()
 			all color channels (RGBA) are from [0 - 255]
 		*/
 	bool blankIntRetainColor = false;
-	const std::array<sf::Color, 8> sfColorValues =
+	const std::array<sf::Color, 8> defaultColorValues =
 	{
-		sf::Color::Cyan, //cyan
-		sf::Color::Blue, //blue
-		sf::Color(223, 113, 38, 255), //orange
-		sf::Color::Yellow, //yellow
-		sf::Color::Green, //green
-		sf::Color::Magenta, //purple
-		sf::Color::Red, //red
-		sf::Color(3, 2, 123, 255), //custom
+		/* CYAN   */ sf::Color::Cyan,
+		/* BLUE   */ sf::Color::Blue,
+		/* ORANGE */ sf::Color(223, 113, 38, 255),
+		/* YELLOW */ sf::Color::Yellow,
+		/* GREEN  */ sf::Color::Green,
+		/* PURPLE */ sf::Color::Magenta,
+		/* RED    */ sf::Color::Red,
+		/* CUSTOM */ sf::Color(3, 2, 123, 255),
 	};
+	const std::array<sf::Color, 8> defaultPastelColorValues =
+	{
+		//"https://colorkit.co/palette/ffadad-ffd6a5-fdffb6-caffbf-9bf6ff-a0c4ff-bdb2ff-ffc6ff/"
+		//"https://rgbacolorpicker.com/hex-to-rgba"
+
+		/* CYAN   */ sf::Color(155, 246, 255, 255),
+		/* BLUE   */ sf::Color(160, 196, 255, 255),
+		/* ORANGE */ sf::Color(255, 214, 165, 255),
+		/* YELLOW */ sf::Color(253, 255, 182, 255),
+		/* GREEN  */ sf::Color(202, 255, 191, 255),
+		/* PURPLE */ sf::Color(189, 178, 255, 255),
+		/* RED    */ sf::Color(255, 173, 173, 255),
+		/* CUSTOM */ sf::Color(3, 2, 123, 255),
+	};
+	const std::array<sf::Color, 8> defaultSuperPastelColorValues =
+	{
+		//"https://coolors.co/palette/fbf8cc-fde4cf-ffcfd2-f1c0e8-cfbaf0-a3c4f3-90dbf4-8eecf5-98f5e1-b9fbc0"
+		//"https://rgbacolorpicker.com/hex-to-rgba"
+
+		/* CYAN   */ sf::Color(142, 236, 245, 255),
+		/* BLUE   */ sf::Color(163, 196, 243, 255),
+		/* ORANGE */ sf::Color(253, 228, 207, 255),
+		/* YELLOW */ sf::Color(251, 248, 204, 255),
+		/* GREEN  */ sf::Color(185, 251, 192, 255),
+		/* PURPLE */ sf::Color(207, 186, 240, 255),
+		/* RED    */ sf::Color(255, 207, 210, 255),
+		/* CUSTOM */ sf::Color(3, 2, 123, 255),
+	};
+	const std::array<sf::Color, 8> defaultHighContrastColorValues =
+	{
+		//"https://coolors.co/palette/ff0000-ff8700-ffd300-deff0a-a1ff0a-0aff99-0aefff-147df5-580aff-be0aff"
+		//"https://rgbacolorpicker.com/hex-to-rgba"
+
+		/* CYAN   */ sf::Color(10, 239, 255, 255),
+		/* BLUE   */ sf::Color(88, 10, 255, 255),
+		/* ORANGE */ sf::Color(255, 135, 0, 255),
+		/* YELLOW */ sf::Color(255, 211, 0, 255),
+		/* GREEN  */ sf::Color(161, 255, 10, 255),
+		/* PURPLE */ sf::Color(190, 10, 255, 255),
+		/* RED    */ sf::Color(255, 0, 0, 255),
+		/* CUSTOM */ sf::Color(3, 2, 123, 255),
+	};
+	std::array<sf::Color, 8> currentColorValues = defaultPastelColorValues;
 	const std::pair<int, int> blankIntLowerUpperPair = std::make_pair<int, int>(0, 8); //all these pair values MUST be in sync and in order!!! Friday, November 15, 2024, 13:09:58
 	const std::pair<int, int> activeIntLowerUpperPair = std::make_pair<int, int>(10, 18);
 	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 28);
@@ -138,7 +181,6 @@ int main()
 	direction shadowDirection = gravityDirection;
 	direction clearFullRowsDirection = gravityDirection;
 	direction placeBlocksDirection = gravityDirection;
-
 
 	//board structure:
 	/*
@@ -179,6 +221,8 @@ int main()
 	*/
 
 	//SFML stuff
+	std::vector<sf::Sound*> vectorOfPoitersToAllSounds;
+
 	sf::Sound lineClearSFX;
 	sf::SoundBuffer lineClearSFXbuffer;
 	std::string lineClearSFXbufferPath = "sounds/default/lineClear1.wav";
@@ -188,6 +232,7 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	lineClearSFX.setBuffer(lineClearSFXbuffer);
+	vectorOfPoitersToAllSounds.push_back(&lineClearSFX);
 	
 	sf::Sound blockMoveSFX;
 	sf::SoundBuffer blockMoveSFXbuffer;
@@ -198,6 +243,7 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	blockMoveSFX.setBuffer(blockMoveSFXbuffer);
+	vectorOfPoitersToAllSounds.push_back(&blockMoveSFX);
 	
 	sf::Sound blockRotateSFX;
 	sf::SoundBuffer blockRotateSFXbuffer;
@@ -208,6 +254,7 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	blockRotateSFX.setBuffer(blockRotateSFXbuffer);
+	vectorOfPoitersToAllSounds.push_back(&blockRotateSFX);
 	
 	sf::Sound blockSlamSFX;
 	sf::SoundBuffer blockSlamSFXbuffer;
@@ -218,6 +265,12 @@ int main()
 		exit(EXIT_FAILURE);
 	}
 	blockSlamSFX.setBuffer(blockSlamSFXbuffer);
+	vectorOfPoitersToAllSounds.push_back(&blockSlamSFX);
+
+	for(int x = 0; x < vectorOfPoitersToAllSounds.size(); x++)
+	{
+		vectorOfPoitersToAllSounds[x]->setVolume(30);
+	}
 
 	const int screenWidth = 1920;
 	const int screenHeight = 1080;
@@ -299,7 +352,7 @@ int main()
 	double leftRightMovementTickDeltaThreshold = 0.1;
 
 	std::chrono::duration<double> hiddenGraceAreaViewZoomTickDelta = deltaTime;
-	double hiddenGraceAreaViewZoomTickDeltaThreshold = 3;
+	double hiddenGraceAreaViewZoomTickDeltaThreshold = 5;
 
 	sf::View view(sf::FloatRect(0, 0, screenWidth, screenHeight));
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "title goes here lol", sf::Style::Default);
@@ -360,6 +413,10 @@ int main()
 			}
 			hardenActivePiecesTickDelta += deltaTime;
 			hardenActivePiecesAbsoluteTickDelta += deltaTime;
+		} else
+		{
+			hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+			hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 		}
 
 		//block queue update and stuff
@@ -544,7 +601,7 @@ int main()
 					theBlock.setTexture(blankIntTexture);
 					if(blankIntRetainColor)
 					{
-						theBlock.setColor(sfColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+						theBlock.setColor(currentColorValues[board[y][x] - blankIntLowerUpperPair.first]);
 					} else
 					{
 						theBlock.setColor(sf::Color::White);
@@ -552,15 +609,15 @@ int main()
 				} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
 				{
 					theBlock.setTexture(activeIntTexture);
-					theBlock.setColor(sfColorValues[board[y][x] - activeIntLowerUpperPair.first]);
+					theBlock.setColor(currentColorValues[board[y][x] - activeIntLowerUpperPair.first]);
 				} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
 				{
 					theBlock.setTexture(inactiveIntTexture);
-					theBlock.setColor(sfColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
+					theBlock.setColor(currentColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
 				} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
 				{
 					theBlock.setTexture(shadowIntTexture);
-					theBlock.setColor(sfColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
+					theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
 				}
 				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
 				theBlock.move(theBlockStartX, theBlockStartY);
@@ -572,14 +629,14 @@ int main()
 		{
 			theBlock.setTexture(activeIntTexture);
 			theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
-			theBlock.setColor(sfColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
+			theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
 			window.draw(theBlock);
 		}
 		for(int x = 0; x < savedBlock.size(); x++)
 		{
 			theBlock.setTexture(activeIntTexture);
 			theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
-			theBlock.setColor(sfColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
+			theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
 			window.draw(theBlock);
 		}
 		theBlock.setColor(sf::Color::White);
@@ -587,12 +644,25 @@ int main()
 		if(intPiecesExistInHiddenGrace(board, boardHiddenGrace, inactiveIntLowerUpperPair))
 		{
 			hiddenGraceAreaViewZoomTickDelta += deltaTime;
-			hiddenGraceAreaViewZoomTickDelta += std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.00001);
+			hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.2);
 			double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
 			if(hiddenGraceAreaViewZoomTickDelta.count() >= hiddenGraceAreaViewZoomTickDeltaThreshold)
 			{
 				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDeltaThreshold);
 				zoomMultiplier = 1.5;
+			}
+
+			view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
+			window.setView(view);
+		} else if(view.getSize().x > screenWidth)
+		{
+			hiddenGraceAreaViewZoomTickDelta -= deltaTime;
+			hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 0.9);
+			double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
+			if(hiddenGraceAreaViewZoomTickDelta.count() <= 0)
+			{
+				hiddenGraceAreaViewZoomTickDelta = std::chrono::seconds::zero();
+				zoomMultiplier = 1;
 			}
 
 			view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);

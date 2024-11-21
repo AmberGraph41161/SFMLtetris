@@ -516,16 +516,15 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 		shimmyOriginalBlock.push_back(Point(std::floor(transformationBlock[x].x + rotationOffsetFix.x), std::floor(transformationBlock[x].y + rotationOffsetFix.y)));
 	}
 
-
 	Block shimmyUpBlock = shimmyOriginalBlock;
 	Block shimmyDownBlock = shimmyOriginalBlock;
 	Block shimmyLeftBlock = shimmyOriginalBlock;
 	Block shimmyRightBlock = shimmyOriginalBlock;
 
-	bool shimmyUpBlocArePlaceable;
-	bool shimmyDownBlocArePlaceable;
-	bool shimmyLeftBlocArePlaceable;
-	bool shimmyRightBlocArePlaceable;
+	bool shimmyUpBlockArePlaceable;
+	bool shimmyDownBlockArePlaceable;
+	bool shimmyLeftBlockArePlaceable;
+	bool shimmyRightBlockArePlaceable;
 
 	int shimmyLeftRightN = 3;
 	int shimmyUpDownN = 3;
@@ -548,22 +547,22 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 
 	for(int i = 0; i < shimmyLeftRightN; i++)
 	{
-		shimmyLeftBlocArePlaceable = true;
-		shimmyRightBlocArePlaceable = true;
+		shimmyLeftBlockArePlaceable = true;
+		shimmyRightBlockArePlaceable = true;
 
 		for(int x = 0; x < shimmyLeftBlock.size(); x++)
 		{
 			if(shimmyLeftBlock[x].x < 0 || shimmyLeftBlock[x].x >= board[0].size() ||
 				shimmyLeftBlock[x].y < 0 || shimmyLeftBlock[x].y >= board.size())
 			{
-				shimmyLeftBlocArePlaceable = false;
+				shimmyLeftBlockArePlaceable = false;
 				break;
 			}
 
 			if(withinIntPairRange(board[shimmyLeftBlock[x].y][shimmyLeftBlock[x].x], inactiveIntLowerUpperPair) ||
 						!withinIntPairRange(board[shimmyLeftBlock[x].y][shimmyLeftBlock[x].x], blankIntLowerUpperPair))
 			{
-				shimmyLeftBlocArePlaceable = false;
+				shimmyLeftBlockArePlaceable = false;
 				break;
 			}
 		}
@@ -572,19 +571,19 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 			if(shimmyRightBlock[x].x < 0 || shimmyRightBlock[x].x >= board[0].size() ||
 				shimmyRightBlock[x].y < 0 || shimmyRightBlock[x].y >= board.size())
 			{
-				shimmyRightBlocArePlaceable = false;
+				shimmyRightBlockArePlaceable = false;
 				break;
 			}
 
 			if(withinIntPairRange(board[shimmyRightBlock[x].y][shimmyRightBlock[x].x], inactiveIntLowerUpperPair) ||
 					!withinIntPairRange(board[shimmyRightBlock[x].y][shimmyRightBlock[x].x], blankIntLowerUpperPair))
 			{
-				shimmyRightBlocArePlaceable = false;
+				shimmyRightBlockArePlaceable = false;
 				break;
 			}
 		}
 
-		if(shimmyLeftBlocArePlaceable || shimmyRightBlocArePlaceable)
+		if(shimmyLeftBlockArePlaceable || shimmyRightBlockArePlaceable)
 		{
 			break;
 		}
@@ -600,22 +599,22 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 	}
 	for(int i = 0; i < shimmyUpDownN; i++)
 	{
-		shimmyUpBlocArePlaceable = true;
-		shimmyDownBlocArePlaceable = true;
+		shimmyUpBlockArePlaceable = true;
+		shimmyDownBlockArePlaceable = true;
 
 		for(int x = 0; x < shimmyUpBlock.size(); x++)
 		{
 			if(shimmyUpBlock[x].x < 0 || shimmyUpBlock[x].x >= board[0].size() ||
 				shimmyUpBlock[x].y < 0 || shimmyUpBlock[x].y >= board.size())
 			{
-				shimmyUpBlocArePlaceable = false;
+				shimmyUpBlockArePlaceable = false;
 				break;
 			}
 
 			if(withinIntPairRange(board[shimmyUpBlock[x].y][shimmyUpBlock[x].x], inactiveIntLowerUpperPair) ||
 					!withinIntPairRange(board[shimmyUpBlock[x].y][shimmyUpBlock[x].x], blankIntLowerUpperPair))
 			{
-				shimmyUpBlocArePlaceable = false;
+				shimmyUpBlockArePlaceable = false;
 				break;
 			}
 		}
@@ -624,19 +623,19 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 			if(shimmyDownBlock[x].x < 0 || shimmyDownBlock[x].x >= board[0].size() ||
 				shimmyDownBlock[x].y < 0 || shimmyDownBlock[x].y >= board.size())
 			{
-				shimmyDownBlocArePlaceable = false;
+				shimmyDownBlockArePlaceable = false;
 				break;
 			}
 
 			if(withinIntPairRange(board[shimmyDownBlock[x].y][shimmyDownBlock[x].x], inactiveIntLowerUpperPair) ||
 					!withinIntPairRange(board[shimmyDownBlock[x].y][shimmyDownBlock[x].x], blankIntLowerUpperPair))
 			{
-				shimmyDownBlocArePlaceable = false;
+				shimmyDownBlockArePlaceable = false;
 				break;
 			}
 		}
 
-		if(shimmyUpBlocArePlaceable || shimmyDownBlocArePlaceable)
+		if(shimmyUpBlockArePlaceable || shimmyDownBlockArePlaceable)
 		{
 			break;
 		}
@@ -651,25 +650,25 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 		}
 	}
 
-	if(shimmyDownBlocArePlaceable)
+	if(shimmyDownBlockArePlaceable)
 	{
 		for(int x = 0; x < shimmyDownBlock.size(); x++)
 		{
 			board[shimmyDownBlock[x].y][shimmyDownBlock[x].x] = originalActiveInt;
 		}
-	} else if(shimmyUpBlocArePlaceable)
+	} else if(shimmyUpBlockArePlaceable)
 	{
 		for(int x = 0; x < shimmyUpBlock.size(); x++)
 		{
 			board[shimmyUpBlock[x].y][shimmyUpBlock[x].x] = originalActiveInt;
 		}
-	} else if(shimmyLeftBlocArePlaceable)
+	} else if(shimmyLeftBlockArePlaceable)
 	{
 		for(int x = 0; x < shimmyLeftBlock.size(); x++)
 		{
 			board[shimmyLeftBlock[x].y][shimmyLeftBlock[x].x] = originalActiveInt;
 		}
-	} else if(shimmyRightBlocArePlaceable)
+	} else if(shimmyRightBlockArePlaceable)
 	{
 		for(int x = 0; x < shimmyRightBlock.size(); x++)
 		{
