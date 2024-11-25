@@ -1,4 +1,8 @@
 textures/blocks/
 references/
+
 main
 main.bak
+
+pandoc/
+README.html
