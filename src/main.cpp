@@ -154,13 +154,14 @@ int main()
 		/* RED    */ sf::Color(255, 0, 0, 255),
 		/* CUSTOM */ sf::Color(3, 2, 123, 255),
 	};
-	std::array<sf::Color, 8> currentColorValues = defaultPastelColorValues;
+	std::array<sf::Color, 8> currentColorValues = defaultColorValues;
 	const std::pair<int, int> blankIntLowerUpperPair = std::make_pair<int, int>(0, 8); //all these pair values MUST be in sync and in order!!! Friday, November 15, 2024, 13:09:58
 	const std::pair<int, int> activeIntLowerUpperPair = std::make_pair<int, int>(10, 18);
 	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 28);
 	const std::pair<int, int> shadowIntLowerUpperPair = std::make_pair<int, int>(30, 38);
 
 	int boardHiddenGrace = 7;
+	int boardWarningFade = 5;
 	int boardWidth = 10;
 	int boardHeight = 20 + boardHiddenGrace;
 	std::vector<std::vector<int>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
@@ -282,6 +283,7 @@ int main()
 	std::string activeIntTexturePath = "textures/default/active0.png"; //"textures/blocks/diamond_ore.png";
 	std::string inactiveIntTexturePath = "textures/default/inactive0.png"; //"textures/blocks/diamond_block.png";
 	std::string shadowIntTexturePath = "textures/default/shadow0.png"; //"textures/blocks/glass.png";
+	std::string warningFadeTexturePath = "textures/default/warningfade.png";
 
 	sf::Texture blankIntTexture;
 	if(!blankIntTexture.loadFromFile(blankIntTexturePath))
@@ -307,6 +309,12 @@ int main()
 		std::cerr << "[failed to load [shadowIntTexturePath] \"" << shadowIntTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	sf::Texture warningFadeTexture;
+	if(!warningFadeTexture.loadFromFile(warningFadeTexturePath))
+	{
+		std::cerr << "[failed to load [warningFadeTexturePath] \"" << warningFadeTexturePath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 	theBlock.setTexture(activeIntTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
 	theBlock.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
@@ -319,6 +327,7 @@ int main()
 	int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
 	int theBlockSavedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
 
+	//background stuff
 	sf::Sprite background;
 	sf::Texture backgroundTexture;
 	std::string backgroundTexturePath = "textures/default/background0.png";
@@ -329,6 +338,29 @@ int main()
 	}
 	background.setTexture(backgroundTexture);
 	background.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
+
+	//start button stuff
+	sf::Sprite startButton;
+	sf::Texture startButtonTexture;
+	std::string startButtonTexturePath = "textures/default/startbutton-Sheet.png";
+	if(!startButtonTexture.loadFromFile(startButtonTexturePath))
+	{
+		std::cerr << "[failed to load [startButtonTexturePath] \"" << startButtonTexturePath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
+	const int startButtonTextureWidth = 38;
+	const int startButtonTextureHeight = 20;
+	const int startButtonLastFrameCount = 383;
+	int startButtonAnimatedCurrentFrame = 0;
+	startButton.setTexture(startButtonTexture);
+	startButton.setTextureRect(spriteSheetFrame(startButtonTextureWidth, startButtonTextureHeight, startButtonAnimatedCurrentFrame));
+	startButton.setScale(sf::Vector2f(10, 10));
+	startButton.setOrigin(startButton.getLocalBounds().width / 2, startButton.getLocalBounds().height / 2);
+	startButton.setPosition((float)screenWidth / 2, (float)screenHeight / 2);
+	std::chrono::duration<double> startButtonAnimatedTickDelta = std::chrono::seconds::zero();
+	double startButtonAnimatedTickDeltaThreshold = 0.03;
+
+	bool playerIsAlive = false;
 	
 	bool slamKeyPressedLastFrame = false;
 	bool rotateKeyPressedLastFrame = false;
@@ -389,300 +421,341 @@ int main()
 			printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
 		}
 
-		//falling blocks tick delta
-		if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
+		if(playerIsAlive)
 		{
-			fallingBlocksTickDelta = std::chrono::seconds::zero();
-			moveActivePiecesInDirection(board, moveActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-		}
-		fallingBlocksTickDelta += deltaTime;
-
-		//hardening blocks tick delta
-		if(!canMoveActivePiecesInDirection(board, canMoveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-		{
-			if(hardenActivePiecesTickDelta.count() >= hardenActivePiecesTickDeltaThreshold)
+			//falling blocks tick delta
+			if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 			{
-				hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
-				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
-			} else if(hardenActivePiecesAbsoluteTickDelta.count() >= hardenActivePiecesAbsoluteTickDeltaThreshold)
-			{
-				hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
-				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
+				fallingBlocksTickDelta = std::chrono::seconds::zero();
+				moveActivePiecesInDirection(board, moveActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 			}
-			hardenActivePiecesTickDelta += deltaTime;
-			hardenActivePiecesAbsoluteTickDelta += deltaTime;
-		} else
-		{
-			hardenActivePiecesTickDelta = std::chrono::seconds::zero();
-			hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
-		}
+			fallingBlocksTickDelta += deltaTime;
 
-		//block queue update and stuff
-		if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-		{
-			std::vector<int> rowsCleared = clearAndGetFullRows(board, clearFullRowsDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-			if(!rowsCleared.empty())
+			//hardening blocks tick delta
+			if(!canMoveActivePiecesInDirection(board, canMoveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
 			{
-				lineClearSFX.play();
-			}
-			totalRowsCleared += rowsCleared.size();
-			score += calculateScoreFromRowsCleared(rowsCleared.size());
-
-			std::cout << "SCORE: " << score << std::endl;
-			std::cout << "totalRowsCleared: " << totalRowsCleared << std::endl;
-
-			wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-			currentBlockInPlay = blockQueue.front();
-			blockQueue.pop();
-			blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
-
-			if(!wasAbleToPlaceNextBlockSuccessfully)
-			{
-				break; //for now. Wednesday, November 13, 2024, 14:02:51
-			}
-
-			saveblockUsedForCurrentBlock = false;
-		}
-
-		//controls
-		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-		{
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-			{
-				if(leftRightMovementTickDelta.count() == 0)
+				if(hardenActivePiecesTickDelta.count() >= hardenActivePiecesTickDeltaThreshold)
 				{
-					if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-					{
-						blockMoveSFX.play();
-					}
-					leftRightMovementTickDelta += deltaTime;
-				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
+					hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
+				} else if(hardenActivePiecesAbsoluteTickDelta.count() >= hardenActivePiecesAbsoluteTickDeltaThreshold)
 				{
-					if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-					{
-						blockMoveSFX.play();
-					}
-				} else
-				{
-					leftRightMovementTickDelta += deltaTime;
-				}
-			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-			{
-				if(leftRightMovementTickDelta.count() == 0)
-				{
-					if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-					{
-						blockMoveSFX.play();
-					}
-					leftRightMovementTickDelta += deltaTime;
-				} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
-				{
-					if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-					{
-						blockMoveSFX.play();
-					}
-				} else
-				{
-					leftRightMovementTickDelta += deltaTime;
-				}
-			} else
-			{
-				leftRightMovementTickDelta = std::chrono::seconds::zero();
-			}
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-			{
-				/*
-				if(!canMoveActivePiecesInDirection(board, directionDown, blankInt, activeInt, inactiveInt))
-				{
-					hardenActivePieces(board, activeInt, inactiveInt);
+					hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 				}
-				*/
-				if(moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
-				{
-					blockMoveSFX.play();
-				}
-			}
-
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-			{
-				if(!rotateKeyPressedLastFrame)
-				{
-					if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true))
-					{
-						blockRotateSFX.play();
-					}
-					rotateKeyPressedLastFrame = true;
-					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
-				}
-			} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
-			{
-				if(!rotateKeyPressedLastFrame)
-				{
-					if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false))
-					{
-						blockRotateSFX.play();
-					}
-					rotateKeyPressedLastFrame = true;
-					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
-				}
+				hardenActivePiecesTickDelta += deltaTime;
+				hardenActivePiecesAbsoluteTickDelta += deltaTime;
 			} else
 			{
-				rotateKeyPressedLastFrame = false;
+				hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+				hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 			}
 
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+			//block queue update and stuff
+			if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 			{
-				if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
+				std::vector<int> rowsCleared = clearAndGetFullRows(board, clearFullRowsDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+				if(!rowsCleared.empty())
 				{
-					destroyActivePiecesOnBoard(board, blankIntLowerUpperPair, activeIntLowerUpperPair);
-					if(savedBlock.empty())
-					{
-						savedBlock = currentBlockInPlay;
+					lineClearSFX.play();
+				}
+				totalRowsCleared += rowsCleared.size();
+				score += calculateScoreFromRowsCleared(rowsCleared.size());
 
-						placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-						currentBlockInPlay = blockQueue.front();
-						blockQueue.pop();
-						blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+				std::cout << "SCORE: " << score << std::endl;
+				std::cout << "totalRowsCleared: " << totalRowsCleared << std::endl;
+
+				wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+				currentBlockInPlay = blockQueue.front();
+				blockQueue.pop();
+				blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+
+				if(!wasAbleToPlaceNextBlockSuccessfully)
+				{
+					break; //for now. Wednesday, November 13, 2024, 14:02:51
+				}
+
+				saveblockUsedForCurrentBlock = false;
+			}
+
+			//controls
+			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			{
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				{
+					if(leftRightMovementTickDelta.count() == 0)
+					{
+						if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						{
+							blockMoveSFX.play();
+						}
+						leftRightMovementTickDelta += deltaTime;
+					} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
+					{
+						if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						{
+							blockMoveSFX.play();
+						}
 					} else
 					{
-						placeBlockAsActivePieces(board, placeBlocksDirection, savedBlock, boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-						savedBlock = currentBlockInPlay;
+						leftRightMovementTickDelta += deltaTime;
 					}
-
-					saveblockUsedForCurrentBlock = true;
-				}
-				saveblockKeyPressedLastFrame = true;
-			} else
-			{
-				saveblockKeyPressedLastFrame = false;
-			}
-
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-			{
-				if(!slamKeyPressedLastFrame)
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 				{
-					blockSlamSFX.play();
-					slamActivePiecesInDirection(board, slamActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-					slamKeyPressedLastFrame = true;
-				}
-			} else
-			{
-				slamKeyPressedLastFrame = false;
-			}
-		}
-
-		//fake-overlay shadowInts before drawing
-		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-		{
-			fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
-		}
-		
-		//draw stuff
-		lastlastframe = std::chrono::high_resolution_clock::now();
-		window.clear(sf::Color::Black);
-
-		window.draw(background);
-
-		for(int y = 0; y < board.size(); y++)
-		{
-			if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
-			{
-				continue;
-			}
-
-			for(int x = 0; x < board[y].size(); x++)
-			{
-				if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
-				{
-					theBlock.setTexture(blankIntTexture);
-					if(blankIntRetainColor)
+					if(leftRightMovementTickDelta.count() == 0)
 					{
-						theBlock.setColor(currentColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+						if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						{
+							blockMoveSFX.play();
+						}
+						leftRightMovementTickDelta += deltaTime;
+					} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
+					{
+						if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						{
+							blockMoveSFX.play();
+						}
 					} else
 					{
-						theBlock.setColor(sf::Color::White);
+						leftRightMovementTickDelta += deltaTime;
 					}
-				} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
+				} else
 				{
-					theBlock.setTexture(activeIntTexture);
-					theBlock.setColor(currentColorValues[board[y][x] - activeIntLowerUpperPair.first]);
-				} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
-				{
-					theBlock.setTexture(inactiveIntTexture);
-					theBlock.setColor(currentColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
-				} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
-				{
-					theBlock.setTexture(shadowIntTexture);
-					theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
+					leftRightMovementTickDelta = std::chrono::seconds::zero();
 				}
-				theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-				theBlock.move(theBlockStartX, theBlockStartY);
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+				{
+					/*
+					if(!canMoveActivePiecesInDirection(board, directionDown, blankInt, activeInt, inactiveInt))
+					{
+						hardenActivePieces(board, activeInt, inactiveInt);
+						hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+						hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
+					}
+					*/
+					if(moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+					{
+						blockMoveSFX.play();
+					}
+				}
+
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+				{
+					if(!rotateKeyPressedLastFrame)
+					{
+						if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true))
+						{
+							blockRotateSFX.play();
+						}
+						rotateKeyPressedLastFrame = true;
+						hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+					}
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+				{
+					if(!rotateKeyPressedLastFrame)
+					{
+						if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false))
+						{
+							blockRotateSFX.play();
+						}
+						rotateKeyPressedLastFrame = true;
+						hardenActivePiecesTickDelta = std::chrono::seconds::zero();
+					}
+				} else
+				{
+					rotateKeyPressedLastFrame = false;
+				}
+
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+				{
+					if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
+					{
+						destroyActivePiecesOnBoard(board, blankIntLowerUpperPair, activeIntLowerUpperPair);
+						if(savedBlock.empty())
+						{
+							savedBlock = currentBlockInPlay;
+
+							placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+							currentBlockInPlay = blockQueue.front();
+							blockQueue.pop();
+							blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+						} else
+						{
+							placeBlockAsActivePieces(board, placeBlocksDirection, savedBlock, boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+							savedBlock = currentBlockInPlay;
+						}
+
+						saveblockUsedForCurrentBlock = true;
+					}
+					saveblockKeyPressedLastFrame = true;
+				} else
+				{
+					saveblockKeyPressedLastFrame = false;
+				}
+
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+				{
+					if(!slamKeyPressedLastFrame)
+					{
+						blockSlamSFX.play();
+						slamActivePiecesInDirection(board, slamActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						slamKeyPressedLastFrame = true;
+					}
+				} else
+				{
+					slamKeyPressedLastFrame = false;
+				}
+			}
+
+			//fake-overlay shadowInts before drawing
+			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			{
+				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+			}
+			
+			//draw stuff
+			lastlastframe = std::chrono::high_resolution_clock::now();
+			window.clear(sf::Color::Black);
+
+			window.draw(background);
+
+			for(int y = 0; y < board.size(); y++)
+			{
+				if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
+				{
+					continue;
+				}
+
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
+					{
+						theBlock.setTexture(blankIntTexture);
+						if(blankIntRetainColor)
+						{
+							theBlock.setColor(currentColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+						} else
+						{
+							theBlock.setColor(sf::Color::White);
+						}
+					} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
+					{
+						theBlock.setTexture(activeIntTexture);
+						theBlock.setColor(currentColorValues[board[y][x] - activeIntLowerUpperPair.first]);
+					} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+					{
+						theBlock.setTexture(inactiveIntTexture);
+						theBlock.setColor(currentColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
+					} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
+					{
+						theBlock.setTexture(shadowIntTexture);
+						theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
+					}
+					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+					theBlock.move(theBlockStartX, theBlockStartY);
+					window.draw(theBlock);
+
+					if(y <= boardWarningFade)
+					{
+						theBlock.setTexture(warningFadeTexture);
+						theBlock.setColor(sf::Color(255, 0, 0, 230 / (y + 1)));
+
+						theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
+						theBlock.move(theBlockStartX, theBlockStartY);
+						window.draw(theBlock);
+					}
+				}
+			}
+
+			for(int x = 0; x < blockQueue.front().size(); x++)
+			{
+				theBlock.setTexture(activeIntTexture);
+				theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
+				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
 				window.draw(theBlock);
 			}
-		}
-
-		for(int x = 0; x < blockQueue.front().size(); x++)
-		{
-			theBlock.setTexture(activeIntTexture);
-			theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
-			theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
-			window.draw(theBlock);
-		}
-		for(int x = 0; x < savedBlock.size(); x++)
-		{
-			theBlock.setTexture(activeIntTexture);
-			theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
-			theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
-			window.draw(theBlock);
-		}
-		theBlock.setColor(sf::Color::White);
-
-		if(intPiecesExistInHiddenGrace(board, boardHiddenGrace, inactiveIntLowerUpperPair))
-		{
-			hiddenGraceAreaViewZoomTickDelta += deltaTime;
-			hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.2);
-			double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
-			if(hiddenGraceAreaViewZoomTickDelta.count() >= hiddenGraceAreaViewZoomTickDeltaThreshold)
+			for(int x = 0; x < savedBlock.size(); x++)
 			{
-				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDeltaThreshold);
-				zoomMultiplier = 1.5;
+				theBlock.setTexture(activeIntTexture);
+				theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
+				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
+				window.draw(theBlock);
 			}
+			theBlock.setColor(sf::Color::White);
 
-			view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
-			window.setView(view);
-		} else if(view.getSize().x > screenWidth)
-		{
-			hiddenGraceAreaViewZoomTickDelta -= deltaTime;
-			hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 0.9);
-			double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
-			if(hiddenGraceAreaViewZoomTickDelta.count() <= 0)
+			if(intPiecesExistInHiddenGrace(board, boardHiddenGrace, inactiveIntLowerUpperPair))
+			{
+				hiddenGraceAreaViewZoomTickDelta += deltaTime;
+				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.2);
+				double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
+				if(hiddenGraceAreaViewZoomTickDelta.count() >= hiddenGraceAreaViewZoomTickDeltaThreshold)
+				{
+					hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDeltaThreshold);
+					zoomMultiplier = 1.5;
+				}
+
+				view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
+				window.setView(view);
+			} else if(view.getSize().x > screenWidth)
+			{
+				hiddenGraceAreaViewZoomTickDelta -= deltaTime;
+				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 0.9);
+				double zoomMultiplier = ((hiddenGraceAreaViewZoomTickDelta.count() / hiddenGraceAreaViewZoomTickDeltaThreshold) * 0.5) + 1;
+				if(hiddenGraceAreaViewZoomTickDelta.count() <= 0)
+				{
+					hiddenGraceAreaViewZoomTickDelta = std::chrono::seconds::zero();
+					zoomMultiplier = 1;
+				}
+
+				view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
+				window.setView(view);
+			} else
 			{
 				hiddenGraceAreaViewZoomTickDelta = std::chrono::seconds::zero();
-				zoomMultiplier = 1;
+
+				view.setSize(screenWidth, screenHeight);
+				window.setView(view);
 			}
 
-			view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
-			window.setView(view);
+			window.display();
+			lastframe = std::chrono::high_resolution_clock::now();
+			deltaTime = lastframe - lastlastframe;
+
+			//remove fake-overlay of shadowInts
+			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			{
+				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+			}
 		} else
 		{
-			hiddenGraceAreaViewZoomTickDelta = std::chrono::seconds::zero();
+			if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			{
+				if(startButton.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window), view)))
+				{
+					playerIsAlive = true;
+				}
+			}
 
-			view.setSize(screenWidth, screenHeight);
-			window.setView(view);
-		}
+			startButtonAnimatedTickDelta += deltaTime;
+			if(startButtonAnimatedTickDelta.count() >= startButtonAnimatedTickDeltaThreshold)
+			{
+				startButtonAnimatedTickDelta = std::chrono::seconds::zero();
+				startButtonAnimatedCurrentFrame++;
+				if(startButtonAnimatedCurrentFrame >= startButtonLastFrameCount)
+				{
+					startButtonAnimatedCurrentFrame = 0;
+				}
+				startButton.setTextureRect(spriteSheetFrame(startButtonTextureWidth, startButtonTextureHeight, startButtonAnimatedCurrentFrame));
+			}
 
-		window.display();
-		lastframe = std::chrono::high_resolution_clock::now();
-		deltaTime = lastframe - lastlastframe;
-
-		//remove fake-overlay of shadowInts
-		if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-		{
-			fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+			lastlastframe = std::chrono::high_resolution_clock::now();
+			window.clear(sf::Color::White);
+			window.draw(startButton);
+			window.display();
+			lastframe = std::chrono::high_resolution_clock::now();
+			deltaTime = lastframe - lastlastframe;
 		}
 	}
 

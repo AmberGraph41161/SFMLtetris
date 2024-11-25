@@ -6,6 +6,11 @@
 #include <array>
 #include <cmath>
 
+sf::IntRect spriteSheetFrame(int spriteFrameWidth, int spriteFrameHeight, int frameNumber) //this is only for sprite sheet left to right horiztonal etc etc
+{
+	return sf::IntRect(frameNumber * spriteFrameWidth, 0, spriteFrameWidth, spriteFrameHeight); //x, y, width, height
+}
+
 intColor getIntColorFromBlockAndGroupedBLockCollection(Block block, const std::array<const Block, 7> &groupedBlockCollection)
 {
 	intColor color;

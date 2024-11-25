@@ -2,6 +2,7 @@
 #define GAMEFUNCTIONS_HPP
 
 #include <vector>
+#include <SFML/Graphics/Rect.hpp>
 
 struct Point
 {
@@ -45,6 +46,8 @@ struct FloatingPoint
 
 typedef std::vector<Point> Block;
 typedef std::vector<FloatingPoint> FloatingBlock;
+
+sf::IntRect spriteSheetFrame(int spriteFrameWidth, int spriteFrameHeight, int frameNumber); //this is only for sprite sheet left to right horiztonal etc etc;
 
 enum intColor { intColorCyan = 0, intColorBlue, intColorOrange, intColorYellow, intColorGreen, intColorPurple, intColorRed, intColorCustom };
 intColor getIntColorFromBlockAndGroupedBLockCollection(Block block, const std::array<const Block, 7> &groupedBlockCollection);
