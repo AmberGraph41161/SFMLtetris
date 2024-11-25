@@ -5,4 +5,5 @@ main
 main.bak
 
 pandoc/
+md/
 README.html
