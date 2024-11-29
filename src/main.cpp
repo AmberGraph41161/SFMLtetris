@@ -354,9 +354,10 @@ int main()
 	int startButtonAnimatedCurrentFrame = 0;
 	startButton.setTexture(startButtonTexture);
 	startButton.setTextureRect(spriteSheetFrame(startButtonTextureWidth, startButtonTextureHeight, startButtonAnimatedCurrentFrame));
-	startButton.setScale(sf::Vector2f(10, 10));
+	startButton.setScale(sf::Vector2f(20, 20));
 	startButton.setOrigin(startButton.getLocalBounds().width / 2, startButton.getLocalBounds().height / 2);
 	startButton.setPosition((float)screenWidth / 2, (float)screenHeight / 2);
+	startButton.move(0.1, 0); // wacky bug fix to fix startButton Pixels Jittering (SFML bug?)
 	std::chrono::duration<double> startButtonAnimatedTickDelta = std::chrono::seconds::zero();
 	double startButtonAnimatedTickDeltaThreshold = 0.03;
 

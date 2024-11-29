@@ -1028,7 +1028,7 @@ bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, direction gr
 	}
 
 	Point offset(0, 0);
-	if(intPiecesExistInHiddenGrace(board, boardHiddenGrace + 3, inactiveIntLowerUpperPair))
+	if(intPiecesExistInHiddenGrace(board, boardHiddenGrace + 2, inactiveIntLowerUpperPair))
 	{
 		switch(gravityDirection)
 		{
