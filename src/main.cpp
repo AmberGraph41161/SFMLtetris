@@ -285,6 +285,7 @@ int main()
 	std::string inactiveIntTexturePath = "resources/textures/default/inactive0.png"; //"resources/textures/blocks/diamond_block.png";
 	std::string shadowIntTexturePath = "resources/textures/default/shadow0.png"; //"resources/textures/blocks/glass.png";
 	std::string warningFadeTexturePath = "resources/textures/default/warningfade.png";
+	std::string counterTexturePath = "resources/textures/default/counter-Sheet.png";
 
 	sf::Texture blankIntTexture;
 	if(!blankIntTexture.loadFromFile(blankIntTexturePath))
@@ -316,17 +317,25 @@ int main()
 		std::cerr << "[failed to load [warningFadeTexturePath] \"" << warningFadeTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
+	sf::Texture counterTexture;
+	if(!counterTexture.loadFromFile(counterTexturePath))
+	{
+		std::cerr << "[failed to load [counterTexturePath] \"" << counterTexturePath << "\"]" << std::endl;
+		exit(EXIT_FAILURE);
+	}
 	theBlock.setTexture(activeIntTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
 	theBlock.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
 	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
 	//int theBlockStartY = ((float)screenHeight / 2) - ((theBlock.getGlobalBounds().height * boardHeight) / 2);
-	int theBlockStartX = 16 * screenWidth16PixelScaleToFitMultiplier;
-	int theBlockStartY = ((16 + 8) - (16 * boardHiddenGrace))* screenHeight16PixelScaleToFitMultiplier;
-	int theBlockQueuedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
-	int theBlockQueuedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
-	int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
-	int theBlockSavedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
+	const int theBlockStartX = 16 * screenWidth16PixelScaleToFitMultiplier;
+	const int theBlockStartY = ((16 + 8) - (16 * boardHiddenGrace))* screenHeight16PixelScaleToFitMultiplier;
+	const int theBlockQueuedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
+	const int theBlockQueuedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
+	const int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
+	const int theBlockSavedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
+	const int theBlockCounterStartX = (16 * 17) * screenWidth16PixelScaleToFitMultiplier;
+	const int theBlockCounterStartY = ((16 + 8) + (16 * 1)) * screenHeight16PixelScaleToFitMultiplier;
 
 	//background stuff
 	sf::Sprite background;
@@ -397,7 +406,7 @@ int main()
 	std::chrono::duration<double> deltaTime = lastframe - lastlastframe;
 
 	std::chrono::duration<double> fallingBlocksTickDelta = deltaTime;
-	double fallingBlocksTickDeltaThreshold = 0.4;
+	double fallingBlocksTickDeltaThreshold = 0.9;
 	double fallingBlocksTickDeltaThresholdMinumum = 0.1;
 
 	std::chrono::duration<double> hardenActivePiecesTickDelta = deltaTime;
@@ -779,18 +788,17 @@ int main()
 				}
 			}
 
-			//fake-overlay shadowInts before drawing
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
-			}
-			
 			//draw stuff
 			lastlastframe = std::chrono::high_resolution_clock::now();
 			window.clear(sf::Color::Black);
 
 			window.draw(background);
 
+			//fake-overlay shadowInts before drawing board
+			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			{
+				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+			}
 			for(int y = 0; y < board.size(); y++)
 			{
 				if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
@@ -888,16 +896,29 @@ int main()
 				view.setSize(screenWidth, screenHeight);
 				window.setView(view);
 			}
-
-			window.display();
-			lastframe = std::chrono::high_resolution_clock::now();
-			deltaTime = lastframe - lastlastframe;
-
 			//remove fake-overlay of shadowInts
 			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 			{
 				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
 			}
+
+			//draw counter stuff
+			std::string counterString = std::to_string(score);
+			theBlock.setPosition(theBlockCounterStartX, theBlockCounterStartY);
+			theBlock.setTexture(counterTexture);
+			theBlock.setTextureRect(spriteSheetFrame(16, 16, 0));
+			for(int x = 0; x < counterString.size(); x++)
+			{
+				theBlock.setTextureRect(spriteSheetFrame(16, 16, counterString[x] - '0'));
+				window.draw(theBlock);
+				theBlock.move(16 * screenWidth16PixelScaleToFitMultiplier, 0);
+			}
+			theBlock.setTextureRect(sf::IntRect(0, 0, 16, 16));
+
+			window.display();
+			lastframe = std::chrono::high_resolution_clock::now();
+			deltaTime = lastframe - lastlastframe;
+
 		} else
 		{
 			startMenu = true;
