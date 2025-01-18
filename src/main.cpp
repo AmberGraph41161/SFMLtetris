@@ -371,6 +371,7 @@ int main()
 	std::chrono::duration<double> startButtonAnimatedTickDelta = std::chrono::seconds::zero();
 	double startButtonAnimatedTickDeltaThreshold = 0.03;
 
+	//"menu bools"
 	bool playerIsAlive = false;
 	bool pauseMenu = false;
 	bool startMenu = true;
@@ -785,6 +786,20 @@ int main()
 				} else
 				{
 					slamKeyPressedLastFrame = false;
+				}
+
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
+				{
+					currentColorValues = defaultColorValues;
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+				{
+					currentColorValues = defaultPastelColorValues;
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+				{
+					currentColorValues = defaultSuperPastelColorValues; 
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
+				{
+					currentColorValues = defaultHighContrastColorValues;
 				}
 			}
 
