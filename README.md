@@ -1,6 +1,10 @@
 # SFMLtetris
 
+*work in progress as of Monday, January 20, 2025, 22:16:14*
+
 > an SFML tetris clone
+
+![gameplay](md/gameplay.gif)
 
 ### Resources
 
@@ -25,6 +29,16 @@
 | z | rotate current block in counter clockwise direction |
 | c | save current block into save buffer |
 | SPACE | slam current block down and place |
+
+### Features?
+#### T-spin
+![tspin](md/tspin.gif)
+
+#### Hidden grace-area
+![hidengracearea](md/hiddengracearea.gif)
+
+#### Color schemes
+![colorschemes](md/colorschemes.gif)
 
 # INSTALLATION
 
@@ -103,14 +117,9 @@ Prerequisites:
 
 - Software needed:
     - MinGW (g++/gcc, mingw32-make)
-        - Either MinGW-sourceforge or CodeBlocksIDE+MinGW-setup
-            - https://sourceforge.net/projects/mingw/
-            - https://www.codeblocks.org/downloads/binaries/
-                - Download released labeled: "codeblocks-20.03mingw-setup.exe"
-    - CMake
-        - https://cmake.org/download/
-    - git bash
-        - https://git-scm.com/downloads
+        - Either [MinGW-sourceforge](https://sourceforge.net/projects/mingw/) or [CodeBlocksIDE+MinGW-setup](https://www.codeblocks.org/downloads/binaries/)
+    - [CMake](https://cmake.org/download/)
+    - [git bash](https://git-scm.com/downloads)
 
 1. open git bash terminal, clone the repository, and then cd into it
 ```shell
