@@ -494,18 +494,17 @@ int main()
 				pauseMenu = false;
 			}
 
-			//fake-overlay shadowInts before drawing
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
-			}
-			
 			//draw stuff
 			lastlastframe = std::chrono::high_resolution_clock::now();
 			window.clear(sf::Color::Black);
 
 			window.draw(background);
-
+			
+			//fake-overlay shadowInts before drawing
+			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			{
+				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+			}
 			for(int y = 0; y < board.size(); y++)
 			{
 				if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
@@ -570,6 +569,25 @@ int main()
 			}
 			theBlock.setColor(sf::Color::White);
 
+			//remove fake-overlay of shadowInts
+			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			{
+				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+			}
+
+			//draw counter stuff
+			std::string counterString = std::to_string(score);
+			theBlock.setPosition(theBlockCounterStartX, theBlockCounterStartY);
+			theBlock.setTexture(counterTexture);
+			theBlock.setTextureRect(spriteSheetFrame(16, 16, 0));
+			for(int x = 0; x < counterString.size(); x++)
+			{
+				theBlock.setTextureRect(spriteSheetFrame(16, 16, counterString[x] - '0'));
+				window.draw(theBlock);
+				theBlock.move(16 * screenWidth16PixelScaleToFitMultiplier, 0);
+			}
+			theBlock.setTextureRect(sf::IntRect(0, 0, 16, 16));
+
 			window.draw(dimScreenShape);
 			window.draw(dimScreenText);
 
@@ -577,11 +595,6 @@ int main()
 			lastframe = std::chrono::high_resolution_clock::now();
 			deltaTime = lastframe - lastlastframe;
 			
-			//remove fake-overlay of shadowInts
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
-			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
-			}
 		} else if(playerIsAlive)
 		{
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))

@@ -5,5 +5,5 @@ main
 main.bak
 
 pandoc/
-md/
+md/forlater/
 README.html
