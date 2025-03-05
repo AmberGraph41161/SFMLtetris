@@ -57,7 +57,7 @@ double RANDOMDOUBLE(double minimum, double maximum)
 
 int main()
 {
-	srand(time(0));
+	srand(std::chrono::system_clock::now().time_since_epoch().count());
 
 	bool debug = false;
 
