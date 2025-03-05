@@ -369,12 +369,13 @@ int main()
 	startButton.setPosition((float)screenWidth / 2, (float)screenHeight / 2);
 	startButton.move(0.1, 0); // wacky bug fix to fix startButton Pixels Jittering (SFML bug?) //still broken as of Sunday, December 15, 2024, 18:25:13
 	std::chrono::duration<double> startButtonAnimatedTickDelta = std::chrono::seconds::zero();
-	double startButtonAnimatedTickDeltaThreshold = 0.03;
+	const double startButtonAnimatedTickDeltaThreshold = 0.03;
 
 	//"menu bools"
 	bool playerIsAlive = false;
 	bool pauseMenu = false;
 	bool startMenu = true;
+	bool resetBackToStartScreen = false;
 
 	sf::Font masterFont;
 	std::string masterFontPath = "resources/fonts/Minecraftia-Regular.ttf";
@@ -408,20 +409,20 @@ int main()
 
 	std::chrono::duration<double> fallingBlocksTickDelta = deltaTime;
 	double fallingBlocksTickDeltaThreshold = 0.9;
-	double fallingBlocksTickDeltaThresholdMinumum = 0.1;
+	const double fallingBlocksTickDeltaThresholdMinumum = 0.1;
 
 	std::chrono::duration<double> hardenActivePiecesTickDelta = deltaTime;
-	double hardenActivePiecesTickDeltaThreshold = 1.3;
-	double hardenActivePiecesTickDeltaThresholdMinimum = 0.3;
+	const double hardenActivePiecesTickDeltaThreshold = 1.3;
+	const double hardenActivePiecesTickDeltaThresholdMinimum = 0.3;
 	
 	std::chrono::duration<double> hardenActivePiecesAbsoluteTickDelta = deltaTime;
-	double hardenActivePiecesAbsoluteTickDeltaThreshold = hardenActivePiecesTickDeltaThreshold * 2;
+	const double hardenActivePiecesAbsoluteTickDeltaThreshold = hardenActivePiecesTickDeltaThreshold * 2;
 
 	std::chrono::duration<double> leftRightMovementTickDelta = deltaTime;
-	double leftRightMovementTickDeltaThreshold = 0.1;
+	const double leftRightMovementTickDeltaThreshold = 0.1;
 
 	std::chrono::duration<double> hiddenGraceAreaViewZoomTickDelta = deltaTime;
-	double hiddenGraceAreaViewZoomTickDeltaThreshold = 5;
+	const double hiddenGraceAreaViewZoomTickDeltaThreshold = 5;
 
 	sf::View view(sf::FloatRect(0, 0, screenWidth, screenHeight));
 	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "title goes here lol", sf::Style::Default);
@@ -666,8 +667,8 @@ int main()
 
 				if(!wasAbleToPlaceNextBlockSuccessfully)
 				{
-					//playerIsAlive = false;
-					break; //for now. Wednesday, November 13, 2024, 14:02:51
+					playerIsAlive = false;
+					resetBackToStartScreen = true;
 				}
 
 				saveblockUsedForCurrentBlock = false;
@@ -947,6 +948,31 @@ int main()
 			lastframe = std::chrono::high_resolution_clock::now();
 			deltaTime = lastframe - lastlastframe;
 
+		} else if(resetBackToStartScreen)
+		{
+			slamKeyPressedLastFrame = false;
+			rotateKeyPressedLastFrame = false;
+			saveblockKeyPressedLastFrame = false;
+			saveblockUsedForCurrentBlock = false;
+
+			totalRowsCleared = 0;
+			score = 0;
+
+			savedBlock.clear();
+			currentBlockInPlay.clear();
+
+			board.clear();
+			for(int y = 0; y < boardHeight; y++)
+			{
+				std::vector<int> pushBackRowVector(boardWidth);
+				for(int x = 0; x < boardWidth; x++)
+				{
+					pushBackRowVector[x] = blankIntLowerUpperPair.first;
+				}
+				board.push_back(pushBackRowVector);
+			}
+
+			startMenu = true;
 		} else
 		{
 			startMenu = true;
