@@ -48,7 +48,7 @@ Dependencies:
 
 > make >= 4.4.1
 
-> libsfml >= 2.6.1 && < 3.0.0 (SFML version 3.0.0 deprecates openAL dependency. Installation instructions here are not up to date with changes to miniAudio)
+> libsfml >= 3.0.0
 
 > clang++
 >  
@@ -110,6 +110,10 @@ make
 ```
 
 ## Windows
+
+***AS OF Thursday, March 06, 2025, 23:32:23***
+***installation instructions for SFML 3.0.x for Windows have not been tested nor updated yet***
+***may or may not be totally broken, since SFML 3.0.x deprecated openAL for miniaudio***
 
 > If you are not using MinGW, you're on your own. Good luck
 
