@@ -1,8 +1,8 @@
 #include "particle.hpp"
 #include <SFML/System/Vector2.hpp>
 
-Particle::Particle(double startX, double startY, double startXVelocity, double startYVelocity, double setGravity, sf::IntRect aliveBounds)
-	: x(startX), y(startY), xVelocity(startXVelocity), yVelocity(startYVelocity), gravity(setGravity), bounds(aliveBounds)
+Particle::Particle(double startX, double startY, double startXVelocity, double startYVelocity, double setGravity, sf::IntRect aliveBounds, int radius, sf::Color color)
+	: x(startX), y(startY), xVelocity(startXVelocity), yVelocity(startYVelocity), gravity(setGravity), bounds(aliveBounds), radius(radius), color(color)
 {
 }
 
@@ -32,4 +32,14 @@ bool Particle::isAlive()
 sf::Vector2f Particle::getPosition()
 {
 	return sf::Vector2f(x, y);
+}
+
+int Particle::getRadius()
+{
+	return radius;
+}
+
+sf::Color Particle::getColor()
+{
+	return color;
 }

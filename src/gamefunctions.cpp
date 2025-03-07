@@ -968,6 +968,13 @@ std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board, direc
 
 	}
 
+	if(rowsCleared.size() > 1)
+	{
+		for(int x = rowsCleared.size() - 2; x >= 0; x--)
+		{
+			rowsCleared[x]--;
+		}
+	}
 	return rowsCleared;
 }
 

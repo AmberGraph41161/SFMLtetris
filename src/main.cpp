@@ -282,26 +282,6 @@ int main()
 	const int screenWidth16PixelScaleToFitMultiplier = 3;
 	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
-	//theParticle
-	sf::CircleShape theParticle(30);
-	theParticle.setFillColor(sf::Color::White);
-
-	sf::IntRect aliveBounds(sf::Vector2i(0, 0), sf::Vector2i(screenWidth, screenHeight));
-	std::vector<Particle> particles;
-	for(int i = 0; i < 30; i++)
-	{
-		particles.push_back(Particle(
-			RANDOMDOUBLE(0, screenWidth), //startx
-			RANDOMDOUBLE(0, screenHeight), //starty
-			//RANDOMDOUBLE(15000, 30000), //startXVelocity
-			//RANDOMDOUBLE(15000, 30000), //startYVelocity
-			RANDOMDOUBLE(-5000, 5000), //startXVelocity
-			RANDOMDOUBLE(-5000, 5000), //startYVelocity
-			RANDOMDOUBLE(10000, 12000), //gravity
-			aliveBounds
-		));
-	}
-
 	//theBlock
 	std::string blankIntTexturePath = "resources/textures/default/blank0.png"; //"resources/textures/blocks/wool_colored_pink.png";
 	std::string activeIntTexturePath = "resources/textures/default/active0.png"; //"resources/textures/blocks/diamond_ore.png";
@@ -352,13 +332,29 @@ int main()
 	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
 	//int theBlockStartY = ((float)screenHeight / 2) - ((theBlock.getGlobalBounds().height * boardHeight) / 2);
 	const int theBlockStartX = 16 * screenWidth16PixelScaleToFitMultiplier;
-	const int theBlockStartY = ((16 + 8) - (16 * boardHiddenGrace))* screenHeight16PixelScaleToFitMultiplier;
+	const int theBlockStartY = ((16 + 8) - (16 * boardHiddenGrace)) * screenHeight16PixelScaleToFitMultiplier;
 	const int theBlockQueuedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
 	const int theBlockQueuedStartY = ((16 + 8) + (16 * 2)) * screenHeight16PixelScaleToFitMultiplier;
 	const int theBlockSavedStartX = ((16 * 2) + (boardWidth * 16)) * screenWidth16PixelScaleToFitMultiplier;
 	const int theBlockSavedStartY = ((16 + 8) + (16 * 7)) * screenHeight16PixelScaleToFitMultiplier;
 	const int theBlockCounterStartX = (16 * 17) * screenWidth16PixelScaleToFitMultiplier;
 	const int theBlockCounterStartY = ((16 + 8) + (16 * 1)) * screenHeight16PixelScaleToFitMultiplier;
+
+	//theParticle
+	sf::CircleShape theParticle(30);
+	theParticle.setFillColor(sf::Color::White);
+	const double theParticleGravityMin = 10000;
+	const double theParticleGravityMax = 12000;
+	const double theParticleStartXVelocityMin = -1000;
+	const double theParticleStartXVelocityMax = 1000;
+	const double theParticleStartYVelocityMin = -1000;
+	const double theParticleStartYVelocityMax = -2000;
+	const double theParticleStartXMin = theBlockStartX;
+	const double theParticleStartXMax = theBlock.getGlobalBounds().size.x * boardWidth;
+	const int theParticleRadiusMin = 1;
+	const int theParticleRadiusMax = 10;
+	const sf::IntRect theParticleAliveBounds(sf::Vector2i(0, 0), sf::Vector2i(screenWidth, screenHeight));
+	std::vector<Particle> particles;
 
 	//background stuff
 	sf::Texture backgroundTexture;
@@ -672,6 +668,26 @@ int main()
 			if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 			{
 				std::vector<int> rowsCleared = clearAndGetFullRows(board, clearFullRowsDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+				for(int x = 0; x < rowsCleared.size(); x++)
+				{
+
+					//spawn row clear particles
+					for(int i = 0; i < 100; i++)
+					{
+						particles.push_back(Particle(
+							RANDOMDOUBLE(theParticleStartXMin, theParticleStartXMax),
+							(rowsCleared[x] - boardHiddenGrace + 1) * 16 * screenHeight16PixelScaleToFitMultiplier,
+							// this^^^ was a terrible idea. stupid screenHeight16PixelScaleToFitMultiplier Friday, March 07, 2025, 13:36:31
+							RANDOMDOUBLE(theParticleStartXVelocityMin, theParticleStartXVelocityMax),
+							RANDOMDOUBLE(theParticleStartYVelocityMin, theParticleStartYVelocityMax),
+							RANDOMDOUBLE(theParticleGravityMin, theParticleGravityMax),
+							theParticleAliveBounds,
+							RANDOM(theParticleRadiusMin, theParticleRadiusMax),
+							sf::Color(RANDOM(0, 255), RANDOM(0, 255), RANDOM(0, 255), RANDOM(0, 255))
+						));
+					}
+				}
+
 				if(!rowsCleared.empty())
 				{
 					lineClearSFX.play();
@@ -985,23 +1001,6 @@ int main()
 			theBlock.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(16, 16)));
 
 			//draw particle stuff
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Y))
-			{
-				for(int i = 0; i < 30; i++)
-				{
-					particles.push_back(Particle(
-						mousePositionThisFrame.x, //startx
-						mousePositionThisFrame.y,//starty
-						//RANDOMDOUBLE(15000, 30000), //startXVelocity
-						//RANDOMDOUBLE(15000, 30000), //startYVelocity
-						RANDOMDOUBLE(-5000, 5000), //startXVelocity
-						RANDOMDOUBLE(-5000, 5000), //startYVelocity
-						RANDOMDOUBLE(10000, 12000), //gravity
-						aliveBounds
-					));
-				}
-			}
-
 			for(int x = 0; x < particles.size(); x++)
 			{
 				particles[x].update(deltaTime.count());
@@ -1012,6 +1011,8 @@ int main()
 				}
 
 				theParticle.setPosition(particles[x].getPosition());
+				theParticle.setFillColor(particles[x].getColor());
+				theParticle.setRadius(particles[x].getRadius());
 				window.draw(theParticle);
 			}
 
