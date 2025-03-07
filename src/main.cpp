@@ -5,6 +5,7 @@
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <iostream>
+#include <optional>
 #include <queue>
 #include <vector>
 #include <chrono>
@@ -22,6 +23,7 @@
 #include <SFML/System/Vector2.hpp>
 
 #include "gamefunctions.hpp"
+#include "particle.hpp"
 
 /*
 
@@ -280,6 +282,26 @@ int main()
 	const int screenWidth16PixelScaleToFitMultiplier = 3;
 	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
+	//theParticle
+	sf::CircleShape theParticle(30);
+	theParticle.setFillColor(sf::Color::White);
+
+	sf::IntRect aliveBounds(sf::Vector2i(0, 0), sf::Vector2i(screenWidth, screenHeight));
+	std::vector<Particle> particles;
+	for(int i = 0; i < 30; i++)
+	{
+		particles.push_back(Particle(
+			RANDOMDOUBLE(0, screenWidth), //startx
+			RANDOMDOUBLE(0, screenHeight), //starty
+			//RANDOMDOUBLE(15000, 30000), //startXVelocity
+			//RANDOMDOUBLE(15000, 30000), //startYVelocity
+			RANDOMDOUBLE(-5000, 5000), //startXVelocity
+			RANDOMDOUBLE(-5000, 5000), //startYVelocity
+			RANDOMDOUBLE(10000, 12000), //gravity
+			aliveBounds
+		));
+	}
+
 	//theBlock
 	std::string blankIntTexturePath = "resources/textures/default/blank0.png"; //"resources/textures/blocks/wool_colored_pink.png";
 	std::string activeIntTexturePath = "resources/textures/default/active0.png"; //"resources/textures/blocks/diamond_ore.png";
@@ -422,11 +444,14 @@ int main()
 	std::chrono::duration<double> hiddenGraceAreaViewZoomTickDelta = deltaTime;
 	const double hiddenGraceAreaViewZoomTickDeltaThreshold = 5;
 
+
 	sf::View view(sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(screenWidth, screenHeight)));
 	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(screenWidth, screenHeight)), "title goes here lol", sf::Style::Default);
 	window.setFramerateLimit(60);
 	while(window.isOpen())
 	{
+		sf::Vector2f mousePositionThisFrame = window.mapPixelToCoords(sf::Mouse::getPosition(window), view);
+
 		while(std::optional event = window.pollEvent())
 		{
 			if(event->is<sf::Event::Closed>())
@@ -466,7 +491,7 @@ int main()
 		{
 			if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			{
-				if(startButton.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window), view)))
+				if(startButton.getGlobalBounds().contains(mousePositionThisFrame))
 				{
 					playerIsAlive = true;
 					startMenu = false;
@@ -958,6 +983,37 @@ int main()
 				theBlock.move(sf::Vector2f(16 * screenWidth16PixelScaleToFitMultiplier, 0));
 			}
 			theBlock.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(16, 16)));
+
+			//draw particle stuff
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Y))
+			{
+				for(int i = 0; i < 30; i++)
+				{
+					particles.push_back(Particle(
+						mousePositionThisFrame.x, //startx
+						mousePositionThisFrame.y,//starty
+						//RANDOMDOUBLE(15000, 30000), //startXVelocity
+						//RANDOMDOUBLE(15000, 30000), //startYVelocity
+						RANDOMDOUBLE(-5000, 5000), //startXVelocity
+						RANDOMDOUBLE(-5000, 5000), //startYVelocity
+						RANDOMDOUBLE(10000, 12000), //gravity
+						aliveBounds
+					));
+				}
+			}
+
+			for(int x = 0; x < particles.size(); x++)
+			{
+				particles[x].update(deltaTime.count());
+				if(!particles[x].isAlive())
+				{
+					particles.erase(particles.begin() + x);
+					x--;
+				}
+
+				theParticle.setPosition(particles[x].getPosition());
+				window.draw(theParticle);
+			}
 
 			window.display();
 			lastframe = std::chrono::high_resolution_clock::now();
