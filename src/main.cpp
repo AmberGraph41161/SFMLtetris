@@ -1,3 +1,8 @@
+//started SFML 2.x to SFML 3.x migration code changes as of Thursday, March 06, 2025, 23:20:22
+//I am doing this right after migrating SFMLflappybird to SFML 3.x
+//ended migraing as of Thursday, March 06, 2025, 23:30:41
+
+#include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <iostream>
 #include <queue>
@@ -225,7 +230,6 @@ int main()
 	//SFML stuff
 	std::vector<sf::Sound*> vectorOfPoitersToAllSounds;
 
-	sf::Sound lineClearSFX;
 	sf::SoundBuffer lineClearSFXbuffer;
 	std::string lineClearSFXbufferPath = "resources/sounds/default/lineClear1.wav";
 	if(!lineClearSFXbuffer.loadFromFile(lineClearSFXbufferPath))
@@ -233,10 +237,9 @@ int main()
 		std::cerr << "[failed to load [lineClearSFXbufferPath] \"" << lineClearSFXbufferPath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	lineClearSFX.setBuffer(lineClearSFXbuffer);
+	sf::Sound lineClearSFX(lineClearSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&lineClearSFX);
 	
-	sf::Sound blockMoveSFX;
 	sf::SoundBuffer blockMoveSFXbuffer;
 	std::string blockMoveSFXbufferPath = "resources/sounds/default/blockMove0.wav";
 	if(!blockMoveSFXbuffer.loadFromFile(blockMoveSFXbufferPath))
@@ -244,10 +247,9 @@ int main()
 		std::cerr << "[failed to load [blockMoveSFXbufferPath] \"" << blockMoveSFXbufferPath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	blockMoveSFX.setBuffer(blockMoveSFXbuffer);
+	sf::Sound blockMoveSFX(blockMoveSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&blockMoveSFX);
 	
-	sf::Sound blockRotateSFX;
 	sf::SoundBuffer blockRotateSFXbuffer;
 	std::string blockRotateSFXbufferPath = "resources/sounds/default/blockRotate0.wav";
 	if(!blockRotateSFXbuffer.loadFromFile(blockRotateSFXbufferPath))
@@ -255,10 +257,9 @@ int main()
 		std::cerr << "[failed to load [blockRotateSFXbufferPath] \"" << blockRotateSFXbufferPath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	blockRotateSFX.setBuffer(blockRotateSFXbuffer);
+	sf::Sound blockRotateSFX(blockRotateSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&blockRotateSFX);
 	
-	sf::Sound blockSlamSFX;
 	sf::SoundBuffer blockSlamSFXbuffer;
 	std::string blockSlamSFXbufferPath = "resources/sounds/default/blockSlam1.wav";
 	if(!blockSlamSFXbuffer.loadFromFile(blockSlamSFXbufferPath))
@@ -266,7 +267,7 @@ int main()
 		std::cerr << "[failed to load [blockSlamSFXbufferPath] \"" << blockSlamSFXbufferPath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	blockSlamSFX.setBuffer(blockSlamSFXbuffer);
+	sf::Sound blockSlamSFX(blockSlamSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&blockSlamSFX);
 
 	for(int x = 0; x < vectorOfPoitersToAllSounds.size(); x++)
@@ -279,7 +280,7 @@ int main()
 	const int screenWidth16PixelScaleToFitMultiplier = 3;
 	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
-	sf::Sprite theBlock;
+	//theBlock
 	std::string blankIntTexturePath = "resources/textures/default/blank0.png"; //"resources/textures/blocks/wool_colored_pink.png";
 	std::string activeIntTexturePath = "resources/textures/default/active0.png"; //"resources/textures/blocks/diamond_ore.png";
 	std::string inactiveIntTexturePath = "resources/textures/default/inactive0.png"; //"resources/textures/blocks/diamond_block.png";
@@ -323,7 +324,7 @@ int main()
 		std::cerr << "[failed to load [counterTexturePath] \"" << counterTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	theBlock.setTexture(activeIntTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
+	sf::Sprite theBlock(activeIntTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
 	theBlock.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
 	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
@@ -338,7 +339,6 @@ int main()
 	const int theBlockCounterStartY = ((16 + 8) + (16 * 1)) * screenHeight16PixelScaleToFitMultiplier;
 
 	//background stuff
-	sf::Sprite background;
 	sf::Texture backgroundTexture;
 	std::string backgroundTexturePath = "resources/textures/default/background0.png";
 	if(!backgroundTexture.loadFromFile(backgroundTexturePath))
@@ -346,11 +346,10 @@ int main()
 		std::cerr << "[failed to load [backgroundTexturePath] \"" << backgroundTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	background.setTexture(backgroundTexture);
+	sf::Sprite background(backgroundTexture);
 	background.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
 	//start button stuff
-	sf::Sprite startButton;
 	sf::Texture startButtonTexture;
 	std::string startButtonTexturePath = "resources/textures/default/startbutton-Sheet.png";
 	if(!startButtonTexture.loadFromFile(startButtonTexturePath))
@@ -362,12 +361,12 @@ int main()
 	const int startButtonTextureHeight = 20;
 	const int startButtonLastFrameCount = 383;
 	int startButtonAnimatedCurrentFrame = 0;
-	startButton.setTexture(startButtonTexture);
+	sf::Sprite startButton(startButtonTexture);
 	startButton.setTextureRect(spriteSheetFrame(startButtonTextureWidth, startButtonTextureHeight, startButtonAnimatedCurrentFrame));
 	startButton.setScale(sf::Vector2f(20, 20));
-	startButton.setOrigin(startButton.getLocalBounds().width / 2, startButton.getLocalBounds().height / 2);
-	startButton.setPosition((float)screenWidth / 2, (float)screenHeight / 2);
-	startButton.move(0.1, 0); // wacky bug fix to fix startButton Pixels Jittering (SFML bug?) //still broken as of Sunday, December 15, 2024, 18:25:13
+	startButton.setOrigin(sf::Vector2f(startButton.getLocalBounds().size.x / 2, startButton.getLocalBounds().size.y / 2));
+	startButton.setPosition(sf::Vector2f((float)screenWidth / 2, (float)screenHeight / 2));
+	startButton.move(sf::Vector2f(0.1, 0)); // wacky bug fix to fix startButton Pixels Jittering (SFML bug?)) //still broken as of Sunday, December 15, 2024, 18:25:13
 	std::chrono::duration<double> startButtonAnimatedTickDelta = std::chrono::seconds::zero();
 	const double startButtonAnimatedTickDeltaThreshold = 0.03;
 
@@ -379,7 +378,7 @@ int main()
 
 	sf::Font masterFont;
 	std::string masterFontPath = "resources/fonts/Minecraftia-Regular.ttf";
-	if(!masterFont.loadFromFile(masterFontPath))
+	if(!masterFont.openFromFile(masterFontPath))
 	{
 		std::cerr << "[failed to load [masterFontPath] \"" << masterFontPath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
@@ -388,15 +387,14 @@ int main()
 	const int dimScreenShapeDefaultDim = 200;
 	sf::RectangleShape dimScreenShape(sf::Vector2f(screenWidth * 2, screenHeight * 2)); //because of hiddenGraceAreaViewZoom stuff
 	dimScreenShape.setFillColor(sf::Color(0, 0, 0, dimScreenShapeDefaultDim));
-	dimScreenShape.setOrigin(dimScreenShape.getLocalBounds().width / 2, dimScreenShape.getLocalBounds().height / 2);
-	dimScreenShape.setPosition(screenWidth / 2, screenHeight / 2);
+	dimScreenShape.setOrigin(sf::Vector2f(dimScreenShape.getLocalBounds().size.x / 2, dimScreenShape.getLocalBounds().size.y / 2));
+	dimScreenShape.setPosition(sf::Vector2f(screenWidth / 2, screenHeight / 2));
 
-	sf::Text dimScreenText;
-	dimScreenText.setFont(masterFont);
+	sf::Text dimScreenText(masterFont);
 	dimScreenText.setCharacterSize(24);
 	dimScreenText.setString("Click anywhere to resume...");
-	dimScreenText.setOrigin(dimScreenText.getLocalBounds().width / 2, dimScreenText.getLocalBounds().height / 2);
-	dimScreenText.setPosition(screenWidth / 2, screenHeight / 2);
+	dimScreenText.setOrigin(sf::Vector2f(dimScreenText.getLocalBounds().size.x / 2, dimScreenText.getLocalBounds().size.y / 2));
+	dimScreenText.setPosition(sf::Vector2f(screenWidth / 2, screenHeight / 2));
 	
 	bool slamKeyPressedLastFrame = false;
 	bool rotateKeyPressedLastFrame = false;
@@ -424,32 +422,37 @@ int main()
 	std::chrono::duration<double> hiddenGraceAreaViewZoomTickDelta = deltaTime;
 	const double hiddenGraceAreaViewZoomTickDeltaThreshold = 5;
 
-	sf::View view(sf::FloatRect(0, 0, screenWidth, screenHeight));
-	sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "title goes here lol", sf::Style::Default);
+	sf::View view(sf::FloatRect(sf::Vector2f(0, 0), sf::Vector2f(screenWidth, screenHeight)));
+	sf::RenderWindow window(sf::VideoMode(sf::Vector2u(screenWidth, screenHeight)), "title goes here lol", sf::Style::Default);
 	window.setFramerateLimit(60);
 	while(window.isOpen())
 	{
-		sf::Event event;
-		while(window.pollEvent(event))
+		while(std::optional event = window.pollEvent())
 		{
-			if(event.type == sf::Event::Closed)
+			if(event->is<sf::Event::Closed>())
 			{
 				window.close();
 			}
-			if(event.type == sf::Event::Resized)
+			if(event->is<sf::Event::Resized>())
 			{
 				//copied and pasted from SFMLflappybird for resizing logic. as of Tuesday, November 05, 2024, 11:40:24
 				if((((float)window.getSize().x / 16) * 9) > window.getSize().y)
 				{
-					view.setViewport(sf::FloatRect(0.5 - (((((float)window.getSize().y / 9) * 16) / (float)window.getSize().x) / 2), 0, (((float)window.getSize().y / 9) * 16) / (float)window.getSize().x, 1));
+					view.setViewport(sf::FloatRect(
+						sf::Vector2f(0.5 - (((((float)window.getSize().y / 9) * 16) / (float)window.getSize().x) / 2), 0),
+						sf::Vector2f((((float)window.getSize().y / 9) * 16) / (float)window.getSize().x, 1)
+					));
 				} else
 				{
-					view.setViewport(sf::FloatRect(0, 0.5 - (((((float)window.getSize().x / 16) * 9) / (float)window.getSize().y) / 2), 1, (((float)window.getSize().x / 16) * 9) / (float)window.getSize().y));
+					view.setViewport(sf::FloatRect(
+						sf::Vector2f(0, 0.5 - (((((float)window.getSize().x / 16) * 9) / (float)window.getSize().y) / 2)),
+						sf::Vector2f(1, (((float)window.getSize().x / 16) * 9) / (float)window.getSize().y))
+					);
 				}
 				window.setView(view);
 			}
 		}
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q))
+		if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Q))
 		{
 			window.close();
 		}
@@ -461,7 +464,7 @@ int main()
 
 		if(startMenu)
 		{
-			if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			{
 				if(startButton.getGlobalBounds().contains(window.mapPixelToCoords(sf::Mouse::getPosition(window), view)))
 				{
@@ -490,7 +493,7 @@ int main()
 			deltaTime = lastframe - lastlastframe;
 		} else if(pauseMenu)
 		{
-			if(sf::Mouse::isButtonPressed(sf::Mouse::Left))
+			if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
 			{
 				pauseMenu = false;
 			}
@@ -538,8 +541,8 @@ int main()
 						theBlock.setTexture(shadowIntTexture);
 						theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
 					}
-					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-					theBlock.move(theBlockStartX, theBlockStartY);
+					theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
+					theBlock.move(sf::Vector2f(theBlockStartX, theBlockStartY));
 					window.draw(theBlock);
 
 					if(y <= boardWarningFade)
@@ -547,8 +550,8 @@ int main()
 						theBlock.setTexture(warningFadeTexture);
 						theBlock.setColor(sf::Color(255, 0, 0, 230 / (y + 1)));
 
-						theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-						theBlock.move(theBlockStartX, theBlockStartY);
+						theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
+						theBlock.move(sf::Vector2f(theBlockStartX, theBlockStartY));
 						window.draw(theBlock);
 					}
 				}
@@ -557,14 +560,20 @@ int main()
 			for(int x = 0; x < blockQueue.front().size(); x++)
 			{
 				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
+				theBlock.setPosition(sf::Vector2f(
+					(blockQueue.front()[x].x * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
+					(blockQueue.front()[x].y * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
+				));
 				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
 				window.draw(theBlock);
 			}
 			for(int x = 0; x < savedBlock.size(); x++)
 			{
 				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
+				theBlock.setPosition(sf::Vector2f(
+					(savedBlock[x].x * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
+					(savedBlock[x].y * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
+				));
 				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
 				window.draw(theBlock);
 			}
@@ -578,16 +587,16 @@ int main()
 
 			//draw counter stuff
 			std::string counterString = std::to_string(score);
-			theBlock.setPosition(theBlockCounterStartX, theBlockCounterStartY);
+			theBlock.setPosition(sf::Vector2f(theBlockCounterStartX, theBlockCounterStartY));
 			theBlock.setTexture(counterTexture);
 			theBlock.setTextureRect(spriteSheetFrame(16, 16, 0));
 			for(int x = 0; x < counterString.size(); x++)
 			{
 				theBlock.setTextureRect(spriteSheetFrame(16, 16, counterString[x] - '0'));
 				window.draw(theBlock);
-				theBlock.move(16 * screenWidth16PixelScaleToFitMultiplier, 0);
+				theBlock.move(sf::Vector2f(16 * screenWidth16PixelScaleToFitMultiplier, 0));
 			}
-			theBlock.setTextureRect(sf::IntRect(0, 0, 16, 16));
+			theBlock.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(16, 16)));
 
 			window.draw(dimScreenShape);
 			window.draw(dimScreenText);
@@ -598,7 +607,7 @@ int main()
 			
 		} else if(playerIsAlive)
 		{
-			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Escape))
+			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Escape))
 			{
 				pauseMenu = true;
 				continue;
@@ -677,7 +686,7 @@ int main()
 			//controls
 			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
 			{
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Left))
 				{
 					if(leftRightMovementTickDelta.count() == 0)
 					{
@@ -696,7 +705,7 @@ int main()
 					{
 						leftRightMovementTickDelta += deltaTime;
 					}
-				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Right))
 				{
 					if(leftRightMovementTickDelta.count() == 0)
 					{
@@ -719,7 +728,7 @@ int main()
 				{
 					leftRightMovementTickDelta = std::chrono::seconds::zero();
 				}
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Down))
 				{
 					/*
 					if(!canMoveActivePiecesInDirection(board, directionDown, blankInt, activeInt, inactiveInt))
@@ -735,7 +744,7 @@ int main()
 					}
 				}
 
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Up))
 				{
 					if(!rotateKeyPressedLastFrame)
 					{
@@ -746,7 +755,7 @@ int main()
 						rotateKeyPressedLastFrame = true;
 						hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 					}
-				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Z))
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Z))
 				{
 					if(!rotateKeyPressedLastFrame)
 					{
@@ -762,7 +771,7 @@ int main()
 					rotateKeyPressedLastFrame = false;
 				}
 
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::C))
 				{
 					if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
 					{
@@ -789,7 +798,7 @@ int main()
 					saveblockKeyPressedLastFrame = false;
 				}
 
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space))
 				{
 					if(!slamKeyPressedLastFrame)
 					{
@@ -802,16 +811,16 @@ int main()
 					slamKeyPressedLastFrame = false;
 				}
 
-				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num1))
+				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num1))
 				{
 					currentColorValues = defaultColorValues;
-				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num2))
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num2))
 				{
 					currentColorValues = defaultPastelColorValues;
-				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num3))
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num3))
 				{
 					currentColorValues = defaultSuperPastelColorValues; 
-				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Num4))
+				} else if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Num4))
 				{
 					currentColorValues = defaultHighContrastColorValues;
 				}
@@ -860,8 +869,8 @@ int main()
 						theBlock.setTexture(shadowIntTexture);
 						theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
 					}
-					theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-					theBlock.move(theBlockStartX, theBlockStartY);
+					theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
+					theBlock.move(sf::Vector2f(theBlockStartX, theBlockStartY));
 					window.draw(theBlock);
 
 					if(y <= boardWarningFade)
@@ -869,8 +878,8 @@ int main()
 						theBlock.setTexture(warningFadeTexture);
 						theBlock.setColor(sf::Color(255, 0, 0, 230 / (y + 1)));
 
-						theBlock.setPosition(x * theBlock.getGlobalBounds().width, y * theBlock.getGlobalBounds().height);
-						theBlock.move(theBlockStartX, theBlockStartY);
+						theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
+						theBlock.move(sf::Vector2f(theBlockStartX, theBlockStartY));
 						window.draw(theBlock);
 					}
 				}
@@ -879,14 +888,20 @@ int main()
 			for(int x = 0; x < blockQueue.front().size(); x++)
 			{
 				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition((blockQueue.front()[x].x * theBlock.getGlobalBounds().width) + theBlockQueuedStartX, (blockQueue.front()[x].y * theBlock.getGlobalBounds().height) + theBlockQueuedStartY);
+				theBlock.setPosition(sf::Vector2f(
+					(blockQueue.front()[x].x * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
+					(blockQueue.front()[x].y * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
+				));
 				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
 				window.draw(theBlock);
 			}
 			for(int x = 0; x < savedBlock.size(); x++)
 			{
 				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition((savedBlock[x].x * theBlock.getGlobalBounds().width) + theBlockSavedStartX, (savedBlock[x].y * theBlock.getGlobalBounds().height) + theBlockSavedStartY);
+				theBlock.setPosition(sf::Vector2f(
+					(savedBlock[x].x * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
+					(savedBlock[x].y * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
+				));
 				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
 				window.draw(theBlock);
 			}
@@ -903,7 +918,7 @@ int main()
 					zoomMultiplier = 1.5;
 				}
 
-				view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
+				view.setSize(sf::Vector2f(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier));
 				window.setView(view);
 			} else if(view.getSize().x > screenWidth)
 			{
@@ -916,13 +931,13 @@ int main()
 					zoomMultiplier = 1;
 				}
 
-				view.setSize(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier);
+				view.setSize(sf::Vector2f(screenWidth * zoomMultiplier, screenHeight * zoomMultiplier));
 				window.setView(view);
 			} else
 			{
 				hiddenGraceAreaViewZoomTickDelta = std::chrono::seconds::zero();
 
-				view.setSize(screenWidth, screenHeight);
+				view.setSize(sf::Vector2f(screenWidth, screenHeight));
 				window.setView(view);
 			}
 			//remove fake-overlay of shadowInts
@@ -933,16 +948,16 @@ int main()
 
 			//draw counter stuff
 			std::string counterString = std::to_string(score);
-			theBlock.setPosition(theBlockCounterStartX, theBlockCounterStartY);
+			theBlock.setPosition(sf::Vector2f(theBlockCounterStartX, theBlockCounterStartY));
 			theBlock.setTexture(counterTexture);
 			theBlock.setTextureRect(spriteSheetFrame(16, 16, 0));
 			for(int x = 0; x < counterString.size(); x++)
 			{
 				theBlock.setTextureRect(spriteSheetFrame(16, 16, counterString[x] - '0'));
 				window.draw(theBlock);
-				theBlock.move(16 * screenWidth16PixelScaleToFitMultiplier, 0);
+				theBlock.move(sf::Vector2f(16 * screenWidth16PixelScaleToFitMultiplier, 0));
 			}
-			theBlock.setTextureRect(sf::IntRect(0, 0, 16, 16));
+			theBlock.setTextureRect(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(16, 16)));
 
 			window.display();
 			lastframe = std::chrono::high_resolution_clock::now();
