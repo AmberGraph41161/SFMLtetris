@@ -1,7 +1,3 @@
-//started SFML 2.x to SFML 3.x migration code changes as of Thursday, March 06, 2025, 23:20:22
-//I am doing this right after migrating SFMLflappybird to SFML 3.x
-//ended migraing as of Thursday, March 06, 2025, 23:30:41
-
 #include <SFML/Graphics/CircleShape.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <iostream>
@@ -172,10 +168,10 @@ int main()
 	int boardWarningFade = 5;
 	int boardWidth = 10;
 	int boardHeight = 20 + boardHiddenGrace;
-	std::vector<std::vector<int>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
+	std::vector<std::vector<Block>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
-		std::vector<int> pushBackRowVector(boardWidth);
+		std::vector<Block> pushBackRowVector(boardWidth);
 		for(int x = 0; x < boardWidth; x++)
 		{
 			pushBackRowVector[x] = blankIntLowerUpperPair.first;

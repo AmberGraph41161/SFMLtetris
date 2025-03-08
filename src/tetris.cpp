@@ -1,0 +1,1079 @@
+#include "tetris.hpp"
+
+static int anchorPointY = 0;
+static int anchorPointX = 0;
+
+std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype, TetrominoState tetrominostate)
+{
+	//CLOCKWISE DIRECTION DEFAULT
+	//up = clockwise spin DEFAULT
+	//z = counterclockwise spin
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> iTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 1 ,1, 1, 1 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 0, 0 },
+		{ 0, 1, 0, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 1, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 1, 1, 1, 1 },
+		{ 0 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 1, 0 },
+		{ 0, 0, 1, 0 },
+		{ 0 ,0, 1, 0 },
+		{ 0, 0, 1, 0 }
+		}},
+	}};
+
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> jTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 1, 0, 0, 0 },
+		{ 1 ,1, 1, 1 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 1, 0 },
+		{ 0, 1, 0, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 1, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 1, 1, 1, 1 },
+		{ 0 ,0, 0, 1 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 1, 0 },
+		{ 0, 0, 1, 0 },
+		{ 0 ,0, 1, 0 },
+		{ 0, 1, 1, 0 }
+		}},
+	}};
+
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> lTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 1 },
+		{ 1 ,1, 1, 1 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 0, 0 },
+		{ 0, 1, 0, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 1, 1, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 1, 1, 1, 1 },
+		{ 1 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 1, 0 },
+		{ 0, 0, 1, 0 },
+		{ 0 ,0, 1, 0 },
+		{ 0, 0, 1, 0 }
+		}},
+	}};
+
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> oTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,1, 1, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,1, 1, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,1, 1, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,1, 1, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+	}};
+
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> sTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 1 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,0, 1, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 1 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 1, 0, 0, 0 },
+		{ 1, 1, 0, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+	}};
+
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> tTetrominoStates =
+	{{
+		{{
+		{ 0, 1, 0, 0 },
+		{ 1, 1, 1, 0 },
+		{ 0 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 1, 1, 1, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 1, 0, 0 },
+		{ 1, 1, 0, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+	}};
+
+	const std::array<std::array<std::array<bool, 4>, 4>, 4> zTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,0, 1, 1 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 1, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,1, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 1, 1, 0 },
+		{ 0 ,0, 1, 1 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 1 },
+		{ 0, 0, 1, 1 },
+		{ 0 ,0, 1, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+	}};
+
+	switch(tetrominotype)
+	{
+		case iTetromino:
+		{
+			return iTetrominoStates[tetrominostate];
+		}
+
+		case jTetromino:
+		{
+			return jTetrominoStates[tetrominostate];
+		}
+
+		case lTetromino:
+		{
+			return lTetrominoStates[tetrominostate];
+		}
+
+		case oTetromino:
+		{
+			return oTetrominoStates[tetrominostate];
+		}
+
+		case sTetromino:
+		{
+			return sTetrominoStates[tetrominostate];
+		}
+
+		case tTetromino:
+		{
+			return tTetrominoStates[tetrominostate];
+		}
+
+		case zTetromino:
+		{
+			return zTetrominoStates[tetrominostate];
+		}
+
+		case unknownTetromino:
+		{
+			return zTetrominoStates[tetrominostate];
+		}
+	}
+}
+
+bool activePiecesExistOnBoard(std::vector<std::vector<TetrisCube>> &board)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x].pointstate == PointStateActive)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, PointState pointstate)
+{
+	for(int y = 0; y < boardHiddenGrace; y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x].pointstate == pointstate)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction)
+{
+	bool canMoveActivePieces = true;
+	switch(direction)
+	{
+		case DirectionUp:
+		{
+			for(int x = 0; x < board[0].size(); x++)
+			{
+				if(board[0][x].pointstate == PointStateActive)
+				{
+					canMoveActivePieces = false;
+					break;
+				}
+			}
+			for(int y = 1; y < board.size(); y++)
+			{
+				if(!canMoveActivePieces)
+				{
+					break;
+				}
+
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(!canMoveActivePieces)
+					{
+						break;
+					}
+
+					if
+					(
+						board[y][x].pointstate == PointStateActive &&
+						board[y - 1][x].pointstate != PointStateBlank &&
+						board[y - 1][x].pointstate != PointStateActive
+					)
+					{
+						canMoveActivePieces = false;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case DirectionDown:
+		{
+			for(int x = 0; x < board[board.size() - 1].size(); x++)
+			{
+				if(board[board.size() - 1][x].pointstate == PointStateActive)
+				{
+					canMoveActivePieces = false;
+					break;
+				}
+			}
+
+			for(int y = board.size() - 2; y >= 0; y--)
+			{
+				if(!canMoveActivePieces)
+				{
+					break;
+				}
+
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(!canMoveActivePieces)
+					{
+						break;
+					}
+
+					if
+					(
+						board[y][x].pointstate == PointStateActive &&
+						board[y + 1][x].pointstate != PointStateBlank &&
+						board[y + 1][x].pointstate != PointStateActive
+					)
+					{
+						canMoveActivePieces = false;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case DirectionLeft:
+		{
+			for(int y = 0; y < board.size(); y++)
+			{
+				if(board[y][0].pointstate != PointStateActive)
+				{
+					canMoveActivePieces = false;
+					break;
+				}
+			}
+
+			for(int y = 0; y < board.size(); y++)
+			{
+				if(!canMoveActivePieces)
+				{
+					break;
+				}
+
+				for(int x = 1; x < board[y].size(); x++)
+				{
+					if(!canMoveActivePieces)
+					{
+						break;
+					}
+
+					if
+					(
+						board[y][x].pointstate == PointStateActive &&
+						board[y][x - 1].pointstate != PointStateBlank &&
+						board[y][x - 1].pointstate != PointStateActive
+					)
+					{
+						canMoveActivePieces = false;
+					}
+				}
+			}
+
+			break;
+		}
+
+		case DirectionRight:
+		{
+			for(int y = 0; y < board.size(); y++)
+			{
+				if(board[y][board[y].size() - 1].pointstate == PointStateActive)
+				{
+					canMoveActivePieces = false;
+					break;
+				}
+			}
+
+			for(int y = 0; y < board.size(); y++)
+			{
+				if(!canMoveActivePieces)
+				{
+					break;
+				}
+
+				for(int x = board[y].size() - 2; x >= 0; x--)
+				{
+					if(!canMoveActivePieces)
+					{
+						break;
+					}
+
+					if
+					(
+						board[y][x].pointstate == PointStateActive &&
+						board[y][x +1 ].pointstate != PointStateBlank &&
+						board[y][x +1 ].pointstate != PointStateActive
+					)
+					{
+						canMoveActivePieces = false;
+					}
+				}
+			}
+
+			break;
+		}
+
+		default:
+		{
+			canMoveActivePieces = false;
+			//std::cout << "invalid direction to move???" << std::endl;
+			//std::cout << "you've reached unreachable code" << std::endl;
+			break;
+		}
+	}
+
+	return canMoveActivePieces;
+}
+
+void destroyActivePiecesOnBoard(std::vector<std::vector<TetrisCube>> &board)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x].pointstate == PointStateActive)
+			{
+				board[y][x].pointstate = PointStateBlank;
+			}
+		}
+	}
+}
+
+bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction)
+{
+	//move or don't move pieces after checking yo
+	if(canMoveActivePiecesInDirection(board, direction))
+	{
+		switch(direction)
+		{
+			case DirectionUp:
+			{
+				for(int y = 1; y < board.size(); y++)
+				{
+					for(int x = 0; x < board[y].size(); x++)
+					{
+						if(board[y][x].pointstate == PointStateActive)
+						{
+							board[y - 1][x] = board[y][x];
+							board[y][x].pointstate = PointStateBlank;
+						}
+					}
+				}
+
+				anchorPointY--;
+				break;
+			}
+
+			case DirectionDown:
+			{
+				for(int y = board.size() - 2; y >= 0; y--)
+				{
+					for(int x = 0; x < board[y].size(); x++)
+					{
+						if(board[y][x].pointstate == PointStateActive)
+						{
+							board[y + 1][x] = board[y][x];
+							board[y][x].pointstate = PointStateBlank;
+						}
+					}
+				}
+
+				anchorPointY++;
+				break;
+			}
+
+			case DirectionLeft:
+			{
+				for(int y = 0; y < board.size(); y++)
+				{
+					for(int x = 1; x < board[y].size(); x++)
+					{
+						if(board[y][x].pointstate == PointStateActive)
+						{
+							board[y][x - 1] = board[y][x];
+							board[y][x].pointstate = PointStateBlank;
+						}
+					}
+				}
+
+				anchorPointX--;
+				break;
+			}
+
+			case DirectionRight:
+			{
+				for(int y = 0; y < board.size(); y++)
+				{
+					for(int x = board[y].size() - 2; x >= 0; x--)
+					{
+						if(board[y][x].pointstate == PointStateActive)
+						{
+							board[y][x + 1] = board[y][x];
+							board[y][x].pointstate = PointStateBlank;
+						}
+					}
+				}
+
+				anchorPointX++;
+				break;
+			}
+
+			default:
+			{
+				//std::cout << "you've reached unreachable code" << std::endl;
+				break;
+			}
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+void slamActivePiecesInDireciton(std::vector<std::vector<TetrisCube>> &board, Direction direction)
+{
+	while(true)
+	{
+		if(!canMoveActivePiecesInDirection(board, direction))
+		{
+			break;
+		} else
+		{
+			moveActivePiecesInDirection(board, direction);
+		}
+	}
+
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x].pointstate == PointStateActive)
+			{
+				board[y][x].pointstate = PointStateInactive;
+			}
+		}
+	}
+}
+
+void rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotateInClockwiseDirection)
+{
+	std::array<std::array<bool, 4>, 4> capturedTetrominoState;
+
+	for(int y = 0; y <= capturedTetrominoState.size(); y++)
+	{
+		for(int x = 0; x <= capturedTetrominoState[y].size(); x++)
+		{
+			capturedTetrominoState[y][x] = false;
+
+			if
+			(
+				anchorPointY + y >= 0 && anchorPointY + y < board.size() &&
+				anchorPointX + x >= 0 && anchorPointX + x < board[0].size()
+			)
+			{
+				if(board[anchorPointY + y][anchorPointX + x].pointstate == PointStateActive)
+				{
+					capturedTetrominoState[y][x] = true;
+				}
+			}
+		}
+	}
+
+	std::array<std::array<bool, 4>, 4> nextTetrominoState;
+	for(int x = iTetromino; x != unknownTetromino; x++)
+	{
+		for(int  y = TetrominoStateOne; y != unknownTetrominoState; y++)
+		{
+			if(capturedTetrominoState == getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoState>(y)))
+			{
+				if(rotateInClockwiseDirection)
+				{
+					if(static_cast<TetrominoState>(y + 1) != unknownTetrominoState)
+					{
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoState>(y + 1));
+					} else
+					{
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), TetrominoStateOne);
+					}
+				} else
+				{
+					if(y - 1 >= TetrominoStateOne)
+					{
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoState>(y - 1));
+					} else
+					{
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), TetrominoStateFour);
+					}
+				}
+			}
+		}
+	}
+
+	destroyActivePiecesOnBoard(board);
+
+	const int rotateShimmyYMax = 4;
+	const int rotateShimmyYMin = -4;
+	const int rotateShimmyXMax = 4;
+	const int rotateShimmyXMin = -4;
+
+	for(int y = 0; y <= rotateShimmyYMax; y++)
+	{
+		for(int x = 0; x <= rotateShimmyXMax; x++)
+		{
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			{
+				return;
+			}
+		}
+		for(int x = 0; x >= rotateShimmyXMin; x--)
+		{
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			{
+				return;
+			}
+		}
+	}
+	for(int y = 0; y >= rotateShimmyYMin; y--)
+	{
+		for(int x = 0; x <= rotateShimmyXMax; x++)
+		{
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			{
+				return;
+			}
+		}
+		for(int x = 0; x >= rotateShimmyXMin; x--)
+		{
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			{
+				return;
+			}
+		}
+	}
+}
+
+void hardenActivePieces(std::vector<std::vector<TetrisCube>> &board)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x].pointstate == PointStateActive)
+			{
+				board[y][x].pointstate = PointStateInactive;
+			}
+		}
+	}
+}
+
+void overlayShadow(std::vector<std::vector<TetrisCube>> &board, Direction gravityDirection)
+{
+	std::vector<std::vector<TetrisCube>> tempShadowBoard = board;
+	while(true)
+	{
+		if(!canMoveActivePiecesInDirection(tempShadowBoard, gravityDirection))
+		{
+			break;
+		} else
+		{
+			moveActivePiecesInDirection(tempShadowBoard, gravityDirection);
+		}
+	}
+
+	for(int y = 0; y < tempShadowBoard.size(); y++)
+	{
+		for(int x = 0; x < tempShadowBoard[y].size(); x++)
+		{
+			if
+			(
+				tempShadowBoard[y][x].pointstate == PointStateActive &&
+				board[y][x].pointstate != PointStateActive
+			)
+			{
+				board[y][x].pointstate = PointStateShadow;
+			}
+		}
+	}
+}
+
+void clearShadow(std::vector<std::vector<TetrisCube>> &board)
+{
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(board[y][x].pointstate == PointStateShadow)
+			{
+				board[y][x].pointstate = PointStateBlank;
+			}
+		}
+	}
+}
+
+std::vector<int> clearAndGetFullRowYLevels(std::vector<std::vector<TetrisCube>> &board, Direction gravityDirection)
+{
+	std::vector<int> rowsCleared;
+
+	switch(gravityDirection)
+	{
+		case DirectionUp:
+		{
+			for(int y = 0; y < board.size() - 1; y++)
+			{
+				bool rowIsFull = true;
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(board[y][x].pointstate != PointStateActive)
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherY = y; anotherY < board.size() - 1; anotherY++)
+					{
+						for(int x = 0; x < board[anotherY].size(); anotherY++)
+						{
+							if
+							(
+								board[y + 1][x].pointstate == PointStateInactive ||
+								board[y + 1][x].pointstate == PointStateBlank
+							)
+							{
+								board[y][x] = board[y + 1][x];
+							}
+						}
+					}
+
+					for(int x = 0; x < board[board.size() - 1].size(); x++)
+					{
+						if(board[board.size() - 1][x].pointstate == PointStateInactive)
+						{
+							board[board.size() - 1][x].pointstate = PointStateBlank;
+						}
+					}
+
+					rowsCleared.push_back(y);
+					y--;
+				}
+
+			}
+			break;
+		}
+		case DirectionDown:
+		{
+			for(int y = board.size() - 1; y > 0; y--)
+			{
+				bool rowIsFull = true;
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(board[y][x].pointstate != PointStateInactive)
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherY = y; anotherY > 0; anotherY--)
+					{
+						for(int x = 0; x < board[anotherY].size(); x++)
+						{
+							if
+							(
+								board[y - 1][x].pointstate == PointStateInactive ||
+								board[y - 1][x].pointstate == PointStateBlank
+							)
+							{
+								board[anotherY][x] = board[anotherY - 1][x];
+							}
+						}
+					}
+
+					for(int x = 0; x < board[0].size(); x++)
+					{
+						if(board[0][x].pointstate == PointStateInactive)
+						{
+							board[0][x].pointstate = PointStateInactive;
+						}
+					}
+
+					rowsCleared.push_back(y);
+					y++;
+				}
+			}
+			break;
+		}
+		case DirectionLeft:
+		{
+			//board should always have same width and height without fail, so as iffy as the following directionLeft and directionRight code is, it should be fine
+			for(int x = 0; x < board[0].size() - 1; x++)
+			{
+				bool rowIsFull = true;
+				for(int y = 0; y < board.size(); y++)
+				{
+					if(board[y][x].pointstate != PointStateInactive)
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherX = x; anotherX < board[0].size() - 1; anotherX++)
+					{
+						for(int y = 0; y < board.size(); y++)
+						{
+							if
+							(
+								board[y][anotherX + 1].pointstate == PointStateInactive ||
+								board[y][anotherX + 1].pointstate == PointStateBlank
+							)
+							{
+								board[y][anotherX] = board[y][anotherX + 1];
+							}
+						}
+					}
+					for(int y = 0; y < board.size(); y++)
+					{
+						if(board[y][board.size() - 1].pointstate == PointStateInactive)
+						{
+							board[y][board.size() - 1].pointstate = PointStateInactive;
+						}
+					}
+
+					rowsCleared.push_back(x);
+					x--;
+				}
+			}
+			break;
+		}
+		case DirectionRight:
+		{
+			for(int x = board[0].size() - 1; x > 0; x--)
+			{
+				bool rowIsFull = true;
+				for(int y = 0; y < board.size(); y++)
+				{
+					if(board[y][x].pointstate != PointStateInactive)
+					{
+						rowIsFull = false;
+						break;
+					}
+				}
+
+				if(rowIsFull)
+				{
+					for(int anotherX = x; anotherX > 0; anotherX--)
+					{
+						for(int y = 0; y < board.size(); y++)
+						{
+							if
+							(
+								board[y][anotherX - 1].pointstate == PointStateInactive ||
+								board[y][anotherX - 1].pointstate == PointStateBlank
+							)
+							{
+								board[y][anotherX] = board[y][anotherX - 1];
+							}
+						}
+					}
+					for(int y = 0; y < board.size(); y++)
+					{
+						if(board[y][0].pointstate == PointStateInactive)
+						{
+							board[y][0].pointstate = PointStateBlank;
+						}
+					}
+
+					rowsCleared.push_back(x);
+					x++;
+				}
+			}
+
+			break;
+		}
+
+		default:
+		{
+			//std::cout << "invalid direction to clearAndGetFullRows???" << std::endl;
+			//std::cout << "you've reached unreachable code" << std::endl;
+			break;
+		}
+
+	}
+
+	if(rowsCleared.size() > 1)
+	{
+		for(int x = rowsCleared.size() - 2; x >= 0; x--)
+		{
+			rowsCleared[x]--;
+		}
+	}
+	return rowsCleared;
+}
+
+bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, std::array<std::array<bool, 4>, 4> tetrominostate, int placeY, int placeX)
+{
+	for(int y = 0; y < tetrominostate.size(); y++)
+	{
+		for(int x = 0; x < tetrominostate[y].size(); x++)
+		{
+			if(tetrominostate[y][x] == true)
+			{
+				if
+				(
+					placeY + y < 0 || placeY + y >= board.size() ||
+					placeX + x < 0 || placeX + x >= board[0].size() ||
+					board[placeY + y][placeX + x].pointstate != PointStateBlank
+				)
+				{
+					return false;
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, std::array<std::array<bool, 4>, 4> tetrominostate, int placeY, int placeX)
+{
+	if(!canPlaceTetrominoStateOnBoard(board, tetrominostate, placeX, placeY))
+	{
+		return false;
+	}
+
+	for(int y = 0; y < tetrominostate.size(); y++)
+	{
+		for(int x = 0; x < tetrominostate[y].size(); x++)
+		{
+			if(tetrominostate[y][x] == true)
+			{
+				board[placeY + y][placeX + x].pointstate = PointStateActive;
+			}
+		}
+	}
+
+	return true;
+}
+
+bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, Direction gravityDirection, TetrominoType tetrominotype)
+{
+	std::array<std::array<bool, 4>, 4> tetrominoToPlace;
+
+	switch(gravityDirection)
+	{
+		case DirectionUp:
+		{
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateOne);
+			anchorPointY = board.size() - 1  - 4 - boardHiddenGrace;
+			anchorPointX = (board[0].size() / 2) - 2;
+			break;
+		}
+
+		case DirectionDown:
+		{
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateTwo);
+			anchorPointY = 0 + boardHiddenGrace;
+			anchorPointX = (board[0].size() / 2) - 2;
+			break;
+		}
+
+		case DirectionLeft:
+		{
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateThree);
+			anchorPointY = (board.size() / 2) - 2;
+			anchorPointX = 0;
+
+			break;
+		}
+
+		case DirectionRight:
+		{
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateFour);
+			anchorPointY = (board.size() / 2) - 2;
+			anchorPointX = board[0].size() - 1 - 4;
+			break;
+		}
+	}
+
+	if(!placeTetrominoStateOnBoard(board, tetrominoToPlace, anchorPointY, anchorPointX))
+	{
+		return false;
+	}
+	return false;
+}
+
+int calculateScoreFromRowsCleared(int nRowsCleared)
+{
+	static int fourRowsClearedLastTimeScoreMultiplier = 0; //might change this later idk... seems iffy. Friday, November 15, 2024, 22:11:21
+	static bool fourRowsClearedLastTime = false;
+
+	if(nRowsCleared == 1)
+	{
+		fourRowsClearedLastTime = false;
+		return 100;
+	} else if(nRowsCleared == 2)
+	{
+		fourRowsClearedLastTime = false;
+		return 150;
+	} else if(nRowsCleared == 3)
+	{
+		fourRowsClearedLastTime = false;
+		return 200;
+	} else if(nRowsCleared == 4 && fourRowsClearedLastTime)
+	{
+		fourRowsClearedLastTime = true;
+		fourRowsClearedLastTimeScoreMultiplier++;
+		return 400 * fourRowsClearedLastTimeScoreMultiplier;
+	} else if(nRowsCleared == 4)
+	{
+		fourRowsClearedLastTime = true;
+		fourRowsClearedLastTimeScoreMultiplier++;
+		return 400;
+	}
+
+	if(!fourRowsClearedLastTime)
+	{
+		fourRowsClearedLastTimeScoreMultiplier = 0;
+	}
+
+	return 0;
+}

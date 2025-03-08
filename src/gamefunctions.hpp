@@ -3,16 +3,15 @@
 
 #include <vector>
 #include <SFML/Graphics/Rect.hpp>
+#include <SFML/Graphics/Color.hpp>
 
-struct Point
+enum PointState { PointStateBlank, PointStateActive, PointStateInactive, PointStateShadow };
+
+struct Block
 {
-	Point(int x, int y) : x(x), y(y)
+	bool operator==(const Block &block) const
 	{
-	}
-
-	bool operator==(const Point &point) const
-	{
-		if(point.x == this->x && point.y == this->y)
+		if(block.color == this->color && block.pointstate == this->pointstate)
 		{
 			return true;
 		}
@@ -20,8 +19,8 @@ struct Point
 		return false;
 	}
 
-	int x = 0;
-	int y = 0;
+	sf::Color color;
+	PointState pointstate = PointStateActive;
 };
 
 struct FloatingPoint
@@ -42,33 +41,32 @@ struct FloatingPoint
 
 	float x = 0;
 	float y = 0;
+	
+	sf::Color color;
+	PointState pointstate;
 };
 
-typedef std::vector<Point> Block;
+typedef std::array<Block, 4> TetrisBlock;
 typedef std::vector<FloatingPoint> FloatingBlock;
 
 sf::IntRect spriteSheetFrame(int spriteFrameWidth, int spriteFrameHeight, int frameNumber); //this is only for sprite sheet left to right horiztonal etc etc;
 
-enum intColor { intColorCyan = 0, intColorBlue, intColorOrange, intColorYellow, intColorGreen, intColorPurple, intColorRed, intColorCustom };
-intColor getIntColorFromBlockAndGroupedBLockCollection(Block block, const std::array<const Block, 7> &groupedBlockCollection);
-bool withinIntPairRange(int number, const std::pair<int, int> &intLowerUpperPair);
-
-enum direction { directionUp, directionDown, directionLeft, directionRight };
+enum Direction { DirectionUp, DirectionDown, DirectionLeft, DirectionRight };
 bool activePiecesExistOnBoard(std::vector<std::vector<int>> &board, const std::pair<int, int> &activeIntLowerUpperPair);
 bool intPiecesExistInHiddenGrace(std::vector<std::vector<int>> &board, int boardHiddenGrace,
 		const std::pair<int, int> &intPiecesLowerUpperPair);
-bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+bool canMoveActivePiecesInDirection(std::vector<std::vector<int>> &board, Direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
 void destroyActivePiecesOnBoard(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair);
-bool moveActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+bool moveActivePiecesInDirection(std::vector<std::vector<int>> &board, Direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+void slamActivePiecesInDirection(std::vector<std::vector<int>> &board, Direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
@@ -79,30 +77,20 @@ bool rotateActivePieces(std::vector<std::vector<int>> &board,
 void hardenActivePieces(std::vector<std::vector<int>> &board,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-void fakeOverlayShadowInts(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+void fakeOverlayShadowInts(std::vector<std::vector<int>> &board, Direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair,
 		const std::pair<int, int> &shadowIntLowerUpperPair,
 		bool showShadowChars);
-std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board, direction upDownLeftRight,
+std::vector<int> clearAndGetFullRows(std::vector<std::vector<int>> &board, Direction upDownLeftRight,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
 int calculateScoreFromRowsCleared(int nRowsCleared);
-bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, direction gravityDirection, const Block &block, int boardHiddenGrace,
+bool placeBlockAsActivePieces(std::vector<std::vector<int>> &board, Direction gravityDirection, const Block &block, int boardHiddenGrace,
 		const std::array<const Block, 7> &groupedBlockCollection,
 		const std::pair<int, int> &blankIntLowerUpperPair,
 		const std::pair<int, int> &activeIntLowerUpperPair,
 		const std::pair<int, int> &inactiveIntLowerUpperPair);
-void printBoard(std::vector<std::vector<int>> &board,
-		const std::pair<int, int> &blankIntLowerUpperPair,
-		const std::pair<int, int> &activeIntLowerUpperPair,
-		const std::pair<int, int> &inactiveIntLowerUpperPair,
-		const std::pair<int, int> &shadowIntLowerUpperPair);
-void printBoardInt(std::vector<std::vector<int>> &board,
-		const std::pair<int, int> &blankIntLowerUpperPair,
-		const std::pair<int, int> &activeIntLowerUpperPair,
-		const std::pair<int, int> &inactiveIntLowerUpperPair,
-		const std::pair<int, int> &shadowIntLowerUpperPair);
 #endif
