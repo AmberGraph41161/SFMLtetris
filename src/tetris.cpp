@@ -396,7 +396,7 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board,
 		{
 			for(int y = 0; y < board.size(); y++)
 			{
-				if(board[y][0].pointstate != PointStateActive)
+				if(board[y][0].pointstate == PointStateActive)
 				{
 					canMoveActivePieces = false;
 					break;
@@ -990,9 +990,11 @@ bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, 
 				if
 				(
 					placeY + y < 0 || placeY + y >= board.size() ||
-					placeX + x < 0 || placeX + x >= board[0].size() ||
-					board[placeY + y][placeX + x].pointstate != PointStateBlank
+					placeX + x < 0 || placeX + x >= board[0].size()
 				)
+				{
+					return false;
+				} else if(board[placeY + y][placeX + x].pointstate != PointStateBlank)
 				{
 					return false;
 				}
@@ -1005,7 +1007,7 @@ bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, 
 
 bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX)
 {
-	if(!canPlaceTetrominoStateOnBoard(board, tetrominostate, placeX, placeY))
+	if(!canPlaceTetrominoStateOnBoard(board, tetrominostate, placeY, placeX))
 	{
 		return false;
 	}
@@ -1068,7 +1070,8 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 	{
 		return false;
 	}
-	return false;
+
+	return true;
 }
 
 int calculateScoreFromRowsCleared(int nRowsCleared)
