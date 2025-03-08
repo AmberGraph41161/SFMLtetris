@@ -18,7 +18,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include "gamefunctions.hpp"
+#include  "tetris.hpp"
 #include "particle.hpp"
 
 /*
@@ -58,36 +58,27 @@ double RANDOMDOUBLE(double minimum, double maximum)
 	return (((double)rand() / RAND_MAX) * (maximum - minimum)) + minimum;
 }
 
+sf::IntRect spriteSheetFrame(int spriteFrameWidth, int spriteFrameHeight, int frameNumber) //this is only for sprite sheet left to right horiztonal etc etc
+{
+	return sf::IntRect(sf::Vector2i(frameNumber * spriteFrameWidth, 0), sf::Vector2i(spriteFrameWidth, spriteFrameHeight)); //x, y, width, height
+}
+
 int main()
 {
 	srand(std::chrono::system_clock::now().time_since_epoch().count());
 
-	bool debug = false;
 
 	//init backend
 	int totalRowsCleared = 0;
 	int score = 0;
 
-	enum blockType { iBlock, jBlock, lBlock, oBlock, sBlock, tBlock, zBlock, customBlock };
-
-	//as of Monday, November 11, 2024, 00:19:43, Block is vector for now. Might change to static array later. Dynamic cuz I might play around with it in future
-	const Block iBlockCoords({ {0, 0}, {1, 0}, {2, 0}, {3, 0} }); //1. cyan
-	const Block jBlockCoords({ {0, 0}, {0, 1}, {1, 1}, {2, 1} }); //2. blue (dark)
-	const Block lBlockCoords({ {2, 0}, {0, 1}, {1, 1}, {2, 1} }); //3. orange
-	const Block oBlockCoords({ {0, 0}, {1, 0}, {0, 1}, {1, 1} }); //4. yellow
-	const Block sBlockCoords({ {1, 0}, {2, 0}, {0, 1}, {1, 1} }); //5. green (lime)
-	const Block tBlockCoords({ {1, 0}, {0, 1}, {1, 1}, {2, 1} }); //6. purple
-	const Block zBlockCoords({ {0, 0}, {1, 0}, {1, 1}, {2, 1} }); //7. red
-	
-	const std::array<const Block, 7> groupedBlockCollection = { iBlockCoords, jBlockCoords, lBlockCoords, oBlockCoords, sBlockCoords, tBlockCoords, zBlockCoords };
-
-	std::queue<Block> blockQueue;
+	std::queue<TetrominoState> blockQueue;
 	for(int x = 0; x <= 5; x++)
 	{
-		blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+		blockQueue.push(getTetrominoState(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)), TetrominoDirectionStateOne));
 	}
-	Block savedBlock;
-	Block currentBlockInPlay;
+	TetrominoState savedTetromino;
+	TetrominoState currentTetrominoInPlay;
 
 	bool wasAbleToPlaceNextBlockSuccessfully = false;
 		/*
@@ -168,24 +159,24 @@ int main()
 	int boardWarningFade = 5;
 	int boardWidth = 10;
 	int boardHeight = 20 + boardHiddenGrace;
-	std::vector<std::vector<Block>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
+	std::vector<std::vector<TetrisCube>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
-		std::vector<Block> pushBackRowVector(boardWidth);
+		std::vector<TetrisCube> pushBackRowVector(boardWidth);
 		for(int x = 0; x < boardWidth; x++)
 		{
-			pushBackRowVector[x] = blankIntLowerUpperPair.first;
+			pushBackRowVector[x].pointstate = PointStateBlank;
 		}
 		board.push_back(pushBackRowVector);
 	}
 
-	direction gravityDirection = directionDown;
-	direction canMoveDirection = gravityDirection;
-	direction moveActiveDirection = gravityDirection;
-	direction slamActiveDirection = gravityDirection;
-	direction shadowDirection = gravityDirection;
-	direction clearFullRowsDirection = gravityDirection;
-	direction placeBlocksDirection = gravityDirection;
+	Direction gravityDirection = DirectionDown;
+	Direction canMoveDirection = gravityDirection;
+	Direction moveActiveDirection = gravityDirection;
+	Direction slamActiveDirection = gravityDirection;
+	Direction shadowDirection = gravityDirection;
+	Direction clearFullRowsDirection = gravityDirection;
+	Direction placeBlocksDirection = gravityDirection;
 
 	//board structure:
 	/*
@@ -478,11 +469,6 @@ int main()
 			window.close();
 		}
 
-		if(debug)
-		{
-			printBoardInt(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair);
-		}
-
 		if(startMenu)
 		{
 			if(sf::Mouse::isButtonPressed(sf::Mouse::Button::Left))
@@ -524,43 +510,43 @@ int main()
 			window.clear(sf::Color::Black);
 
 			window.draw(background);
-			
+
 			//fake-overlay shadowInts before drawing
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			if(activePiecesExistOnBoard(board))
 			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+				overlayShadow(board, gravityDirection);
 			}
 			for(int y = 0; y < board.size(); y++)
 			{
-				if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
+				if(y < boardHiddenGrace && !pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + 1, PointStateInactive))
 				{
 					continue;
 				}
 
 				for(int x = 0; x < board[y].size(); x++)
 				{
-					if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
+					if(board[y][x].pointstate == PointStateBlank)
 					{
 						theBlock.setTexture(blankIntTexture);
 						if(blankIntRetainColor)
 						{
-							theBlock.setColor(currentColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+							theBlock.setColor(board[y][x].color);
 						} else
 						{
 							theBlock.setColor(sf::Color::White);
 						}
-					} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
+					} else if(board[y][x].pointstate == PointStateActive)
 					{
 						theBlock.setTexture(activeIntTexture);
-						theBlock.setColor(currentColorValues[board[y][x] - activeIntLowerUpperPair.first]);
-					} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+						theBlock.setColor(board[y][x].color);
+					} else if(board[y][x].pointstate == PointStateInactive)
 					{
 						theBlock.setTexture(inactiveIntTexture);
-						theBlock.setColor(currentColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
-					} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
+						theBlock.setColor(board[y][x].color);
+					} else if(board[y][x].pointstate == PointStateShadow)
 					{
 						theBlock.setTexture(shadowIntTexture);
-						theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
+						theBlock.setColor(board[y][x].color);
 					}
 					theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
 					theBlock.move(sf::Vector2f(theBlockStartX, theBlockStartY));
@@ -578,32 +564,88 @@ int main()
 				}
 			}
 
-			for(int x = 0; x < blockQueue.front().size(); x++)
+			//set theBlock texture as active for drawing blockQueue and savedTetromino
+			theBlock.setTexture(activeIntTexture);
+
+			//draw blockQueue
+			int drawBlockQueueTempVarLeftMost = 0;
+			int drawBlockQueueTempVarTopMost = 0;
+			for(int y = 0; y < blockQueue.front().size(); y++)
 			{
-				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition(sf::Vector2f(
-					(blockQueue.front()[x].x * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
-					(blockQueue.front()[x].y * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
-				));
-				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
-				window.draw(theBlock);
+				//as of Saturday, March 08, 2025, 17:18:58
+				// yes I know this is cursed; "blockQueue.front()[y].size()"
+				for(int x = 0; x < blockQueue.front()[y].size(); x++)
+				{
+					if(blockQueue.front()[y][x] == true)
+					{
+						if(y < drawBlockQueueTempVarTopMost)
+						{
+							drawBlockQueueTempVarTopMost = y;
+						}
+						if(x < drawBlockQueueTempVarTopMost)
+						{
+							drawBlockQueueTempVarTopMost = x;
+						}
+					}
+				}
 			}
-			for(int x = 0; x < savedBlock.size(); x++)
+			for(int y = 0; y < blockQueue.front().size(); y++)
 			{
-				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition(sf::Vector2f(
-					(savedBlock[x].x * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
-					(savedBlock[x].y * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
-				));
-				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
-				window.draw(theBlock);
+				for(int x = 0; x < blockQueue.front()[y].size(); x++)
+				{
+					if(blockQueue.front()[y][x] == true)
+					{
+						theBlock.setPosition(sf::Vector2f(
+							((x - drawBlockQueueTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
+							((y - drawBlockQueueTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
+						));
+						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						window.draw(theBlock);
+					}
+				}
+			}
+
+			//draw savedTetromino
+			int drawSavedTetrominoTempVarLeftMost = 0;
+			int drawSavedTetrominoTempVarTopMost = 0;
+			for(int y = 0; y < savedTetromino.size(); y++)
+			{
+				for(int x = 0; x < savedTetromino[y].size(); x++)
+				{
+					if(savedTetromino[y][x] == true)
+					{
+						if(y < drawSavedTetrominoTempVarTopMost)
+						{
+							drawSavedTetrominoTempVarTopMost = y;
+						}
+						if(x < drawSavedTetrominoTempVarTopMost)
+						{
+							drawSavedTetrominoTempVarTopMost = x;
+						}
+					}
+				}
+			}
+			for(int y = 0; y < savedTetromino.size(); y++)
+			{
+				for(int x = 0; x < savedTetromino[y].size(); x++)
+				{
+					if(savedTetromino[y][x] == true)
+					{
+						theBlock.setPosition(sf::Vector2f(
+							((x - drawSavedTetrominoTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
+							((y - drawSavedTetrominoTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
+						));
+						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						window.draw(theBlock);
+					}
+				}
 			}
 			theBlock.setColor(sf::Color::White);
 
 			//remove fake-overlay of shadowInts
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			if(activePiecesExistOnBoard(board))
 			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+				clearShadow(board);
 			}
 
 			//draw counter stuff
@@ -638,21 +680,21 @@ int main()
 			if(fallingBlocksTickDelta.count() >= fallingBlocksTickDeltaThreshold)
 			{
 				fallingBlocksTickDelta = std::chrono::seconds::zero();
-				moveActivePiecesInDirection(board, moveActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+				moveActivePiecesInDirection(board, moveActiveDirection);
 			}
 			fallingBlocksTickDelta += deltaTime;
 
 			//hardening blocks tick delta
-			if(!canMoveActivePiecesInDirection(board, canMoveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+			if(!canMoveActivePiecesInDirection(board, canMoveDirection))
 			{
 				if(hardenActivePiecesTickDelta.count() >= hardenActivePiecesTickDeltaThreshold)
 				{
-					hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					hardenActivePieces(board);
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 				} else if(hardenActivePiecesAbsoluteTickDelta.count() >= hardenActivePiecesAbsoluteTickDeltaThreshold)
 				{
-					hardenActivePieces(board, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+					hardenActivePieces(board);
 					hardenActivePiecesTickDelta = std::chrono::seconds::zero();
 					hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 				}
@@ -665,9 +707,9 @@ int main()
 			}
 
 			//block queue update and stuff
-			if(!activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			if(!activePiecesExistOnBoard(board))
 			{
-				std::vector<int> rowsCleared = clearAndGetFullRows(board, clearFullRowsDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+				std::vector<int> rowsCleared = clearAndGetFullRowYLevels(board, gravityDirection);
 				for(int x = 0; x < rowsCleared.size(); x++)
 				{
 
@@ -710,10 +752,10 @@ int main()
 				}
 				*/
 
-				wasAbleToPlaceNextBlockSuccessfully = placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-				currentBlockInPlay = blockQueue.front();
+				wasAbleToPlaceNextBlockSuccessfully = spawnTetromino(board, boardHiddenGrace, gravityDirection, iTetromino); //temp until I fixed betterTetrisEngine 
+				currentTetrominoInPlay = blockQueue.front();
 				blockQueue.pop();
-				blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+				blockQueue.push(getTetrominoState(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)), TetrominoDirectionStateOne));
 
 				if(!wasAbleToPlaceNextBlockSuccessfully)
 				{
@@ -725,20 +767,20 @@ int main()
 			}
 
 			//controls
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			if(activePiecesExistOnBoard(board))
 			{
 				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Left))
 				{
 					if(leftRightMovementTickDelta.count() == 0)
 					{
-						if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						if(moveActivePiecesInDirection(board, DirectionLeft))
 						{
 							blockMoveSFX.play();
 						}
 						leftRightMovementTickDelta += deltaTime;
 					} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 					{
-						if(moveActivePiecesInDirection(board, directionLeft, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						if(moveActivePiecesInDirection(board, DirectionLeft))
 						{
 							blockMoveSFX.play();
 						}
@@ -750,14 +792,14 @@ int main()
 				{
 					if(leftRightMovementTickDelta.count() == 0)
 					{
-						if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						if(moveActivePiecesInDirection(board, DirectionRight))
 						{
 							blockMoveSFX.play();
 						}
 						leftRightMovementTickDelta += deltaTime;
 					} else if(leftRightMovementTickDelta.count() >= leftRightMovementTickDeltaThreshold)
 					{
-						if(moveActivePiecesInDirection(board, directionRight, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+						if(moveActivePiecesInDirection(board, DirectionRight))
 						{
 							blockMoveSFX.play();
 						}
@@ -779,7 +821,7 @@ int main()
 						hardenActivePiecesAbsoluteTickDelta = std::chrono::seconds::zero();
 					}
 					*/
-					if(moveActivePiecesInDirection(board, directionDown, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair))
+					if(moveActivePiecesInDirection(board, DirectionDown))
 					{
 						blockMoveSFX.play();
 					}
@@ -789,7 +831,7 @@ int main()
 				{
 					if(!rotateKeyPressedLastFrame)
 					{
-						if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, true))
+						if(rotateActivePieces(board, true))
 						{
 							blockRotateSFX.play();
 						}
@@ -800,7 +842,7 @@ int main()
 				{
 					if(!rotateKeyPressedLastFrame)
 					{
-						if(rotateActivePieces(board, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, false))
+						if(rotateActivePieces(board, false))
 						{
 							blockRotateSFX.play();
 						}
@@ -816,19 +858,19 @@ int main()
 				{
 					if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
 					{
-						destroyActivePiecesOnBoard(board, blankIntLowerUpperPair, activeIntLowerUpperPair);
-						if(savedBlock.empty())
+						destroyActivePiecesOnBoard(board);
+						if(savedTetromino.empty())
 						{
-							savedBlock = currentBlockInPlay;
+							savedTetromino = currentTetrominoInPlay;
 
-							placeBlockAsActivePieces(board, placeBlocksDirection, blockQueue.front(), boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-							currentBlockInPlay = blockQueue.front();
+							spawnTetromino(board, boardHiddenGrace, gravityDirection, iTetromino); // temp until I compelte betterTetrisEngine
+							currentTetrominoInPlay = blockQueue.front();
 							blockQueue.pop();
-							blockQueue.push(groupedBlockCollection[RANDOM(0, groupedBlockCollection.size() - 1)]);
+							blockQueue.push(getTetrominoState(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)), TetrominoDirectionStateOne));
 						} else
 						{
-							placeBlockAsActivePieces(board, placeBlocksDirection, savedBlock, boardHiddenGrace, groupedBlockCollection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
-							savedBlock = currentBlockInPlay;
+							spawnTetromino(board, boardHiddenGrace, gravityDirection, iTetromino); // temp until I compelte betterTetrisEngine
+							savedTetromino = currentTetrominoInPlay;
 						}
 
 						saveblockUsedForCurrentBlock = true;
@@ -844,7 +886,7 @@ int main()
 					if(!slamKeyPressedLastFrame)
 					{
 						blockSlamSFX.play();
-						slamActivePiecesInDirection(board, slamActiveDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair);
+						slamActivePiecesInDireciton(board, slamActiveDirection);
 						slamKeyPressedLastFrame = true;
 					}
 				} else
@@ -874,41 +916,41 @@ int main()
 			window.draw(background);
 
 			//fake-overlay shadowInts before drawing board
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			if(activePiecesExistOnBoard(board))
 			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, true);
+				overlayShadow(board, shadowDirection);
 			}
 			for(int y = 0; y < board.size(); y++)
 			{
-				if(y < boardHiddenGrace && !intPiecesExistInHiddenGrace(board, boardHiddenGrace + 1, inactiveIntLowerUpperPair))
+				if(y < boardHiddenGrace && !pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + 1, PointStateInactive))
 				{
 					continue;
 				}
 
 				for(int x = 0; x < board[y].size(); x++)
 				{
-					if(withinIntPairRange(board[y][x], blankIntLowerUpperPair))
+					if(board[y][x].pointstate == PointStateBlank)
 					{
 						theBlock.setTexture(blankIntTexture);
 						if(blankIntRetainColor)
 						{
-							theBlock.setColor(currentColorValues[board[y][x] - blankIntLowerUpperPair.first]);
+							theBlock.setColor(board[y][x].color);
 						} else
 						{
 							theBlock.setColor(sf::Color::White);
 						}
-					} else if(withinIntPairRange(board[y][x], activeIntLowerUpperPair))
+					} else if(board[y][x].pointstate == PointStateActive)
 					{
 						theBlock.setTexture(activeIntTexture);
-						theBlock.setColor(currentColorValues[board[y][x] - activeIntLowerUpperPair.first]);
-					} else if(withinIntPairRange(board[y][x], inactiveIntLowerUpperPair))
+						theBlock.setColor(board[y][x].color);
+					} else if(board[y][x].pointstate == PointStateInactive)
 					{
 						theBlock.setTexture(inactiveIntTexture);
-						theBlock.setColor(currentColorValues[board[y][x] - inactiveIntLowerUpperPair.first]);
-					} else if(withinIntPairRange(board[y][x], shadowIntLowerUpperPair))
+						theBlock.setColor(board[y][x].color);
+					} else if(board[y][x].pointstate == PointStateShadow)
 					{
 						theBlock.setTexture(shadowIntTexture);
-						theBlock.setColor(currentColorValues[board[y][x] - shadowIntLowerUpperPair.first]);
+						theBlock.setColor(board[y][x].color);
 					}
 					theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
 					theBlock.move(sf::Vector2f(theBlockStartX, theBlockStartY));
@@ -926,29 +968,84 @@ int main()
 				}
 			}
 
-			for(int x = 0; x < blockQueue.front().size(); x++)
+			//set theBlock texture as active for drawing blockQueue and savedTetromino
+			theBlock.setTexture(activeIntTexture);
+
+			//draw blockQueue
+			int drawBlockQueueTempVarLeftMost = 0;
+			int drawBlockQueueTempVarTopMost = 0;
+			for(int y = 0; y < blockQueue.front().size(); y++)
 			{
-				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition(sf::Vector2f(
-					(blockQueue.front()[x].x * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
-					(blockQueue.front()[x].y * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
-				));
-				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(blockQueue.front(), groupedBlockCollection)]);
-				window.draw(theBlock);
+				//as of Saturday, March 08, 2025, 17:18:58
+				// yes I know this is cursed; "blockQueue.front()[y].size()"
+				for(int x = 0; x < blockQueue.front()[y].size(); x++)
+				{
+					if(blockQueue.front()[y][x] == true)
+					{
+						if(y < drawBlockQueueTempVarTopMost)
+						{
+							drawBlockQueueTempVarTopMost = y;
+						}
+						if(x < drawBlockQueueTempVarTopMost)
+						{
+							drawBlockQueueTempVarTopMost = x;
+						}
+					}
+				}
 			}
-			for(int x = 0; x < savedBlock.size(); x++)
+			for(int y = 0; y < blockQueue.front().size(); y++)
 			{
-				theBlock.setTexture(activeIntTexture);
-				theBlock.setPosition(sf::Vector2f(
-					(savedBlock[x].x * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
-					(savedBlock[x].y * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
-				));
-				theBlock.setColor(currentColorValues[getIntColorFromBlockAndGroupedBLockCollection(savedBlock, groupedBlockCollection)]);
-				window.draw(theBlock);
+				for(int x = 0; x < blockQueue.front()[y].size(); x++)
+				{
+					if(blockQueue.front()[y][x] == true)
+					{
+						theBlock.setPosition(sf::Vector2f(
+							((x - drawBlockQueueTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
+							((y - drawBlockQueueTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
+						));
+						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						window.draw(theBlock);
+					}
+				}
+			}
+
+			//draw savedTetromino
+			int drawSavedTetrominoTempVarLeftMost = 0;
+			int drawSavedTetrominoTempVarTopMost = 0;
+			for(int y = 0; y < savedTetromino.size(); y++)
+			{
+				for(int x = 0; x < savedTetromino[y].size(); x++)
+				{
+					if(savedTetromino[y][x] == true)
+					{
+						if(y < drawSavedTetrominoTempVarTopMost)
+						{
+							drawSavedTetrominoTempVarTopMost = y;
+						}
+						if(x < drawSavedTetrominoTempVarTopMost)
+						{
+							drawSavedTetrominoTempVarTopMost = x;
+						}
+					}
+				}
+			}
+			for(int y = 0; y < savedTetromino.size(); y++)
+			{
+				for(int x = 0; x < savedTetromino[y].size(); x++)
+				{
+					if(savedTetromino[y][x] == true)
+					{
+						theBlock.setPosition(sf::Vector2f(
+							((x - drawSavedTetrominoTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
+							((y - drawSavedTetrominoTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
+						));
+						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						window.draw(theBlock);
+					}
+				}
 			}
 			theBlock.setColor(sf::Color::White);
-
-			if(intPiecesExistInHiddenGrace(board, boardHiddenGrace, inactiveIntLowerUpperPair))
+			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace, PointStateInactive))
 			{
 				hiddenGraceAreaViewZoomTickDelta += deltaTime;
 				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.2);
@@ -982,9 +1079,9 @@ int main()
 				window.setView(view);
 			}
 			//remove fake-overlay of shadowInts
-			if(activePiecesExistOnBoard(board, activeIntLowerUpperPair))
+			if(activePiecesExistOnBoard(board))
 			{
-				fakeOverlayShadowInts(board, shadowDirection, blankIntLowerUpperPair, activeIntLowerUpperPair, inactiveIntLowerUpperPair, shadowIntLowerUpperPair, false);
+				clearShadow(board);
 			}
 
 			//draw counter stuff
@@ -1030,16 +1127,16 @@ int main()
 			totalRowsCleared = 0;
 			score = 0;
 
-			savedBlock.clear();
-			currentBlockInPlay.clear();
+			savedTetromino = getTetrominoState(iTetromino, unknownTetrominoDirectionState);
+			currentTetrominoInPlay = getTetrominoState(iTetromino, unknownTetrominoDirectionState);
 
 			board.clear();
 			for(int y = 0; y < boardHeight; y++)
 			{
-				std::vector<int> pushBackRowVector(boardWidth);
+				std::vector<TetrisCube> pushBackRowVector(boardWidth);
 				for(int x = 0; x < boardWidth; x++)
 				{
-					pushBackRowVector[x] = blankIntLowerUpperPair.first;
+					pushBackRowVector[x].pointstate = PointStateBlank;
 				}
 				board.push_back(pushBackRowVector);
 			}

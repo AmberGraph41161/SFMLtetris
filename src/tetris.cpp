@@ -3,12 +3,12 @@
 static int anchorPointY = 0;
 static int anchorPointX = 0;
 
-std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype, TetrominoState tetrominostate)
+TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirectionState tetrominoDirectionState)
 {
 	//CLOCKWISE DIRECTION DEFAULT
 	//up = clockwise spin DEFAULT
 	//z = counterclockwise spin
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> iTetrominoStates =
+	const std::array<TetrominoState, 4> iTetrominoStates =
 	{{
 		{{
 		{ 0, 0, 0, 0 },
@@ -36,7 +36,7 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> jTetrominoStates =
+	const std::array<TetrominoState, 4> jTetrominoStates =
 	{{
 		{{
 		{ 0, 0, 0, 0 },
@@ -64,7 +64,7 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> lTetrominoStates =
+	const std::array<TetrominoState, 4> lTetrominoStates =
 	{{
 		{{
 		{ 0, 0, 0, 0 },
@@ -92,7 +92,7 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> oTetrominoStates =
+	const std::array<TetrominoState, 4> oTetrominoStates =
 	{{
 		{{
 		{ 0, 0, 0, 0 },
@@ -120,7 +120,7 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> sTetrominoStates =
+	const std::array<TetrominoState, 4> sTetrominoStates =
 	{{
 		{{
 		{ 0, 0, 0, 0 },
@@ -148,7 +148,7 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> tTetrominoStates =
+	const std::array<TetrominoState, 4> tTetrominoStates =
 	{{
 		{{
 		{ 0, 1, 0, 0 },
@@ -176,7 +176,7 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
-	const std::array<std::array<std::array<bool, 4>, 4>, 4> zTetrominoStates =
+	const std::array<TetrominoState, 4> zTetrominoStates =
 	{{
 		{{
 		{ 0, 0, 0, 0 },
@@ -204,46 +204,74 @@ std::array<std::array<bool, 4>, 4> getTetrominoState(TetrominoType tetrominotype
 		}},
 	}};
 
+	const std::array<TetrominoState, 4> unknownTetrominoStates =
+	{{
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+		{{
+		{ 0, 0, 0, 0 },
+		{ 0, 0, 0, 0 },
+		{ 0 ,0, 0, 0 },
+		{ 0, 0, 0, 0 }
+		}},
+	}};
+
 	switch(tetrominotype)
 	{
 		case iTetromino:
 		{
-			return iTetrominoStates[tetrominostate];
+			return iTetrominoStates[tetrominoDirectionState];
 		}
 
 		case jTetromino:
 		{
-			return jTetrominoStates[tetrominostate];
+			return jTetrominoStates[tetrominoDirectionState];
 		}
 
 		case lTetromino:
 		{
-			return lTetrominoStates[tetrominostate];
+			return lTetrominoStates[tetrominoDirectionState];
 		}
 
 		case oTetromino:
 		{
-			return oTetrominoStates[tetrominostate];
+			return oTetrominoStates[tetrominoDirectionState];
 		}
 
 		case sTetromino:
 		{
-			return sTetrominoStates[tetrominostate];
+			return sTetrominoStates[tetrominoDirectionState];
 		}
 
 		case tTetromino:
 		{
-			return tTetrominoStates[tetrominostate];
+			return tTetrominoStates[tetrominoDirectionState];
 		}
 
 		case zTetromino:
 		{
-			return zTetrominoStates[tetrominostate];
+			return zTetrominoStates[tetrominoDirectionState];
 		}
 
 		case unknownTetromino:
 		{
-			return zTetrominoStates[tetrominostate];
+			return unknownTetrominoStates[tetrominoDirectionState];
 		}
 	}
 }
@@ -587,9 +615,9 @@ void slamActivePiecesInDireciton(std::vector<std::vector<TetrisCube>> &board, Di
 	}
 }
 
-void rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotateInClockwiseDirection)
+bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotateInClockwiseDirection)
 {
-	std::array<std::array<bool, 4>, 4> capturedTetrominoState;
+	TetrominoState capturedTetrominoState;
 
 	for(int y = 0; y <= capturedTetrominoState.size(); y++)
 	{
@@ -611,30 +639,30 @@ void rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		}
 	}
 
-	std::array<std::array<bool, 4>, 4> nextTetrominoState;
+	TetrominoState nextTetrominoState;
 	for(int x = iTetromino; x != unknownTetromino; x++)
 	{
-		for(int  y = TetrominoStateOne; y != unknownTetrominoState; y++)
+		for(int  y = TetrominoDirectionStateOne; y != unknownTetrominoDirectionState; y++)
 		{
-			if(capturedTetrominoState == getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoState>(y)))
+			if(capturedTetrominoState == getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoDirectionState>(y)))
 			{
 				if(rotateInClockwiseDirection)
 				{
-					if(static_cast<TetrominoState>(y + 1) != unknownTetrominoState)
+					if(static_cast<TetrominoDirectionState>(y + 1) != unknownTetrominoDirectionState)
 					{
-						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoState>(y + 1));
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoDirectionState>(y + 1));
 					} else
 					{
-						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), TetrominoStateOne);
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), TetrominoDirectionStateOne);
 					}
 				} else
 				{
-					if(y - 1 >= TetrominoStateOne)
+					if(y - 1 >= TetrominoDirectionStateOne)
 					{
-						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoState>(y - 1));
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoDirectionState>(y - 1));
 					} else
 					{
-						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), TetrominoStateFour);
+						nextTetrominoState = getTetrominoState(static_cast<TetrominoType>(x), TetrominoDirectionStateFour);
 					}
 				}
 			}
@@ -654,14 +682,14 @@ void rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
-				return;
+				return true;
 			}
 		}
 		for(int x = 0; x >= rotateShimmyXMin; x--)
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
-				return;
+				return true;
 			}
 		}
 	}
@@ -671,17 +699,19 @@ void rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
-				return;
+				return true;
 			}
 		}
 		for(int x = 0; x >= rotateShimmyXMin; x--)
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
-				return;
+				return true;
 			}
 		}
 	}
+
+	return false;
 }
 
 void hardenActivePieces(std::vector<std::vector<TetrisCube>> &board)
@@ -949,7 +979,7 @@ std::vector<int> clearAndGetFullRowYLevels(std::vector<std::vector<TetrisCube>> 
 	return rowsCleared;
 }
 
-bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, std::array<std::array<bool, 4>, 4> tetrominostate, int placeY, int placeX)
+bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX)
 {
 	for(int y = 0; y < tetrominostate.size(); y++)
 	{
@@ -973,7 +1003,7 @@ bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, 
 	return true;
 }
 
-bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, std::array<std::array<bool, 4>, 4> tetrominostate, int placeY, int placeX)
+bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX)
 {
 	if(!canPlaceTetrominoStateOnBoard(board, tetrominostate, placeX, placeY))
 	{
@@ -996,13 +1026,13 @@ bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, std
 
 bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, Direction gravityDirection, TetrominoType tetrominotype)
 {
-	std::array<std::array<bool, 4>, 4> tetrominoToPlace;
+	TetrominoState tetrominoToPlace;
 
 	switch(gravityDirection)
 	{
 		case DirectionUp:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateOne);
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateOne);
 			anchorPointY = board.size() - 1  - 4 - boardHiddenGrace;
 			anchorPointX = (board[0].size() / 2) - 2;
 			break;
@@ -1010,7 +1040,7 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 		case DirectionDown:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateTwo);
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateTwo);
 			anchorPointY = 0 + boardHiddenGrace;
 			anchorPointX = (board[0].size() / 2) - 2;
 			break;
@@ -1018,7 +1048,7 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 		case DirectionLeft:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateThree);
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateThree);
 			anchorPointY = (board.size() / 2) - 2;
 			anchorPointX = 0;
 
@@ -1027,7 +1057,7 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 		case DirectionRight:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoStateFour);
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateFour);
 			anchorPointY = (board.size() / 2) - 2;
 			anchorPointX = board[0].size() - 1 - 4;
 			break;
