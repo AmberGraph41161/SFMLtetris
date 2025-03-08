@@ -345,15 +345,19 @@ int main()
 	theParticle.setFillColor(sf::Color::White);
 	const double theParticleGravityMin = 10000;
 	const double theParticleGravityMax = 12000;
-	const double theParticleStartXVelocityMin = -1000;
-	const double theParticleStartXVelocityMax = 1000;
-	const double theParticleStartYVelocityMin = -1000;
+	const double theParticleStartXVelocityMin = -600;
+	const double theParticleStartXVelocityMax = 600;
+	const double theParticleStartYVelocityMin = -100;
 	const double theParticleStartYVelocityMax = -2000;
 	const double theParticleStartXMin = theBlockStartX;
 	const double theParticleStartXMax = theBlock.getGlobalBounds().size.x * boardWidth;
-	const int theParticleRadiusMin = 1;
-	const int theParticleRadiusMax = 10;
-	const sf::IntRect theParticleAliveBounds(sf::Vector2i(0, 0), sf::Vector2i(screenWidth, screenHeight));
+	const int theParticleRadiusMin = 5;
+	const int theParticleRadiusMax = 15;
+	const int theParticleRowClearSpawnAmount = 350;
+	const sf::IntRect theParticleAliveBounds(
+		sf::Vector2i(0, boardHiddenGrace * 16 * screenHeight16PixelScaleToFitMultiplier * -1),
+		sf::Vector2i(screenWidth, screenHeight + (boardHiddenGrace * 16 * screenHeight16PixelScaleToFitMultiplier))
+	);
 	std::vector<Particle> particles;
 
 	//background stuff
@@ -672,7 +676,7 @@ int main()
 				{
 
 					//spawn row clear particles
-					for(int i = 0; i < 100; i++)
+					for(int i = 0; i < theParticleRowClearSpawnAmount; i++)
 					{
 						particles.push_back(Particle(
 							RANDOMDOUBLE(theParticleStartXMin, theParticleStartXMax),
@@ -683,7 +687,7 @@ int main()
 							RANDOMDOUBLE(theParticleGravityMin, theParticleGravityMax),
 							theParticleAliveBounds,
 							RANDOM(theParticleRadiusMin, theParticleRadiusMax),
-							sf::Color(RANDOM(0, 255), RANDOM(0, 255), RANDOM(0, 255), RANDOM(0, 255))
+							sf::Color(RANDOM(0, 255), RANDOM(0, 255), RANDOM(0, 255), RANDOM(100, 255))
 						));
 					}
 				}
