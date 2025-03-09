@@ -18,7 +18,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/System/Vector2.hpp>
 
-#include  "tetris.hpp"
+#include "tetris.hpp"
 #include "particle.hpp"
 
 /*
@@ -518,7 +518,7 @@ int main()
 			}
 			for(int y = 0; y < board.size(); y++)
 			{
-				if(y < boardHiddenGrace && !pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + 1, PointStateInactive))
+				if(y < boardHiddenGrace && !pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + 1, PointStateInactive, gravityDirection))
 				{
 					continue;
 				}
@@ -922,7 +922,7 @@ int main()
 			}
 			for(int y = 0; y < board.size(); y++)
 			{
-				if(y < boardHiddenGrace && !pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + 1, PointStateInactive))
+				if(y < boardHiddenGrace && !pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + 1, PointStateInactive, gravityDirection))
 				{
 					continue;
 				}
@@ -1045,7 +1045,7 @@ int main()
 				}
 			}
 			theBlock.setColor(sf::Color::White);
-			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace, PointStateInactive))
+			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace, PointStateInactive, gravityDirection))
 			{
 				hiddenGraceAreaViewZoomTickDelta += deltaTime;
 				hiddenGraceAreaViewZoomTickDelta = std::chrono::duration<double>(hiddenGraceAreaViewZoomTickDelta.count() * 1.2);

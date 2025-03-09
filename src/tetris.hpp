@@ -20,10 +20,10 @@ typedef std::array<std::array<bool, 4>, 4> TetrominoState;
 
 TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirectionState tetrominoDirectionState);
 bool activePiecesExistOnBoard(std::vector<std::vector<TetrisCube>> &board);
-bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, PointState pointstate);
+bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, PointState pointstate, Direction gravityDirection);
 bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction);
 void destroyActivePiecesOnBoard(std::vector<std::vector<TetrisCube>> &board);
-bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction);
+bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction, bool updateTetrominoAnchors = true);
 void slamActivePiecesInDireciton(std::vector<std::vector<TetrisCube>> &board, Direction direction);
 bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotateInClockwiseDirection = true);
 void hardenActivePieces(std::vector<std::vector<TetrisCube>> &board);

@@ -1,7 +1,9 @@
 #include "tetris.hpp"
 
-static int anchorPointY = 0;
-static int anchorPointX = 0;
+#include <iostream>
+
+static int anchorPointY;
+static int anchorPointX;
 
 TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirectionState tetrominoDirectionState)
 {
@@ -292,16 +294,84 @@ bool activePiecesExistOnBoard(std::vector<std::vector<TetrisCube>> &board)
 	return false;
 }
 
-bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, PointState pointstate)
+bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, PointState pointstate, Direction gravityDirection)
 {
-	for(int y = 0; y < boardHiddenGrace; y++)
+
+	switch(gravityDirection)
 	{
-		for(int x = 0; x < board[y].size(); x++)
+		case DirectionUp:
 		{
-			if(board[y][x].pointstate == pointstate)
+			for(int y = board.size(); y > board.size() - 1 - boardHiddenGrace; y--)
 			{
-				return true;
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(board[y][x].pointstate == pointstate)
+					{
+						return true;
+					}
+				}
 			}
+			break;
+		}
+
+		case DirectionDown:
+		{
+			for(int y = 0; y < boardHiddenGrace; y++)
+			{
+				for(int x = 0; x < board[y].size(); x++)
+				{
+					if(board[y][x].pointstate == pointstate)
+					{
+						return true;
+					}
+				}
+			}
+			break;
+		}
+
+		case DirectionLeft:
+		{
+			if(board[0].size() > boardHiddenGrace)
+			{
+				return false;
+			}
+
+			for(int y = 0; y < board.size(); y++)
+			{
+				for(int x = 0; x < boardHiddenGrace; x++)
+				{
+					if(board[y][x].pointstate == pointstate)
+					{
+						return true;
+					}
+				}
+			}
+			break;
+		}
+
+		case DirectionRight:
+		{
+			if(board[0].size() > boardHiddenGrace)
+			{
+				return false;
+			}
+
+			for(int y = 0; y < board.size(); y++)
+			{
+				for(int x = board[0].size() - 1 - boardHiddenGrace; x >= 0; x++)
+				{
+					if(board[y][x].pointstate == pointstate)
+					{
+						return true;
+					}
+				}
+			}
+			break;
+		}
+
+		default:
+		{
+			break;
 		}
 	}
 
@@ -348,7 +418,6 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board,
 					}
 				}
 			}
-
 			break;
 		}
 
@@ -388,7 +457,6 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board,
 					}
 				}
 			}
-
 			break;
 		}
 
@@ -428,7 +496,6 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board,
 					}
 				}
 			}
-
 			break;
 		}
 
@@ -468,7 +535,6 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board,
 					}
 				}
 			}
-
 			break;
 		}
 
@@ -498,7 +564,7 @@ void destroyActivePiecesOnBoard(std::vector<std::vector<TetrisCube>> &board)
 	}
 }
 
-bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction)
+bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction, bool updateTetrominoAnchors)
 {
 	//move or don't move pieces after checking yo
 	if(canMoveActivePiecesInDirection(board, direction))
@@ -519,7 +585,10 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 					}
 				}
 
-				anchorPointY--;
+				if(updateTetrominoAnchors)
+				{
+					anchorPointY--;
+				}
 				break;
 			}
 
@@ -537,7 +606,10 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 					}
 				}
 
-				anchorPointY++;
+				if(updateTetrominoAnchors)
+				{
+					anchorPointY++;
+				}
 				break;
 			}
 
@@ -555,7 +627,10 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 					}
 				}
 
-				anchorPointX--;
+				if(updateTetrominoAnchors)
+				{
+					anchorPointX--;
+				}
 				break;
 			}
 
@@ -573,7 +648,10 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 					}
 				}
 
-				anchorPointX++;
+				if(updateTetrominoAnchors)
+				{
+					anchorPointX++;
+				}
 				break;
 			}
 
@@ -615,13 +693,58 @@ void slamActivePiecesInDireciton(std::vector<std::vector<TetrisCube>> &board, Di
 	}
 }
 
+void DEBUGPRINT(TetrominoState capturedTetrominoState)
+{
+	for(int y = 0; y < capturedTetrominoState.size(); y++)
+	{
+		for(int x = 0; x < capturedTetrominoState[y].size(); x++)
+		{
+			if(capturedTetrominoState[y][x] == true)
+			{
+				std::cout << "1 ";
+			} else
+			{
+				std::cout << "0 ";
+			}
+		}
+		std::cout << std::endl;
+	}
+
+}
+
+void DEBUGPRINTBOARD(std::vector<std::vector<TetrisCube>> &board)
+{
+	std::cout << "anchorPointY " << anchorPointY << std::endl;
+	std::cout << "anchorPointX " << anchorPointX << std::endl;
+
+	for(int y = 0; y < board.size(); y++)
+	{
+		for(int x = 0; x < board[y].size(); x++)
+		{
+			if(anchorPointY == y && anchorPointX == x)
+			{
+				std::cout << "@ ";
+			} else if(board[y][x].pointstate == PointStateActive)
+			{
+				std::cout << "1 ";
+			} else
+			{
+				std::cout << "0 ";
+			}
+		}
+		std::cout << std::endl;
+	}
+}
+
 bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotateInClockwiseDirection)
 {
+
+
 	TetrominoState capturedTetrominoState;
 
-	for(int y = 0; y <= capturedTetrominoState.size(); y++)
+	for(int y = 0; y < capturedTetrominoState.size(); y++)
 	{
-		for(int x = 0; x <= capturedTetrominoState[y].size(); x++)
+		for(int x = 0; x < capturedTetrominoState[y].size(); x++)
 		{
 			capturedTetrominoState[y][x] = false;
 
@@ -642,7 +765,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 	TetrominoState nextTetrominoState;
 	for(int x = iTetromino; x != unknownTetromino; x++)
 	{
-		for(int  y = TetrominoDirectionStateOne; y != unknownTetrominoDirectionState; y++)
+		for(int y = TetrominoDirectionStateOne; y != unknownTetrominoDirectionState; y++)
 		{
 			if(capturedTetrominoState == getTetrominoState(static_cast<TetrominoType>(x), static_cast<TetrominoDirectionState>(y)))
 			{
@@ -671,10 +794,10 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 
 	destroyActivePiecesOnBoard(board);
 
-	const int rotateShimmyYMax = 4;
-	const int rotateShimmyYMin = -4;
-	const int rotateShimmyXMax = 4;
-	const int rotateShimmyXMin = -4;
+	const int rotateShimmyYMax = 3;
+	const int rotateShimmyYMin = -3;
+	const int rotateShimmyXMax = 3;
+	const int rotateShimmyXMin = -3;
 
 	for(int y = 0; y <= rotateShimmyYMax; y++)
 	{
@@ -682,6 +805,8 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
+				anchorPointY = anchorPointY + y;
+				anchorPointX = anchorPointX + x;
 				return true;
 			}
 		}
@@ -689,6 +814,8 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
+				anchorPointY = anchorPointY + y;
+				anchorPointX = anchorPointX + x;
 				return true;
 			}
 		}
@@ -699,6 +826,8 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
+				anchorPointY = anchorPointY + y;
+				anchorPointX = anchorPointX + x;
 				return true;
 			}
 		}
@@ -706,11 +835,14 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
 			{
+				anchorPointY = anchorPointY + y;
+				anchorPointX = anchorPointX + x;
 				return true;
 			}
 		}
 	}
 
+	placeTetrominoStateOnBoard(board, capturedTetrominoState, anchorPointY, anchorPointX);
 	return false;
 }
 
@@ -738,7 +870,7 @@ void overlayShadow(std::vector<std::vector<TetrisCube>> &board, Direction gravit
 			break;
 		} else
 		{
-			moveActivePiecesInDirection(tempShadowBoard, gravityDirection);
+			moveActivePiecesInDirection(tempShadowBoard, gravityDirection, false);
 		}
 	}
 
@@ -1028,40 +1160,68 @@ bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, Tet
 
 bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, Direction gravityDirection, TetrominoType tetrominotype)
 {
-	TetrominoState tetrominoToPlace;
+	const int boardHiddenGraceActivationZone = 4;
 
+	TetrominoState tetrominoToPlace;
 	switch(gravityDirection)
 	{
 		case DirectionUp:
 		{
 			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateOne);
-			anchorPointY = board.size() - 1  - 4 - boardHiddenGrace;
-			anchorPointX = (board[0].size() / 2) - 2;
+			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateActive, gravityDirection))
+			{
+				anchorPointY = board.size() - 1  - 4;
+				anchorPointX = (board[0].size() / 2) - 2;
+			} else
+			{
+				anchorPointY = board.size() - 1  - 4 - boardHiddenGrace;
+				anchorPointX = (board[0].size() / 2) - 2;
+			}
 			break;
 		}
 
 		case DirectionDown:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateTwo);
-			anchorPointY = 0 + boardHiddenGrace;
-			anchorPointX = (board[0].size() / 2) - 2;
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateOne);
+			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateActive, gravityDirection))
+			{
+				anchorPointY = 0;
+				anchorPointX = (board[0].size() / 2) - 2;
+			} else
+			{
+				anchorPointY = 0 + boardHiddenGrace;
+				anchorPointX = (board[0].size() / 2) - 2;
+			}
 			break;
 		}
 
 		case DirectionLeft:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateThree);
-			anchorPointY = (board.size() / 2) - 2;
-			anchorPointX = 0;
-
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateTwo);
+			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateActive, gravityDirection))
+			{
+				anchorPointY = (board.size() / 2) - 2;
+				anchorPointX = board[0].size() - 1 - 4;
+			} else
+			{
+				anchorPointY = (board.size() / 2) - 2;
+				anchorPointX = board[0].size() - 1 - 4 - boardHiddenGrace;
+			}
 			break;
 		}
 
 		case DirectionRight:
 		{
-			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateFour);
-			anchorPointY = (board.size() / 2) - 2;
-			anchorPointX = board[0].size() - 1 - 4;
+			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateTwo);
+			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateActive, gravityDirection))
+			{
+				anchorPointY = (board.size() / 2) - 2;
+				anchorPointX = 0;
+			} else
+			{
+				anchorPointY = (board.size() / 2) - 2;
+				anchorPointX = 0 + boardHiddenGrace;
+			}
 			break;
 		}
 	}
