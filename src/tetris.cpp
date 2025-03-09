@@ -821,9 +821,9 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 	const int rotateShimmyXMax = 3;
 	const int rotateShimmyXMin = -3;
 
-	for(int y = 0; y <= rotateShimmyYMax; y++)
+	for(int x = 0; x <= rotateShimmyXMax; x++)
 	{
-		for(int x = 0; x <= rotateShimmyXMax; x++)
+		for(int y = 0; y <= rotateShimmyYMax; y++)
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
@@ -832,7 +832,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 				return true;
 			}
 		}
-		for(int x = 0; x >= rotateShimmyXMin; x--)
+		for(int y = 0; y >= rotateShimmyYMin; y--)
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
@@ -842,9 +842,9 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 			}
 		}
 	}
-	for(int y = 0; y >= rotateShimmyYMin; y--)
+	for(int x = 0; x >= rotateShimmyXMin; x--)
 	{
-		for(int x = 0; x <= rotateShimmyXMax; x++)
+		for(int y = 0; y <= rotateShimmyYMax; y++)
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
@@ -853,7 +853,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 				return true;
 			}
 		}
-		for(int x = 0; x >= rotateShimmyXMin; x--)
+		for(int y = 0; y >= rotateShimmyYMin; y--)
 		{
 			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
