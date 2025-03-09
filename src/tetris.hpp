@@ -19,6 +19,8 @@ struct TetrisCube
 typedef std::array<std::array<bool, 4>, 4> TetrominoState;
 
 TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirectionState tetrominoDirectionState);
+TetrominoState normalizeTetrominoState(TetrominoState tetrominostate);
+sf::Color getTetrominoColor(TetrominoType tetrominotype);
 bool activePiecesExistOnBoard(std::vector<std::vector<TetrisCube>> &board);
 bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, PointState pointstate, Direction gravityDirection);
 bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Direction direction);
@@ -30,7 +32,7 @@ void hardenActivePieces(std::vector<std::vector<TetrisCube>> &board);
 void overlayShadow(std::vector<std::vector<TetrisCube>> &board, Direction gravityDirection);
 void clearShadow(std::vector<std::vector<TetrisCube>> &board);
 bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX);
-bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX);
+bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX, sf::Color color);
 bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, Direction gravityDirection, TetrominoType tetrominotype);
 std::vector<int> clearAndGetFullRowYLevels(std::vector<std::vector<TetrisCube>> &board, Direction gravityDirection);
 int calculateScoreFromRowsCleared(int nRowsCleared);

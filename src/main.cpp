@@ -72,13 +72,13 @@ int main()
 	int totalRowsCleared = 0;
 	int score = 0;
 
-	std::queue<TetrominoState> blockQueue;
+	std::queue<TetrominoType> tetrominoQueue;
 	for(int x = 0; x <= 5; x++)
 	{
-		blockQueue.push(getTetrominoState(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)), TetrominoDirectionStateOne));
+		tetrominoQueue.push(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)));
 	}
-	TetrominoState savedTetromino;
-	TetrominoState currentTetrominoInPlay;
+	TetrominoType savedTetromino = unknownTetromino;
+	TetrominoType currentTetrominoInPlay;
 
 	bool wasAbleToPlaceNextBlockSuccessfully = false;
 		/*
@@ -564,78 +564,38 @@ int main()
 				}
 			}
 
-			//set theBlock texture as active for drawing blockQueue and savedTetromino
+			//draw tetrominoQueue and savedTetromino
+			TetrominoState tempNormalizedTetrominoForDrawing = normalizeTetrominoState(getTetrominoState(tetrominoQueue.front(), TetrominoDirectionStateOne));
 			theBlock.setTexture(activeIntTexture);
 
-			//draw blockQueue
-			int drawBlockQueueTempVarLeftMost = 0;
-			int drawBlockQueueTempVarTopMost = 0;
-			for(int y = 0; y < blockQueue.front().size(); y++)
+			for(int y = 0; y < tempNormalizedTetrominoForDrawing.size(); y++)
 			{
-				//as of Saturday, March 08, 2025, 17:18:58
-				// yes I know this is cursed; "blockQueue.front()[y].size()"
-				for(int x = 0; x < blockQueue.front()[y].size(); x++)
+				for(int x = 0; x < tempNormalizedTetrominoForDrawing[y].size(); x++)
 				{
-					if(blockQueue.front()[y][x] == true)
-					{
-						if(y < drawBlockQueueTempVarTopMost)
-						{
-							drawBlockQueueTempVarTopMost = y;
-						}
-						if(x < drawBlockQueueTempVarTopMost)
-						{
-							drawBlockQueueTempVarTopMost = x;
-						}
-					}
-				}
-			}
-			for(int y = 0; y < blockQueue.front().size(); y++)
-			{
-				for(int x = 0; x < blockQueue.front()[y].size(); x++)
-				{
-					if(blockQueue.front()[y][x] == true)
+					if(tempNormalizedTetrominoForDrawing[y][x] == true)
 					{
 						theBlock.setPosition(sf::Vector2f(
-							((x - drawBlockQueueTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
-							((y - drawBlockQueueTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
+							(x * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
+							(y * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
 						));
-						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						theBlock.setColor(getTetrominoColor(tetrominoQueue.front()));
 						window.draw(theBlock);
 					}
 				}
 			}
 
-			//draw savedTetromino
-			int drawSavedTetrominoTempVarLeftMost = 0;
-			int drawSavedTetrominoTempVarTopMost = 0;
-			for(int y = 0; y < savedTetromino.size(); y++)
+			tempNormalizedTetrominoForDrawing = normalizeTetrominoState(getTetrominoState(savedTetromino, TetrominoDirectionStateOne));
+			for(int y = 0; y < tempNormalizedTetrominoForDrawing.size(); y++)
 			{
-				for(int x = 0; x < savedTetromino[y].size(); x++)
+				for(int x = 0; x < tempNormalizedTetrominoForDrawing[y].size(); x++)
 				{
-					if(savedTetromino[y][x] == true)
-					{
-						if(y < drawSavedTetrominoTempVarTopMost)
-						{
-							drawSavedTetrominoTempVarTopMost = y;
-						}
-						if(x < drawSavedTetrominoTempVarTopMost)
-						{
-							drawSavedTetrominoTempVarTopMost = x;
-						}
-					}
-				}
-			}
-			for(int y = 0; y < savedTetromino.size(); y++)
-			{
-				for(int x = 0; x < savedTetromino[y].size(); x++)
-				{
-					if(savedTetromino[y][x] == true)
+					if(tempNormalizedTetrominoForDrawing[y][x] == true)
 					{
 						theBlock.setPosition(sf::Vector2f(
-							((x - drawSavedTetrominoTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
-							((y - drawSavedTetrominoTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
+							(x * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
+							(y * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
 						));
-						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						theBlock.setColor(getTetrominoColor(savedTetromino));
 						window.draw(theBlock);
 					}
 				}
@@ -752,10 +712,10 @@ int main()
 				}
 				*/
 
-				wasAbleToPlaceNextBlockSuccessfully = spawnTetromino(board, boardHiddenGrace, gravityDirection, iTetromino); //temp until I fixed betterTetrisEngine 
-				currentTetrominoInPlay = blockQueue.front();
-				blockQueue.pop();
-				blockQueue.push(getTetrominoState(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)), TetrominoDirectionStateOne));
+				wasAbleToPlaceNextBlockSuccessfully = spawnTetromino(board, boardHiddenGrace, gravityDirection, tetrominoQueue.front());
+				currentTetrominoInPlay = tetrominoQueue.front();
+				tetrominoQueue.pop();
+				tetrominoQueue.push(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)));
 
 				if(!wasAbleToPlaceNextBlockSuccessfully)
 				{
@@ -859,17 +819,17 @@ int main()
 					if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
 					{
 						destroyActivePiecesOnBoard(board);
-						if(savedTetromino.empty())
+						if(savedTetromino == unknownTetromino)
 						{
 							savedTetromino = currentTetrominoInPlay;
 
-							spawnTetromino(board, boardHiddenGrace, gravityDirection, iTetromino); // temp until I compelte betterTetrisEngine
-							currentTetrominoInPlay = blockQueue.front();
-							blockQueue.pop();
-							blockQueue.push(getTetrominoState(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)), TetrominoDirectionStateOne));
+							spawnTetromino(board, boardHiddenGrace, gravityDirection, tetrominoQueue.front());
+							currentTetrominoInPlay = tetrominoQueue.front();
+							tetrominoQueue.pop();
+							tetrominoQueue.push(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)));
 						} else
 						{
-							spawnTetromino(board, boardHiddenGrace, gravityDirection, iTetromino); // temp until I compelte betterTetrisEngine
+							spawnTetromino(board, boardHiddenGrace, gravityDirection, tetrominoQueue.front());
 							savedTetromino = currentTetrominoInPlay;
 						}
 
@@ -968,83 +928,44 @@ int main()
 				}
 			}
 
-			//set theBlock texture as active for drawing blockQueue and savedTetromino
+			//draw tetrominoQueue and savedTetromino
+			TetrominoState tempNormalizedTetrominoForDrawing = normalizeTetrominoState(getTetrominoState(tetrominoQueue.front(), TetrominoDirectionStateOne));
 			theBlock.setTexture(activeIntTexture);
 
-			//draw blockQueue
-			int drawBlockQueueTempVarLeftMost = 0;
-			int drawBlockQueueTempVarTopMost = 0;
-			for(int y = 0; y < blockQueue.front().size(); y++)
+			for(int y = 0; y < tempNormalizedTetrominoForDrawing.size(); y++)
 			{
-				//as of Saturday, March 08, 2025, 17:18:58
-				// yes I know this is cursed; "blockQueue.front()[y].size()"
-				for(int x = 0; x < blockQueue.front()[y].size(); x++)
+				for(int x = 0; x < tempNormalizedTetrominoForDrawing[y].size(); x++)
 				{
-					if(blockQueue.front()[y][x] == true)
-					{
-						if(y < drawBlockQueueTempVarTopMost)
-						{
-							drawBlockQueueTempVarTopMost = y;
-						}
-						if(x < drawBlockQueueTempVarTopMost)
-						{
-							drawBlockQueueTempVarTopMost = x;
-						}
-					}
-				}
-			}
-			for(int y = 0; y < blockQueue.front().size(); y++)
-			{
-				for(int x = 0; x < blockQueue.front()[y].size(); x++)
-				{
-					if(blockQueue.front()[y][x] == true)
+					if(tempNormalizedTetrominoForDrawing[y][x] == true)
 					{
 						theBlock.setPosition(sf::Vector2f(
-							((x - drawBlockQueueTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
-							((y - drawBlockQueueTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
+							(x * theBlock.getGlobalBounds().size.x) + theBlockQueuedStartX,
+							(y * theBlock.getGlobalBounds().size.y) + theBlockQueuedStartY
 						));
-						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						theBlock.setColor(getTetrominoColor(tetrominoQueue.front()));
 						window.draw(theBlock);
 					}
 				}
 			}
 
-			//draw savedTetromino
-			int drawSavedTetrominoTempVarLeftMost = 0;
-			int drawSavedTetrominoTempVarTopMost = 0;
-			for(int y = 0; y < savedTetromino.size(); y++)
+			tempNormalizedTetrominoForDrawing = normalizeTetrominoState(getTetrominoState(savedTetromino, TetrominoDirectionStateOne));
+			for(int y = 0; y < tempNormalizedTetrominoForDrawing.size(); y++)
 			{
-				for(int x = 0; x < savedTetromino[y].size(); x++)
+				for(int x = 0; x < tempNormalizedTetrominoForDrawing[y].size(); x++)
 				{
-					if(savedTetromino[y][x] == true)
-					{
-						if(y < drawSavedTetrominoTempVarTopMost)
-						{
-							drawSavedTetrominoTempVarTopMost = y;
-						}
-						if(x < drawSavedTetrominoTempVarTopMost)
-						{
-							drawSavedTetrominoTempVarTopMost = x;
-						}
-					}
-				}
-			}
-			for(int y = 0; y < savedTetromino.size(); y++)
-			{
-				for(int x = 0; x < savedTetromino[y].size(); x++)
-				{
-					if(savedTetromino[y][x] == true)
+					if(tempNormalizedTetrominoForDrawing[y][x] == true)
 					{
 						theBlock.setPosition(sf::Vector2f(
-							((x - drawSavedTetrominoTempVarLeftMost) * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
-							((y - drawSavedTetrominoTempVarTopMost) * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
+							(x * theBlock.getGlobalBounds().size.x) + theBlockSavedStartX,
+							(y * theBlock.getGlobalBounds().size.y) + theBlockSavedStartY
 						));
-						theBlock.setColor(sf::Color::Magenta); //temporarily until I fix this betterTetrisEngine branch
+						theBlock.setColor(getTetrominoColor(savedTetromino));
 						window.draw(theBlock);
 					}
 				}
 			}
 			theBlock.setColor(sf::Color::White);
+
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace, PointStateInactive, gravityDirection))
 			{
 				hiddenGraceAreaViewZoomTickDelta += deltaTime;
@@ -1127,8 +1048,8 @@ int main()
 			totalRowsCleared = 0;
 			score = 0;
 
-			savedTetromino = getTetrominoState(iTetromino, unknownTetrominoDirectionState);
-			currentTetrominoInPlay = getTetrominoState(iTetromino, unknownTetrominoDirectionState);
+			savedTetromino = unknownTetromino;
+			currentTetrominoInPlay = unknownTetromino;
 
 			board.clear();
 			for(int y = 0; y < boardHeight; y++)

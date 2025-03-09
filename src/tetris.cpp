@@ -4,6 +4,7 @@
 
 static int anchorPointY;
 static int anchorPointX;
+static sf::Color activePiecesColor;
 
 TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirectionState tetrominoDirectionState)
 {
@@ -278,6 +279,69 @@ TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirection
 	}
 }
 
+TetrominoState normalizeTetrominoState(TetrominoState tetrominostate)
+{
+	int topMost = tetrominostate.size();
+	int leftMost = tetrominostate[0].size();
+
+	for(int y = 0; y < tetrominostate.size(); y++)
+	{
+		for(int x = 0; x < tetrominostate[y].size(); x++)
+		{
+			if(tetrominostate[y][x] == true)
+			{
+				if(y < topMost)
+				{
+					topMost = y;
+				}
+				if(x < leftMost)
+				{
+					leftMost = x;
+				}
+			}
+		}
+	}
+
+	for(int y = 0; y < tetrominostate.size(); y++)
+	{
+		for(int x = 0; x < tetrominostate[y].size(); x++)
+		{
+			if(tetrominostate[y][x] == true)
+			{
+				tetrominostate[y][x] = false;
+				tetrominostate[y - topMost][x - leftMost] = true;
+			}
+		}
+	}
+
+	return tetrominostate;
+}
+
+sf::Color getTetrominoColor(TetrominoType tetrominotype)
+{
+	switch(tetrominotype)
+	{
+		case iTetromino:
+			return sf::Color::Cyan;					//cyan
+		case jTetromino:
+			return sf::Color::Blue;					//blue
+		case lTetromino:
+			return sf::Color(223, 113, 38, 255);	//orange
+		case oTetromino:
+			return sf::Color::Yellow;				//yellow
+		case sTetromino:
+			return sf::Color::Green;				//green
+		case tTetromino:
+			return sf::Color::Magenta;				//magenta
+		case zTetromino:
+			return sf::Color::Red;					//red
+		case unknownTetromino:
+			return sf::Color(3, 2, 123, 255);		//CUSTOM
+		default:
+			return sf::Color(3, 2, 123, 255);		//CUSTOM
+	}
+}
+
 bool activePiecesExistOnBoard(std::vector<std::vector<TetrisCube>> &board)
 {
 	for(int y = 0; y < board.size(); y++)
@@ -315,16 +379,12 @@ bool pointStatePiecesExistOnHiddenGraceAreaOfBoard(std::vector<std::vector<Tetri
 
 		case DirectionDown:
 		{
-			std::cout << "POINT STATE 1" << std::endl;
 			for(int y = 0; y < boardHiddenGrace; y++)
 			{
-						std::cout << "POINT STATE 2" << std::endl;
 				for(int x = 0; x < board[y].size(); x++)
 				{
-						std::cout << "POINT STATE 3" << std::endl;
 					if(board[y][x].pointstate == pointstate)
 					{
-						std::cout << "POINT STATE 4" << std::endl;
 						return true;
 					}
 				}
@@ -572,6 +632,8 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 	//move or don't move pieces after checking yo
 	if(canMoveActivePiecesInDirection(board, direction))
 	{
+		const sf::Color noColor(0, 0, 0, 255);
+
 		switch(direction)
 		{
 			case DirectionUp:
@@ -584,6 +646,7 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 						{
 							board[y - 1][x] = board[y][x];
 							board[y][x].pointstate = PointStateBlank;
+							board[y][x].color = noColor;
 						}
 					}
 				}
@@ -605,6 +668,7 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 						{
 							board[y + 1][x] = board[y][x];
 							board[y][x].pointstate = PointStateBlank;
+							board[y][x].color = noColor;
 						}
 					}
 				}
@@ -626,6 +690,7 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 						{
 							board[y][x - 1] = board[y][x];
 							board[y][x].pointstate = PointStateBlank;
+							board[y][x].color = noColor;
 						}
 					}
 				}
@@ -647,6 +712,7 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 						{
 							board[y][x + 1] = board[y][x];
 							board[y][x].pointstate = PointStateBlank;
+							board[y][x].color = noColor;
 						}
 					}
 				}
@@ -806,7 +872,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 	{
 		for(int x = 0; x <= rotateShimmyXMax; x++)
 		{
-			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
 				anchorPointY = anchorPointY + y;
 				anchorPointX = anchorPointX + x;
@@ -815,7 +881,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		}
 		for(int x = 0; x >= rotateShimmyXMin; x--)
 		{
-			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
 				anchorPointY = anchorPointY + y;
 				anchorPointX = anchorPointX + x;
@@ -827,7 +893,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 	{
 		for(int x = 0; x <= rotateShimmyXMax; x++)
 		{
-			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
 				anchorPointY = anchorPointY + y;
 				anchorPointX = anchorPointX + x;
@@ -836,7 +902,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		}
 		for(int x = 0; x >= rotateShimmyXMin; x--)
 		{
-			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x))
+			if(placeTetrominoStateOnBoard(board, nextTetrominoState, anchorPointY + y, anchorPointX + x, activePiecesColor))
 			{
 				anchorPointY = anchorPointY + y;
 				anchorPointX = anchorPointX + x;
@@ -845,7 +911,7 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		}
 	}
 
-	placeTetrominoStateOnBoard(board, capturedTetrominoState, anchorPointY, anchorPointX);
+	placeTetrominoStateOnBoard(board, capturedTetrominoState, anchorPointY, anchorPointX, activePiecesColor);
 	return false;
 }
 
@@ -1140,7 +1206,7 @@ bool canPlaceTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, 
 	return true;
 }
 
-bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX)
+bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, TetrominoState tetrominostate, int placeY, int placeX, sf::Color color)
 {
 	if(!canPlaceTetrominoStateOnBoard(board, tetrominostate, placeY, placeX))
 	{
@@ -1154,6 +1220,7 @@ bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, Tet
 			if(tetrominostate[y][x] == true)
 			{
 				board[placeY + y][placeX + x].pointstate = PointStateActive;
+				board[placeY + y][placeX + x].color = color;
 			}
 		}
 	}
@@ -1163,7 +1230,7 @@ bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, Tet
 
 bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, Direction gravityDirection, TetrominoType tetrominotype)
 {
-	const int boardHiddenGraceActivationZone = 2;
+	const int boardHiddenGraceActivationZone = 3;
 
 	TetrominoState tetrominoToPlace;
 	switch(gravityDirection)
@@ -1237,7 +1304,8 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 		}
 	}
 
-	if(!placeTetrominoStateOnBoard(board, tetrominoToPlace, anchorPointY, anchorPointX))
+	activePiecesColor = getTetrominoColor(tetrominotype);
+	if(!placeTetrominoStateOnBoard(board, tetrominoToPlace, anchorPointY, anchorPointX, activePiecesColor))
 	{
 		return false;
 	}
