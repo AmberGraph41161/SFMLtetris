@@ -155,10 +155,10 @@ int main()
 	const std::pair<int, int> inactiveIntLowerUpperPair = std::make_pair<int, int>(20, 28);
 	const std::pair<int, int> shadowIntLowerUpperPair = std::make_pair<int, int>(30, 38);
 
-	int boardHiddenGrace = 7;
-	int boardWarningFade = 5;
-	int boardWidth = 10;
-	int boardHeight = 20 + boardHiddenGrace;
+	const int boardHiddenGrace = 7;
+	const int boardWarningFade = 5;
+	const int boardWidth = 10;
+	const int boardHeight = 20 + boardHiddenGrace;
 	std::vector<std::vector<TetrisCube>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
 	for(int y = 0; y < boardHeight; y++)
 	{
