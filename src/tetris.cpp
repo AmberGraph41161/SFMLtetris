@@ -44,23 +44,23 @@ TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirection
 		{{
 		{ 0, 0, 0, 0 },
 		{ 1, 0, 0, 0 },
-		{ 1 ,1, 1, 1 },
+		{ 1 ,1, 1, 0 },
 		{ 0, 0, 0, 0 }
 		}},
 		{{
+		{ 0, 0, 0, 0 },
 		{ 0, 1, 1, 0 },
-		{ 0, 1, 0, 0 },
 		{ 0 ,1, 0, 0 },
 		{ 0, 1, 0, 0 }
 		}},
 		{{
 		{ 0, 0, 0, 0 },
-		{ 1, 1, 1, 1 },
-		{ 0 ,0, 0, 1 },
+		{ 1, 1, 1, 0 },
+		{ 0 ,0, 1, 0 },
 		{ 0, 0, 0, 0 }
 		}},
 		{{
-		{ 0, 0, 1, 0 },
+		{ 0, 0, 0, 0 },
 		{ 0, 0, 1, 0 },
 		{ 0 ,0, 1, 0 },
 		{ 0, 1, 1, 0 }
@@ -71,19 +71,19 @@ TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirection
 	{{
 		{{
 		{ 0, 0, 0, 0 },
-		{ 0, 0, 0, 1 },
-		{ 1 ,1, 1, 1 },
+		{ 0, 0, 1, 0 },
+		{ 1 ,1, 1, 0 },
 		{ 0, 0, 0, 0 }
 		}},
 		{{
-		{ 0, 1, 0, 0 },
+		{ 0, 0, 0, 0 },
 		{ 0, 1, 0, 0 },
 		{ 0 ,1, 0, 0 },
 		{ 0, 1, 1, 0 }
 		}},
 		{{
 		{ 0, 0, 0, 0 },
-		{ 1, 1, 1, 1 },
+		{ 1, 1, 1, 0 },
 		{ 1 ,0, 0, 0 },
 		{ 0, 0, 0, 0 }
 		}},
@@ -91,7 +91,7 @@ TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirection
 		{ 0, 1, 1, 0 },
 		{ 0, 0, 1, 0 },
 		{ 0 ,0, 1, 0 },
-		{ 0, 0, 1, 0 }
+		{ 0, 0, 0, 0 }
 		}},
 	}};
 
