@@ -1,10 +1,10 @@
 #include "tetris.hpp"
 
-#include <iostream>
-
 static int anchorPointY;
 static int anchorPointX;
 static sf::Color activePiecesColor;
+static const sf::Color noColor(0, 0, 0, 255);
+
 
 TetrominoState getTetrominoState(TetrominoType tetrominotype, TetrominoDirectionState tetrominoDirectionState)
 {
@@ -604,8 +604,6 @@ bool canMoveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board,
 		default:
 		{
 			canMoveActivePieces = false;
-			//std::cout << "invalid direction to move???" << std::endl;
-			//std::cout << "you've reached unreachable code" << std::endl;
 			break;
 		}
 	}
@@ -622,6 +620,7 @@ void destroyActivePiecesOnBoard(std::vector<std::vector<TetrisCube>> &board)
 			if(board[y][x].pointstate == PointStateActive)
 			{
 				board[y][x].pointstate = PointStateBlank;
+				board[y][x].color = noColor;
 			}
 		}
 	}
@@ -632,8 +631,6 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 	//move or don't move pieces after checking yo
 	if(canMoveActivePiecesInDirection(board, direction))
 	{
-		const sf::Color noColor(0, 0, 0, 255);
-
 		switch(direction)
 		{
 			case DirectionUp:
@@ -726,7 +723,6 @@ bool moveActivePiecesInDirection(std::vector<std::vector<TetrisCube>> &board, Di
 
 			default:
 			{
-				//std::cout << "you've reached unreachable code" << std::endl;
 				break;
 			}
 		}
@@ -759,49 +755,6 @@ void slamActivePiecesInDireciton(std::vector<std::vector<TetrisCube>> &board, Di
 				board[y][x].pointstate = PointStateInactive;
 			}
 		}
-	}
-}
-
-void DEBUGPRINT(TetrominoState capturedTetrominoState)
-{
-	for(int y = 0; y < capturedTetrominoState.size(); y++)
-	{
-		for(int x = 0; x < capturedTetrominoState[y].size(); x++)
-		{
-			if(capturedTetrominoState[y][x] == true)
-			{
-				std::cout << "1 ";
-			} else
-			{
-				std::cout << "0 ";
-			}
-		}
-		std::cout << std::endl;
-	}
-
-}
-
-void DEBUGPRINTBOARD(std::vector<std::vector<TetrisCube>> &board)
-{
-	std::cout << "anchorPointY " << anchorPointY << std::endl;
-	std::cout << "anchorPointX " << anchorPointX << std::endl;
-
-	for(int y = 0; y < board.size(); y++)
-	{
-		for(int x = 0; x < board[y].size(); x++)
-		{
-			if(anchorPointY == y && anchorPointX == x)
-			{
-				std::cout << "@ ";
-			} else if(board[y][x].pointstate == PointStateActive)
-			{
-				std::cout << "1 ";
-			} else
-			{
-				std::cout << "0 ";
-			}
-		}
-		std::cout << std::endl;
 	}
 }
 
@@ -1163,8 +1116,6 @@ std::vector<int> clearAndGetFullRowYLevels(std::vector<std::vector<TetrisCube>> 
 
 		default:
 		{
-			//std::cout << "invalid direction to clearAndGetFullRows???" << std::endl;
-			//std::cout << "you've reached unreachable code" << std::endl;
 			break;
 		}
 
@@ -1240,12 +1191,10 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateOne);
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				std::cout << "HERE 1" << std::endl;
 				anchorPointY = board.size() - 1  - 4;
 				anchorPointX = (board[0].size() / 2) - 2;
 			} else
 			{
-				std::cout << "HERE 2" << std::endl;
 				anchorPointY = board.size() - 1  - 4 - boardHiddenGrace;
 				anchorPointX = (board[0].size() / 2) - 2;
 			}
@@ -1257,12 +1206,10 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateOne);
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				std::cout << "HERE 3" << std::endl;
 				anchorPointY = 0;
 				anchorPointX = (board[0].size() / 2) - 2;
 			} else
 			{
-				std::cout << "HERE 4" << std::endl;
 				anchorPointY = 0 + boardHiddenGrace;
 				anchorPointX = (board[0].size() / 2) - 2;
 			}
@@ -1274,12 +1221,10 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateTwo);
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				std::cout << "HERE 5" << std::endl;
 				anchorPointY = (board.size() / 2) - 2;
 				anchorPointX = board[0].size() - 1 - 4;
 			} else
 			{
-				std::cout << "HERE 6" << std::endl;
 				anchorPointY = (board.size() / 2) - 2;
 				anchorPointX = board[0].size() - 1 - 4 - boardHiddenGrace;
 			}
@@ -1291,12 +1236,10 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 			tetrominoToPlace = getTetrominoState(tetrominotype, TetrominoDirectionStateTwo);
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				std::cout << "HERE 7" << std::endl;
 				anchorPointY = (board.size() / 2) - 2;
 				anchorPointX = 0;
 			} else
 			{
-				std::cout << "HERE 8" << std::endl;
 				anchorPointY = (board.size() / 2) - 2;
 				anchorPointX = 0 + boardHiddenGrace;
 			}
