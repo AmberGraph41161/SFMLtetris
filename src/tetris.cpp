@@ -907,6 +907,7 @@ void overlayShadow(std::vector<std::vector<TetrisCube>> &board, Direction gravit
 			)
 			{
 				board[y][x].pointstate = PointStateShadow;
+				board[y][x].color = tempShadowBoard[y][x].color;
 			}
 		}
 	}
@@ -921,6 +922,7 @@ void clearShadow(std::vector<std::vector<TetrisCube>> &board)
 			if(board[y][x].pointstate == PointStateShadow)
 			{
 				board[y][x].pointstate = PointStateBlank;
+				board[y][x].color = noColor;
 			}
 		}
 	}
