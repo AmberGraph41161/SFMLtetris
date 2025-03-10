@@ -784,11 +784,26 @@ bool rotateActivePieces(std::vector<std::vector<TetrisCube>> &board, bool rotate
 		}
 	}
 
-	TetrominoDirectionState nextTetrominoDirectionState = static_cast<TetrominoDirectionState>(currentTetrominoDirectionState + 1);
-	if(nextTetrominoDirectionState == unknownTetrominoDirectionState)
+	TetrominoDirectionState nextTetrominoDirectionState;
+
+	if(rotateInClockwiseDirection)
 	{
-		nextTetrominoDirectionState = TetrominoDirectionStateOne;
+		nextTetrominoDirectionState = static_cast<TetrominoDirectionState>(currentTetrominoDirectionState + 1);
+		if(nextTetrominoDirectionState == unknownTetrominoDirectionState)
+		{
+			nextTetrominoDirectionState = TetrominoDirectionStateOne;
+		}
+	} else
+	{
+		if(currentTetrominoDirectionState == TetrominoDirectionStateOne)
+		{
+			nextTetrominoDirectionState = TetrominoDirectionStateFour;
+		} else
+		{
+			nextTetrominoDirectionState = static_cast<TetrominoDirectionState>(currentTetrominoDirectionState - 1);
+		}
 	}
+
 
 	TetrominoState nextTetrominoState = getTetrominoState(currentTetrominoType, nextTetrominoDirectionState);
 
