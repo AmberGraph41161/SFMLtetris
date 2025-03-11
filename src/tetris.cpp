@@ -1180,7 +1180,10 @@ bool placeTetrominoStateOnBoard(std::vector<std::vector<TetrisCube>> &board, Tet
 
 bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHiddenGrace, Direction gravityDirection, TetrominoType tetrominotype)
 {
-	const int boardHiddenGraceActivationZone = 3;
+	const int boardHiddenGraceActivationZone = 4;
+	const int normalTetrominoHeightWidth  = 4;
+	const int halfOfNormalTetrominoHeightWidth  = 2;
+	const int normalTetrominoSpawnFix = 0; //here as temp fix, cuz customTetromino might be added in future
 
 	TetrominoState tetrominoToPlace;
 	switch(gravityDirection)
@@ -1193,12 +1196,12 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				currentTetrominoAnchorPointY = board.size() - 1  - 4;
-				currentTetrominoAnchorPointX = (board[0].size() / 2) - 2;
+				currentTetrominoAnchorPointY = board.size() - 1  - normalTetrominoHeightWidth + normalTetrominoSpawnFix;
+				currentTetrominoAnchorPointX = (board[0].size() / 2) - halfOfNormalTetrominoHeightWidth;
 			} else
 			{
-				currentTetrominoAnchorPointY = board.size() - 1  - 4 - boardHiddenGrace;
-				currentTetrominoAnchorPointX = (board[0].size() / 2) - 2;
+				currentTetrominoAnchorPointY = board.size() - 1  - normalTetrominoHeightWidth - boardHiddenGrace + normalTetrominoSpawnFix;
+				currentTetrominoAnchorPointX = (board[0].size() / 2) - halfOfNormalTetrominoHeightWidth;
 			}
 			break;
 		}
@@ -1211,12 +1214,12 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				currentTetrominoAnchorPointY = 0;
-				currentTetrominoAnchorPointX = (board[0].size() / 2) - 2;
+				currentTetrominoAnchorPointY = 0 + normalTetrominoSpawnFix;
+				currentTetrominoAnchorPointX = (board[0].size() / 2) - halfOfNormalTetrominoHeightWidth;
 			} else
 			{
-				currentTetrominoAnchorPointY = 0 + boardHiddenGrace;
-				currentTetrominoAnchorPointX = (board[0].size() / 2) - 2;
+				currentTetrominoAnchorPointY = 0 + boardHiddenGrace + normalTetrominoSpawnFix;
+				currentTetrominoAnchorPointX = (board[0].size() / 2) - halfOfNormalTetrominoHeightWidth;
 			}
 			break;
 		}
@@ -1229,12 +1232,12 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				currentTetrominoAnchorPointY = (board.size() / 2) - 2;
-				currentTetrominoAnchorPointX = board[0].size() - 1 - 4;
+				currentTetrominoAnchorPointY = (board.size() / 2) - halfOfNormalTetrominoHeightWidth;
+				currentTetrominoAnchorPointX = board[0].size() - 1 - normalTetrominoHeightWidth + normalTetrominoSpawnFix;
 			} else
 			{
-				currentTetrominoAnchorPointY = (board.size() / 2) - 2;
-				currentTetrominoAnchorPointX = board[0].size() - 1 - 4 - boardHiddenGrace;
+				currentTetrominoAnchorPointY = (board.size() / 2) - halfOfNormalTetrominoHeightWidth;
+				currentTetrominoAnchorPointX = board[0].size() - 1 - normalTetrominoHeightWidth - boardHiddenGrace + normalTetrominoSpawnFix;
 			}
 			break;
 		}
@@ -1247,12 +1250,12 @@ bool spawnTetromino(std::vector<std::vector<TetrisCube>> &board, int boardHidden
 
 			if(pointStatePiecesExistOnHiddenGraceAreaOfBoard(board, boardHiddenGrace + boardHiddenGraceActivationZone, PointStateInactive, gravityDirection))
 			{
-				currentTetrominoAnchorPointY = (board.size() / 2) - 2;
-				currentTetrominoAnchorPointX = 0;
+				currentTetrominoAnchorPointY = (board.size() / 2) - halfOfNormalTetrominoHeightWidth;
+				currentTetrominoAnchorPointX = 0 + normalTetrominoSpawnFix;
 			} else
 			{
-				currentTetrominoAnchorPointY = (board.size() / 2) - 2;
-				currentTetrominoAnchorPointX = 0 + boardHiddenGrace;
+				currentTetrominoAnchorPointY = (board.size() / 2) - halfOfNormalTetrominoHeightWidth;
+				currentTetrominoAnchorPointX = 0 + boardHiddenGrace + normalTetrominoSpawnFix;
 			}
 			break;
 		}

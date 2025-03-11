@@ -407,8 +407,8 @@ int main()
 	
 	bool slamKeyPressedLastFrame = false;
 	bool rotateKeyPressedLastFrame = false;
-	bool saveblockKeyPressedLastFrame = false;
-	bool saveblockUsedForCurrentBlock = false;
+	bool saveTetrominoKeyPressedLastFrame = false;
+	bool saveTetrominoUsedForCurrentBlock = false;
 
 	std::chrono::time_point<std::chrono::system_clock> lastlastframe = std::chrono::high_resolution_clock::now();
 	std::chrono::time_point<std::chrono::system_clock> lastframe = std::chrono::high_resolution_clock::now();
@@ -723,7 +723,7 @@ int main()
 					resetBackToStartScreen = true;
 				}
 
-				saveblockUsedForCurrentBlock = false;
+				saveTetrominoUsedForCurrentBlock = false;
 			}
 
 			//controls
@@ -816,7 +816,7 @@ int main()
 
 				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::C))
 				{
-					if(!saveblockUsedForCurrentBlock && !saveblockKeyPressedLastFrame)
+					if(!saveTetrominoUsedForCurrentBlock && !saveTetrominoKeyPressedLastFrame)
 					{
 						destroyActivePiecesOnBoard(board);
 						if(savedTetromino == unknownTetromino)
@@ -829,16 +829,18 @@ int main()
 							tetrominoQueue.push(static_cast<TetrominoType>(RANDOM(iTetromino, zTetromino)));
 						} else
 						{
-							spawnTetromino(board, boardHiddenGrace, gravityDirection, tetrominoQueue.front());
+							TetrominoType tempTetromino = savedTetromino;
 							savedTetromino = currentTetrominoInPlay;
+							currentTetrominoInPlay = tempTetromino;
+							spawnTetromino(board, boardHiddenGrace, gravityDirection, currentTetrominoInPlay);
 						}
 
-						saveblockUsedForCurrentBlock = true;
+						saveTetrominoUsedForCurrentBlock = true;
 					}
-					saveblockKeyPressedLastFrame = true;
+					saveTetrominoKeyPressedLastFrame = true;
 				} else
 				{
-					saveblockKeyPressedLastFrame = false;
+					saveTetrominoKeyPressedLastFrame = false;
 				}
 
 				if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Space))
@@ -1042,8 +1044,8 @@ int main()
 		{
 			slamKeyPressedLastFrame = false;
 			rotateKeyPressedLastFrame = false;
-			saveblockKeyPressedLastFrame = false;
-			saveblockUsedForCurrentBlock = false;
+			saveTetrominoKeyPressedLastFrame = false;
+			saveTetrominoUsedForCurrentBlock = false;
 
 			totalRowsCleared = 0;
 			score = 0;
