@@ -14,5 +14,5 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SFML)
 
-add_executable(${PROJECT_NAME} src/main.cpp src/gamefunctions.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp src/tetris.cpp src/particle.cpp)
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-window sfml-system sfml-graphics sfml-audio)
