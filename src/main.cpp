@@ -212,7 +212,7 @@ int main()
 			0000000000
 			0000000000
 						(10, 20) bottom right of the board
-	
+
 		when moving active pieces, start from bottom of the board to the top of the board when shimming pieces down.
 	*/
 
@@ -228,7 +228,7 @@ int main()
 	}
 	sf::Sound lineClearSFX(lineClearSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&lineClearSFX);
-	
+
 	sf::SoundBuffer blockMoveSFXbuffer;
 	std::string blockMoveSFXbufferPath = "resources/sounds/default/blockMove0.wav";
 	if(!blockMoveSFXbuffer.loadFromFile(blockMoveSFXbufferPath))
@@ -238,7 +238,7 @@ int main()
 	}
 	sf::Sound blockMoveSFX(blockMoveSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&blockMoveSFX);
-	
+
 	sf::SoundBuffer blockRotateSFXbuffer;
 	std::string blockRotateSFXbufferPath = "resources/sounds/default/blockRotate0.wav";
 	if(!blockRotateSFXbuffer.loadFromFile(blockRotateSFXbufferPath))
@@ -248,7 +248,7 @@ int main()
 	}
 	sf::Sound blockRotateSFX(blockRotateSFXbuffer);
 	vectorOfPoitersToAllSounds.push_back(&blockRotateSFX);
-	
+
 	sf::SoundBuffer blockSlamSFXbuffer;
 	std::string blockSlamSFXbufferPath = "resources/sounds/default/blockSlam1.wav";
 	if(!blockSlamSFXbuffer.loadFromFile(blockSlamSFXbufferPath))
@@ -404,7 +404,7 @@ int main()
 	dimScreenText.setString("Click anywhere to resume...");
 	dimScreenText.setOrigin(sf::Vector2f(dimScreenText.getLocalBounds().size.x / 2, dimScreenText.getLocalBounds().size.y / 2));
 	dimScreenText.setPosition(sf::Vector2f(screenWidth / 2, screenHeight / 2));
-	
+
 	bool slamKeyPressedLastFrame = false;
 	bool rotateKeyPressedLastFrame = false;
 	bool saveTetrominoKeyPressedLastFrame = false;
@@ -421,7 +421,7 @@ int main()
 	std::chrono::duration<double> hardenActivePiecesTickDelta = deltaTime;
 	const double hardenActivePiecesTickDeltaThreshold = 1.3;
 	const double hardenActivePiecesTickDeltaThresholdMinimum = 0.3;
-	
+
 	std::chrono::duration<double> hardenActivePiecesAbsoluteTickDelta = deltaTime;
 	const double hardenActivePiecesAbsoluteTickDeltaThreshold = hardenActivePiecesTickDeltaThreshold * 2;
 
@@ -627,7 +627,7 @@ int main()
 			window.display();
 			lastframe = std::chrono::high_resolution_clock::now();
 			deltaTime = lastframe - lastlastframe;
-			
+
 		} else if(playerIsAlive)
 		{
 			if(sf::Keyboard::isKeyPressed(sf::Keyboard::Scancode::Escape))
