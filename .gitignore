@@ -1,8 +1,11 @@
+main
+main.bak
+obj/
+
 resources/textures/
 references/
 
-main
-main.bak
+build/
 
 pandoc/
 md/forlater/
