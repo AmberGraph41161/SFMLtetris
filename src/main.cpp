@@ -1028,6 +1028,7 @@ int main()
 				{
 					particles.erase(particles.begin() + x);
 					x--;
+					continue;
 				}
 
 				theParticle.setPosition(particles[x].getPosition());
