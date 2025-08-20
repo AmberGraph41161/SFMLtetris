@@ -8,10 +8,12 @@ Particle::Particle(double startX, double startY, double startXVelocity, double s
 
 void Particle::update(double deltaTime)
 {
-	yVelocity += gravity * deltaTime;
-
+	//https://youtu.be/yGhfUcPjXuE?feature=shared
+	//^^^ or something like that lol
+	yVelocity += gravity * deltaTime * 0.5;
 	x += xVelocity * deltaTime;
 	y += yVelocity * deltaTime;
+	yVelocity += gravity * deltaTime * 0.5;
 
 	if(
 		x <= bounds.position.x ||
