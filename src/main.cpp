@@ -1,22 +1,16 @@
-#include <SFML/Graphics/CircleShape.hpp>
-#include <SFML/Window/Mouse.hpp>
 #include <iostream>
 #include <optional>
 #include <queue>
 #include <vector>
 #include <chrono>
 #include <array>
-#include <cmath>
 #include <cstdlib>
+#include <random>
 
 #include <SFML/Audio.hpp>
 #include <SFML/Main.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Window.hpp>
-#include <SFML/Window/Keyboard.hpp>
-#include <SFML/Window/VideoMode.hpp>
-#include <SFML/Graphics/Rect.hpp>
-#include <SFML/System/Vector2.hpp>
 
 #include "tetris.hpp"
 #include "particle.hpp"
@@ -50,12 +44,18 @@
 
 int RANDOM(int minimum, int maximum)
 {
-	return (rand() % (maximum - minimum + 1)) + minimum;
+	std::random_device randomDevice;
+	std::mt19937 mt(randomDevice());
+	std::uniform_int_distribution<int> dist(minimum, maximum);
+	return dist(mt);
 }
 
 double RANDOMDOUBLE(double minimum, double maximum)
 {
-	return (((double)rand() / RAND_MAX) * (maximum - minimum)) + minimum;
+	std::random_device randomDevice;
+	std::mt19937 mt(randomDevice());
+	std::uniform_real_distribution<double> dist(minimum, maximum);
+	return dist(mt);
 }
 
 sf::IntRect spriteSheetFrame(int spriteFrameWidth, int spriteFrameHeight, int frameNumber) //this is only for sprite sheet left to right horiztonal etc etc

@@ -5,10 +5,10 @@ main: obj/main.o obj/tetris.o obj/particle.o
 	clang++ $(CXXFLAGS) $(CXXLINKLIBS) -o main $^
 
 obj/main.o: src/main.cpp
-	clang++ $(CXXFLAGS) $(CXXLINKLIBS) -c -o $@ $^
+	clang++ $(CXXFLAGS) -c -o $@ $^
 
 obj/tetris.o: src/tetris.cpp
-	clang++ $(CXXFLAGS) $(CXXLINKLIBS) -c -o $@ $^
+	clang++ $(CXXFLAGS) -c -o $@ $^
 
 obj/particle.o: src/particle.cpp
-	clang++ $(CXXFLAGS) $(CXXLINKLIBS) -c -o $@ $^
+	clang++ $(CXXFLAGS) -c -o $@ $^
