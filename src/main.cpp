@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <iostream>
 #include <optional>
 #include <queue>
@@ -44,17 +45,25 @@
 
 int RANDOM(int minimum, int maximum)
 {
-	std::random_device randomDevice;
-	std::mt19937 mt(randomDevice());
-	std::uniform_int_distribution<int> dist(minimum, maximum);
+	static std::random_device randomDevice;
+	static std::mt19937 mt(randomDevice());
+	std::uniform_int_distribution<int> dist
+	(
+		std::min(minimum, maximum),
+		std::max(minimum, maximum)
+	);
 	return dist(mt);
 }
 
 double RANDOMDOUBLE(double minimum, double maximum)
 {
-	std::random_device randomDevice;
-	std::mt19937 mt(randomDevice());
-	std::uniform_real_distribution<double> dist(minimum, maximum);
+	static std::random_device randomDevice;
+	static std::mt19937 mt(randomDevice());
+	std::uniform_real_distribution<double> dist
+	(
+		std::min(minimum, maximum),
+		std::max(minimum, maximum)
+	);
 	return dist(mt);
 }
 
@@ -159,16 +168,19 @@ int main()
 	const int boardWarningFade = 5;
 	const int boardWidth = 10;
 	const int boardHeight = 20 + boardHiddenGrace;
-	std::vector<std::vector<TetrisCube>> board; //as of Wednesday, November 06, 2024, 10:25:44, I am reconsidering my choices as to have board[y][x]... maybe I will regret this later
-	for(int y = 0; y < boardHeight; y++)
+	std::vector<std::vector<TetrisCube>> board
 	{
-		std::vector<TetrisCube> pushBackRowVector(boardWidth);
-		for(int x = 0; x < boardWidth; x++)
+		boardHeight,
+		std::vector<TetrisCube>
 		{
-			pushBackRowVector[x].pointstate = PointStateBlank;
+			boardWidth,
+			TetrisCube
+			{
+				.color = sf::Color::Black,
+				.pointstate = PointStateBlank
+			}
 		}
-		board.push_back(pushBackRowVector);
-	}
+	};
 
 	Direction gravityDirection = DirectionDown;
 	Direction canMoveDirection = gravityDirection;
