@@ -45,8 +45,7 @@
 
 int RANDOM(int minimum, int maximum)
 {
-	static std::random_device randomDevice;
-	static std::mt19937 mt(randomDevice());
+	static std::mt19937 mt(std::random_device{}());
 	std::uniform_int_distribution<int> dist
 	(
 		std::min(minimum, maximum),
@@ -57,8 +56,7 @@ int RANDOM(int minimum, int maximum)
 
 double RANDOMDOUBLE(double minimum, double maximum)
 {
-	static std::random_device randomDevice;
-	static std::mt19937 mt(randomDevice());
+	static std::mt19937 mt(std::random_device{}());
 	std::uniform_real_distribution<double> dist
 	(
 		std::min(minimum, maximum),
