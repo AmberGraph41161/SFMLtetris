@@ -1,12 +1,14 @@
-main
-main.bak
-obj/
+/main
+/main.bak
+/newEngine
 
-resources/textures/
-references/
+/obj/
 
-build/
+/resources/textures/
+/references/
 
-pandoc/
-md/forlater/
-README.html
+/build/
+
+/pandoc/
+/md/forlater/
+/README.html

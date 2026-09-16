@@ -12,3 +12,10 @@ obj/tetris.o: src/tetris.cpp
 
 obj/particle.o: src/particle.cpp
 	clang++ $(CXXFLAGS) -c -o $@ $^
+
+.PHONY: newEngine
+obj/newEngineTmpTest.o: src/newEngineTmpTest.cpp
+	clang++ $(CXXFLAGS) -g -c -o $@ $^
+
+newEngine: obj/newEngineTmpTest.o obj/tetris.o
+	clang++ $(CXXFLAGS) -g -o $@ $^
