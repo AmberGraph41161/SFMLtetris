@@ -15,7 +15,11 @@ Tetris::Tetris(size_t boardWidth, size_t boardHeight)
 	board_.at(1).at(1).state_ = TetrominoBlockState::active;
 	board_.at(1).at(2).state_ = TetrominoBlockState::active;
 	board_.at(1).at(3).state_ = TetrominoBlockState::active;
+	board_.at(2).at(3).state_ = TetrominoBlockState::active;
 	board_.at(1).at(4).state_ = TetrominoBlockState::active;
+
+	board_.at(5).at(9).state_ = TetrominoBlockState::inactive;
+	board_.at(6).at(9).state_ = TetrominoBlockState::shadow;
 }
 
 Tetris::~Tetris() {}
@@ -29,40 +33,6 @@ const std::vector<std::vector<TetrominoBlock>>& Tetris::getBoard() const
 	return board_;
 }
 
-bool Tetris::boardIsStateInDirectionFromPoint(size_t y, size_t x, Direction direction, TetrominoBlockState state)
-{
-	if(y >= board_.size() - 1 && direction == Direction::down)
-	{
-		return false;
-	} else if(x >= board_.at(0).size() - 1 && direction == Direction::right)
-	{
-		return false;
-	} else if(y <= 0 && direction == Direction::up)
-	{
-		return false;
-	} else if(x <= 0 && direction == Direction::left)
-	{
-		return false;
-	}
-
-	return
-	(
-		direction == Direction::up &&
-		board_.at(y - 1).at(x).state_ == state
-	) ||
-	(
-		direction == Direction::down &&
-		board_.at(y + 1).at(x).state_ == state
-	) ||
-	(
-		direction == Direction::left &&
-		board_.at(y).at(x - 1).state_ == state
-	) ||
-	(
-		direction == Direction::right &&
-		board_.at(y).at(x + 1).state_ == state
-	);
-}
 void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction direction)
 {
 	if(state == TetrominoBlockState::blank)
@@ -70,58 +40,64 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 		return;
 	}
 
-	if(direction == Direction::up)
+	for(size_t y = 0; y < board_.size(); ++y)
 	{
-		for(size_t x = 0; x < board_.at(0).size(); ++x)
+		for(size_t x = 0; x < board_.at(y).size(); ++x)
 		{
-			if(board_.at(0).at(x).state_ == state)
+			if(board_.at(y).at(x).state_ == state)
 			{
-				return;
-			}
-		}
-	} else if(direction == Direction::down)
-	{
-		for(size_t x = 0; x < board_.at(board_.size() - 1).size(); ++x)
-		{
-			if(board_.at(board_.size() - 1).at(x).state_ == state)
-			{
-				return;
-			}
-		}
-	} else if(direction == Direction::left)
-	{
-		for(size_t y = 0; y < board_.size(); ++y)
-		{
-			if(board_.at(y).at(0).state_ == state)
-			{
-				return;
-			}
-		}
-	} else if(direction == Direction::right)
-	{
-		for(size_t y = 0; y < board_.size(); ++y)
-		{
-			if(board_.at(y).at(board_.at(y).size() - 1).state_ == state)
-			{
-				return;
-			}
-		}
-	}
-
-	for(int y = 1; y < board_.size() - 1; ++y)
-	{
-		for(int x = 1; x < board_.at(y).size() - 1; ++x)
-		{
-			if
-			(
-				board_.at(y).at(x).state_ == state &&
+				if
 				(
-					!boardIsStateInDirectionFromPoint(y, x, direction, TetrominoBlockState::blank) &&
-					!boardIsStateInDirectionFromPoint(y, x, direction, state)
+					(y == 0 && direction == Direction::up) ||
+					(x == 0 && direction == Direction::left) ||
+					(y == board_.size() - 1 && direction == Direction::down) ||
+					(x == board_.at(0).size() - 1 && direction == Direction::right)
 				)
-			)
-			{
-				return;
+				{
+					return;
+				}
+
+				if
+				(
+					direction == Direction::up &&
+					(
+						board_.at(y - 1).at(x).state_ != state &&
+						board_.at(y - 1).at(x).state_ != TetrominoBlockState::blank
+					)
+				)
+				{
+					return;
+				} else if
+				(
+					direction == Direction::down &&
+					(
+						board_.at(y + 1).at(x).state_ != state &&
+						board_.at(y + 1).at(x).state_ != TetrominoBlockState::blank
+					)
+				)
+				{
+					return;
+				} else if
+				(
+					direction == Direction::left &&
+					(
+						board_.at(y).at(x - 1).state_ != state &&
+						board_.at(y).at(x - 1).state_ != TetrominoBlockState::blank
+					)
+				)
+				{
+					return;
+				} else if
+				(
+					direction == Direction::right &&
+					(
+						board_.at(y).at(x + 1).state_ != state &&
+						board_.at(y).at(x + 1).state_ != TetrominoBlockState::blank
+					)
+				)
+				{
+					return;
+				}
 			}
 		}
 	}

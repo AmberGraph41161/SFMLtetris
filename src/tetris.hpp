@@ -386,7 +386,6 @@ public:
 	TetrominoType getCurrentTetrominoType() const;
 	const std::vector<std::vector<TetrominoBlock>>& getBoard() const;
 
-	bool boardIsStateInDirectionFromPoint(size_t y, size_t x, Direction direction, TetrominoBlockState state);
 	void moveStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockState replaceWithThisState);
 
