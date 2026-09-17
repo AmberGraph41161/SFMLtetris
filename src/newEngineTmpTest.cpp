@@ -54,6 +54,26 @@ int main()
 			std::cout << "----------------------------------" << std::endl;
 			tetris.moveStateBlocksInDirection(Tetris::TetrominoBlockState::active, Tetris::Direction::right);
 			print(tetris.getBoard());
+		} else if(getlinestring == "us")
+		{
+			std::cout << "----------------------------------" << std::endl;
+			tetris.slamStateBlocksInDirection(Tetris::TetrominoBlockState::active, Tetris::Direction::up);
+			print(tetris.getBoard());
+		} else if(getlinestring == "ds")
+		{
+			std::cout << "----------------------------------" << std::endl;
+			tetris.slamStateBlocksInDirection(Tetris::TetrominoBlockState::active, Tetris::Direction::down);
+			print(tetris.getBoard());
+		} else if(getlinestring == "ls")
+		{
+			std::cout << "----------------------------------" << std::endl;
+			tetris.slamStateBlocksInDirection(Tetris::TetrominoBlockState::active, Tetris::Direction::left);
+			print(tetris.getBoard());
+		} else if(getlinestring == "rs")
+		{
+			std::cout << "----------------------------------" << std::endl;
+			tetris.slamStateBlocksInDirection(Tetris::TetrominoBlockState::active, Tetris::Direction::right);
+			print(tetris.getBoard());
 		}
 	}
 }

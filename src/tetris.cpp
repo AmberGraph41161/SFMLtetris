@@ -33,11 +33,11 @@ const std::vector<std::vector<TetrominoBlock>>& Tetris::getBoard() const
 	return board_;
 }
 
-void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction direction)
+bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction direction)
 {
 	if(state == TetrominoBlockState::blank)
 	{
-		return;
+		return false;
 	}
 
 	for(size_t y = 0; y < board_.size(); ++y)
@@ -54,7 +54,7 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					(x == board_.at(0).size() - 1 && direction == Direction::right)
 				)
 				{
-					return;
+					return false;
 				}
 
 				if
@@ -66,7 +66,7 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					)
 				)
 				{
-					return;
+					return false;
 				} else if
 				(
 					direction == Direction::down &&
@@ -76,7 +76,7 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					)
 				)
 				{
-					return;
+					return false;
 				} else if
 				(
 					direction == Direction::left &&
@@ -86,7 +86,7 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					)
 				)
 				{
-					return;
+					return false;
 				} else if
 				(
 					direction == Direction::right &&
@@ -96,7 +96,7 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					)
 				)
 				{
-					return;
+					return false;
 				}
 			}
 		}
@@ -154,6 +154,16 @@ void Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 				}
 			}
 		}
+	}
+
+	return true;
+}
+
+void Tetris::slamStateBlocksInDirection(TetrominoBlockState state, Direction direction)
+{
+	while(moveStateBlocksInDirection(state, direction))
+	{
+		continue;
 	}
 }
 
