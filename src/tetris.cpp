@@ -12,14 +12,6 @@ Tetris::Tetris(size_t boardWidth, size_t boardHeight)
 	: boardWidth_(boardWidth), boardHeight_(boardHeight)
 {
 	board_ = std::vector<std::vector<TetrominoBlock>>{boardHeight_, std::vector<TetrominoBlock>{boardWidth_}};
-	board_.at(1).at(1).state_ = TetrominoBlockState::active;
-	board_.at(1).at(2).state_ = TetrominoBlockState::active;
-	board_.at(1).at(3).state_ = TetrominoBlockState::active;
-	board_.at(2).at(3).state_ = TetrominoBlockState::active;
-	board_.at(1).at(4).state_ = TetrominoBlockState::active;
-
-	board_.at(5).at(9).state_ = TetrominoBlockState::inactive;
-	board_.at(6).at(9).state_ = TetrominoBlockState::shadow;
 }
 
 Tetris::~Tetris() {}
@@ -32,6 +24,17 @@ const std::vector<std::vector<TetrominoBlock>>& Tetris::getBoard() const
 {
 	return board_;
 }
+
+size_t Tetris::getBoardWidth() const
+{
+	return boardWidth_;
+}
+
+size_t Tetris::getBoardHeight() const
+{
+	return boardHeight_;
+}
+
 
 bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction direction)
 {
@@ -179,6 +182,91 @@ void Tetris::replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockS
 			}
 		}
 	}
+}
+
+bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX)
+{
+	currentTetrominoY_ = placeY;
+	currentTetrominoX_ = placeX;
+
+	if
+	(
+		currentTetrominoY_ + 4 >= board_.size() ||
+		currentTetrominoX_ + 4 >= board_.at(0).size()
+	)
+	{
+		return false;
+	}
+
+	std::array<std::array<TetrominoBlock, 4>, 4> tetromino = TetrominoTypeAndRotationMap.at(tetrominoType).at(tetrominoRotation);
+	for(size_t y = 0; y < 4; ++y)
+	{
+		for(size_t x = 0; x < 4; ++x)
+		{
+			board_.at(currentTetrominoY_ + y).at(currentTetrominoX_ + x) = tetromino.at(y).at(x);
+		}
+	}
+
+	currentTetrominoType_ = tetrominoType;
+	currentTetrominoRotation_ = tetrominoRotation;
+	return true;
+}
+
+bool Tetris::moveCurrentTetromino(Direction direction)
+{
+	if(direction == Direction::up && currentTetrominoY_ != 0)
+	{
+		currentTetrominoY_ -= 1;
+	} else if(direction == Direction::down && currentTetrominoY_ != board_.size() - 1)
+	{
+		currentTetrominoY_ += 1;
+	} else if(direction == Direction::left && currentTetrominoX_ != 0)
+	{
+		currentTetrominoX_ -= 1;
+	} else if(direction == Direction::right && currentTetrominoX_ != board_.at(0).size() - 1)
+	{
+		currentTetrominoX_ += 1;
+	}
+	return moveStateBlocksInDirection(TetrominoBlockState::active, direction);
+}
+
+bool Tetris::rotateCurrentTetromino(bool counterClockWise)
+{
+	replaceStateBlocks(TetrominoBlockState::active, TetrominoBlockState::blank);
+
+	TetrominoRotation nextTetrominoRotation = currentTetrominoRotation_;
+	if(counterClockWise)
+	{
+		if(nextTetrominoRotation == TetrominoRotation::four)
+		{
+			nextTetrominoRotation = TetrominoRotation::one;
+		} else
+		{
+			nextTetrominoRotation = (TetrominoRotation)((int)currentTetrominoRotation_ + 1);
+		}
+	} else
+	{
+		if(currentTetrominoRotation_ == TetrominoRotation::one)
+		{
+			nextTetrominoRotation = TetrominoRotation::four;
+		} else
+		{
+			nextTetrominoRotation = (TetrominoRotation)((int)currentTetrominoRotation_ - 1);
+		}
+	}
+	bool rotated = placeTetromino
+	(
+		currentTetrominoType_,
+		nextTetrominoRotation,
+		currentTetrominoY_,
+		currentTetrominoX_
+	);
+	if(!rotated)
+	{
+		placeTetromino(currentTetrominoType_, currentTetrominoRotation_, currentTetrominoY_, currentTetrominoX_);
+		return rotated;
+	}
+	return rotated;
 }
 
 }; //namespace Tetris

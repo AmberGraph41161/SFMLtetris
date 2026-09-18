@@ -34,7 +34,7 @@ enum class TetrominoType { i, j, l, o, s, t, z, unknown };
 enum class TetrominoRotation { one, two, three, four, unknown };
 
 static const TetrominoBlock a = TetrominoBlock(TetrominoBlockState::active);
-static const TetrominoBlock i = TetrominoBlock(TetrominoBlockState::inactive);
+static const TetrominoBlock b = TetrominoBlock(TetrominoBlockState::blank);
 static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> TetrominoTypeAndRotationMap =
 {
 	{
@@ -43,37 +43,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ i, i, i, i },
+				{ b, b, b, b },
+				{ b, b, b, b },
 				{ a ,a, a, a },
-				{ i, i, i, i }
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, a, i, i },
-				{ i, a, i, i },
-				{ i ,a, i, i },
-				{ i, a, i, i }
+				{ b, a, b, b },
+				{ b, a, b, b },
+				{ b ,a, b, b },
+				{ b, a, b, b }
 				}},
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
+				{ b, b, b, b },
 				{ a, a, a, a },
-				{ i ,i, i, i },
-				{ i, i, i, i }
+				{ b ,b, b, b },
+				{ b, b, b, b }
 				}},
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, i, a, i },
-				{ i, i, a, i },
-				{ i ,i, a, i },
-				{ i, i, a, i }
+				{ b, b, a, b },
+				{ b, b, a, b },
+				{ b ,b, a, b },
+				{ b, b, a, b }
 				}},
 			}
 		},
@@ -85,37 +85,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ a, i, i, i },
-				{ a ,a, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ a, b, b, b },
+				{ a ,a, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,a, i, i },
-				{ i, a, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,a, b, b },
+				{ b, a, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ a, a, a, i },
-				{ i ,i, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ a, a, a, b },
+				{ b ,b, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, i, i, i },
-				{ i, i, a, i },
-				{ i ,i, a, i },
-				{ i, a, a, i }
+				{ b, b, b, b },
+				{ b, b, a, b },
+				{ b ,b, a, b },
+				{ b, a, a, b }
 				}}
 			}
 		}
@@ -127,37 +127,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ i, i, a, i },
-				{ a ,a, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, b, a, b },
+				{ a ,a, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, i, i, i },
-				{ i, a, i, i },
-				{ i ,a, i, i },
-				{ i, a, a, i }
+				{ b, b, b, b },
+				{ b, a, b, b },
+				{ b ,a, b, b },
+				{ b, a, a, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ a, a, a, i },
-				{ a ,i, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ a, a, a, b },
+				{ a ,b, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, a, a, i },
-				{ i, i, a, i },
-				{ i ,i, a, i },
-				{ i, i, i, i }
+				{ b, a, a, b },
+				{ b, b, a, b },
+				{ b ,b, a, b },
+				{ b, b, b, b }
 				}}
 			}
 		}
@@ -169,37 +169,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,a, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,a, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,a, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,a, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,a, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,a, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,a, a, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,a, a, b },
+				{ b, b, b, b }
 				}}
 			}
 		}
@@ -211,37 +211,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ a ,a, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ a ,a, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, a, i, i },
-				{ i, a, a, i },
-				{ i ,i, a, i },
-				{ i, i, i, i }
+				{ b, a, b, b },
+				{ b, a, a, b },
+				{ b ,b, a, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ a ,a, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ a ,a, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ a, i, i, i },
-				{ a, a, i, i },
-				{ i ,a, i, i },
-				{ i, i, i, i }
+				{ a, b, b, b },
+				{ a, a, b, b },
+				{ b ,a, b, b },
+				{ b, b, b, b }
 				}}
 			}
 		}
@@ -253,37 +253,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, a, i, i },
-				{ a, a, a, i },
-				{ i ,i, i, i },
-				{ i, i, i, i }
+				{ b, a, b, b },
+				{ a, a, a, b },
+				{ b ,b, b, b },
+				{ b, b, b, b }
 				}},
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, a, i, i },
-				{ i, a, a, i },
-				{ i ,a, i, i },
-				{ i, i, i, i }
+				{ b, a, b, b },
+				{ b, a, a, b },
+				{ b ,a, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ a, a, a, i },
-				{ i ,a, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ a, a, a, b },
+				{ b ,a, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, a, i, i },
-				{ a, a, i, i },
-				{ i ,a, i, i },
-				{ i, i, i, i }
+				{ b, a, b, b },
+				{ a, a, b, b },
+				{ b ,a, b, b },
+				{ b, b, b, b }
 				}}
 			},
 		}
@@ -295,37 +295,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,i, a, a },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,b, a, a },
+				{ b, b, b, b }
 				}},
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, i, a, i },
-				{ i, a, a, i },
-				{ i ,a, i, i },
-				{ i, i, i, i }
+				{ b, b, a, b },
+				{ b, a, a, b },
+				{ b ,a, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ i, a, a, i },
-				{ i ,i, a, a },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, a, a, b },
+				{ b ,b, a, a },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, i, i, a },
-				{ i, i, a, a },
-				{ i ,i, a, i },
-				{ i, i, i, i }
+				{ b, b, b, a },
+				{ b, b, a, a },
+				{ b ,b, a, b },
+				{ b, b, b, b }
 				}}
 			},
 		}
@@ -337,37 +337,37 @@ static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> Tet
 			{
 				TetrominoRotation::one,
 				{{
-				{ i, i, i, i },
-				{ i, i, i, i },
-				{ i ,i, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, b, b, b },
+				{ b ,b, b, b },
+				{ b, b, b, b }
 				}},
 			},
 			{
 				TetrominoRotation::two,
 				{{
-				{ i, i, i, i },
-				{ i, i, i, i },
-				{ i ,i, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, b, b, b },
+				{ b ,b, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::three,
 				{{
-				{ i, i, i, i },
-				{ i, i, i, i },
-				{ i ,i, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, b, b, b },
+				{ b ,b, b, b },
+				{ b, b, b, b }
 				}}
 			},
 			{
 				TetrominoRotation::four,
 				{{
-				{ i, i, i, i },
-				{ i, i, i, i },
-				{ i ,i, i, i },
-				{ i, i, i, i }
+				{ b, b, b, b },
+				{ b, b, b, b },
+				{ b ,b, b, b },
+				{ b, b, b, b }
 				}}
 			},
 		}
@@ -385,16 +385,24 @@ public:
 
 	TetrominoType getCurrentTetrominoType() const;
 	const std::vector<std::vector<TetrominoBlock>>& getBoard() const;
+	size_t getBoardWidth() const;
+	size_t getBoardHeight() const;
 
 	bool moveStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void slamStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockState replaceWithThisState);
+
+	bool placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX);
+	bool moveCurrentTetromino(Direction direction);
+	bool rotateCurrentTetromino(bool counterClockWise = true);
 
 private:
 	size_t boardWidth_ = 10;
 	size_t boardHeight_ = 20;
 	std::vector<std::vector<TetrominoBlock>> board_;
 
+	size_t currentTetrominoY_ = 0;
+	size_t currentTetrominoX_ = 0;
 	TetrominoType currentTetrominoType_ = TetrominoType::i;
 	TetrominoRotation currentTetrominoRotation_ = TetrominoRotation::one;
 };
