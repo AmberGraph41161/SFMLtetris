@@ -28,7 +28,7 @@ void print(const std::vector<std::vector<Tetris::TetrominoBlock>> board)
 int main()
 {
 	Tetris::Tetris tetris(10, 20);
-	if(!tetris.placeTetromino(Tetris::TetrominoType::i, Tetris::TetrominoRotation::one, 5, (tetris.getBoardWidth() / 2) - 2))
+	if(!tetris.spawnNextTetromino())
 	{
 		std::cout << "failed to place tetromino" << std::endl;
 	}
@@ -61,7 +61,8 @@ int main()
 		} else if(getlinestring == " ")
 		{
 			std::cout << "----------------------------------" << std::endl;
-			tetris.slamStateBlocksInDirection(Tetris::TetrominoBlockState::active, Tetris::Direction::down);
+			tetris.slamCurrentTetromino();
+			tetris.spawnNextTetromino();
 			print(tetris.getBoard());
 		} else if(getlinestring == "r")
 		{

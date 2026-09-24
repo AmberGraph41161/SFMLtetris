@@ -2,9 +2,11 @@
 #define TETRIS_HPP
 
 #include <cstdint>
+#include <random>
 #include <vector>
 #include <array>
 #include <map>
+#include <queue>
 
 namespace Tetris
 {
@@ -387,14 +389,22 @@ public:
 	const std::vector<std::vector<TetrominoBlock>>& getBoard() const;
 	size_t getBoardWidth() const;
 	size_t getBoardHeight() const;
+	std::queue<TetrominoType> getTetrominoQueue() const;
 
 	bool moveStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void slamStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockState replaceWithThisState);
-
 	bool placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX);
+
+	bool spawnNextTetromino();
 	bool moveCurrentTetromino(Direction direction);
 	bool rotateCurrentTetromino(bool counterClockWise = true);
+	void slamCurrentTetromino();
+
+private:
+	inline static std::mt19937 mt_{std::random_device{}()};
+	int randomInt(int minimumInclusive, int maximumInclusive);
+	TetrominoType randomTetrominoType();
 
 private:
 	size_t boardWidth_ = 10;
@@ -405,6 +415,9 @@ private:
 	size_t currentTetrominoX_ = 0;
 	TetrominoType currentTetrominoType_ = TetrominoType::i;
 	TetrominoRotation currentTetrominoRotation_ = TetrominoRotation::one;
+
+	const inline static size_t tetrominoQueueSize_ = 5;
+	std::queue<TetrominoType> tetrominoQueue_;
 };
 
 }; //namespace Tetris
