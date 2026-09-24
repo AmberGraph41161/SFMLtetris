@@ -220,6 +220,22 @@ bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetro
 			}
 		}
 	}
+
+	for(size_t y = 0; y < 4; ++y)
+	{
+		for(size_t x = 0; x < 4; ++x)
+		{
+			if
+			(
+				tetromino.at(y).at(x).state_ == TetrominoBlockState::active &&
+				board_.at(currentTetrominoY_ + y).at(currentTetrominoX_ + x).state_ != TetrominoBlockState::blank
+			)
+			{
+				return false;
+			}
+		}
+	}
+
 	for(size_t y = 0; y < 4; ++y)
 	{
 		for(size_t x = 0; x < 4; ++x)
