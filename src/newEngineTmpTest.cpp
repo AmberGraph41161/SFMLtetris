@@ -62,7 +62,10 @@ int main()
 		{
 			std::cout << "----------------------------------" << std::endl;
 			tetris.slamCurrentTetromino();
-			tetris.spawnNextTetromino();
+			if(!tetris.spawnNextTetromino())
+			{
+				std::cout << "failed to place tetromino" << std::endl;
+			}
 			print(tetris.getBoard());
 		} else if(getlinestring == "r")
 		{

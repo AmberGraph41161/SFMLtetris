@@ -415,6 +415,7 @@ private:
 	size_t currentTetrominoX_ = 0;
 	TetrominoType currentTetrominoType_ = TetrominoType::i;
 	TetrominoRotation currentTetrominoRotation_ = TetrominoRotation::one;
+	const inline static int tetrominoRotationShimmyThreshold_ = 2;
 
 	const inline static size_t tetrominoQueueSize_ = 5;
 	std::queue<TetrominoType> tetrominoQueue_;

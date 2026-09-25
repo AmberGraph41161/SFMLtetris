@@ -1,5 +1,4 @@
 #include "tetris.hpp"
-#include <random>
 
 namespace Tetris
 {
@@ -199,20 +198,20 @@ void Tetris::replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockS
 
 bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX)
 {
-	currentTetrominoY_ = placeY;
-	currentTetrominoX_ = placeX;
-
 	std::array<std::array<TetrominoBlock, 4>, 4> tetromino = TetrominoTypeAndRotationMap.at(tetrominoType).at(tetrominoRotation);
-	for(size_t y = 0; y < 4; ++y)
+	for(size_t y = 0; y < tetromino.size(); ++y)
 	{
-		for(size_t x = 0; x < 4; ++x)
+		for(size_t x = 0; x < tetromino.at(y).size(); ++x)
 		{
 			if
 			(
 				tetromino.at(y).at(x).state_ == TetrominoBlockState::active &&
 				(
-					currentTetrominoY_ + y >= board_.size() ||
-					currentTetrominoX_ + x >= board_.at(0).size()
+					placeY + y < 0 ||
+					placeX + x < 0 ||
+					placeY + y >= board_.size() ||
+					placeX + x >= board_.at(0).size() ||
+					board_.at(placeY + y).at(placeX + x).state_ != TetrominoBlockState::blank
 				)
 			)
 			{
@@ -221,32 +220,19 @@ bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetro
 		}
 	}
 
-	for(size_t y = 0; y < 4; ++y)
+	for(size_t y = 0; y < tetromino.size(); ++y)
 	{
-		for(size_t x = 0; x < 4; ++x)
-		{
-			if
-			(
-				tetromino.at(y).at(x).state_ == TetrominoBlockState::active &&
-				board_.at(currentTetrominoY_ + y).at(currentTetrominoX_ + x).state_ != TetrominoBlockState::blank
-			)
-			{
-				return false;
-			}
-		}
-	}
-
-	for(size_t y = 0; y < 4; ++y)
-	{
-		for(size_t x = 0; x < 4; ++x)
+		for(size_t x = 0; x < tetromino.at(y).size(); ++x)
 		{
 			if(tetromino.at(y).at(x).state_ == TetrominoBlockState::active)
 			{
-				board_.at(currentTetrominoY_ + y).at(currentTetrominoX_ + x) = tetromino.at(y).at(x);
+				board_.at(placeY + y).at(placeX + x) = tetromino.at(y).at(x);
 			}
 		}
 	}
 
+	currentTetrominoY_ = placeY;
+	currentTetrominoX_ = placeX;
 	currentTetrominoType_ = tetrominoType;
 	currentTetrominoRotation_ = tetrominoRotation;
 	return true;
@@ -315,6 +301,7 @@ bool Tetris::rotateCurrentTetromino(bool counterClockWise)
 			nextTetrominoRotation = (TetrominoRotation)((int)currentTetrominoRotation_ - 1);
 		}
 	}
+
 	bool rotated = placeTetromino
 	(
 		currentTetrominoType_,
@@ -322,11 +309,67 @@ bool Tetris::rotateCurrentTetromino(bool counterClockWise)
 		currentTetrominoY_,
 		currentTetrominoX_
 	);
+
+	int rotationShimmyLeft = 0;
+	int rotationShimmyRight = 0;
+	int rotationShimmyUp = 0;
+	int rotationShimmyDown = 0;
+	while
+	(
+		!rotated &&
+		(
+			rotationShimmyLeft <= tetrominoRotationShimmyThreshold_ ||
+			rotationShimmyRight <= tetrominoRotationShimmyThreshold_ ||
+			rotationShimmyUp <= tetrominoRotationShimmyThreshold_ ||
+			rotationShimmyDown <= tetrominoRotationShimmyThreshold_
+		)
+	)
+	{
+		if(++rotationShimmyLeft <= tetrominoRotationShimmyThreshold_)
+		{
+			rotated = placeTetromino
+			(
+				currentTetrominoType_,
+				nextTetrominoRotation,
+				currentTetrominoY_,
+				currentTetrominoX_ - rotationShimmyLeft
+			);
+		} else if(++rotationShimmyRight <= tetrominoRotationShimmyThreshold_)
+		{
+			rotated = placeTetromino
+			(
+				currentTetrominoType_,
+				nextTetrominoRotation,
+				currentTetrominoY_,
+				currentTetrominoX_ + rotationShimmyRight
+			);
+		} else if(++rotationShimmyUp <= tetrominoRotationShimmyThreshold_)
+		{
+			rotated = placeTetromino
+			(
+				currentTetrominoType_,
+				nextTetrominoRotation,
+				currentTetrominoY_ - rotationShimmyUp,
+				currentTetrominoX_
+			);
+		} else if(++rotationShimmyDown <= tetrominoRotationShimmyThreshold_)
+		{
+			rotated = placeTetromino
+			(
+				currentTetrominoType_,
+				nextTetrominoRotation,
+				currentTetrominoY_ + rotationShimmyDown,
+				currentTetrominoX_
+			);
+		}
+	}
+
 	if(!rotated)
 	{
 		if(!placeTetromino(currentTetrominoType_, currentTetrominoRotation_, currentTetrominoY_, currentTetrominoX_))
 		{
-			throw "idk man";
+			//should be unreachable
+			//throw "something has gone wrong";
 		}
 	}
 	return rotated;
