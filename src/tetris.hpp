@@ -403,6 +403,7 @@ public:
 	bool moveCurrentTetromino(Direction direction);
 	bool rotateCurrentTetromino(bool counterClockWise = true);
 	void slamCurrentTetromino();
+	std::pair<size_t, std::vector<size_t>> clearRowsAndGetClearedRowsCountAndClearedRowsYLevels();
 
 private:
 	inline static std::mt19937 mt_{std::random_device{}()};

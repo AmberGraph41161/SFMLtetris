@@ -62,6 +62,7 @@ int main()
 		{
 			std::cout << "----------------------------------" << std::endl;
 			tetris.slamCurrentTetromino();
+			tetris.clearRowsAndGetClearedRowsCountAndClearedRowsYLevels();
 			if(!tetris.spawnNextTetromino())
 			{
 				std::cout << "failed to place tetromino" << std::endl;

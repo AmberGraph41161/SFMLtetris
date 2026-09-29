@@ -425,6 +425,38 @@ void Tetris::slamCurrentTetromino()
 	replaceStateBlocks(TetrominoBlockState::active, TetrominoBlockState::inactive);
 }
 
+std::pair<size_t, std::vector<size_t>> Tetris::clearRowsAndGetClearedRowsCountAndClearedRowsYLevels()
+{
+	size_t clearedRows = 0;
+	std::vector<size_t> clearedRowYLevels;
+
+	for(size_t y = board_.size() - 1; y >= 0 && y < board_.size(); --y)
+	{
+		bool rowIsFull = true;
+		for(size_t x = 0; x < board_.at(y).size(); ++x)
+		{
+			if(board_.at(y).at(x).state_ != TetrominoBlockState::inactive)
+			{
+				rowIsFull = false;
+				break;
+			}
+		}
+		if(rowIsFull)
+		{
+			++clearedRows;
+			clearedRowYLevels.push_back(y);
+		}
+	}
+
+	for(int x = 0; x < clearedRowYLevels.size(); ++x)
+	{
+		board_.erase(board_.begin() + clearedRowYLevels.at(x));
+		board_.insert(board_.begin(), 1, std::vector<TetrominoBlock>{boardWidth_});
+	}
+
+	return std::make_pair(clearedRows, clearedRowYLevels);
+}
+
 int Tetris::randomInt(int minimumInclusive, int maximumInclusive)
 {
 	std::uniform_int_distribution<int> dist(minimumInclusive, maximumInclusive);
