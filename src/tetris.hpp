@@ -395,6 +395,9 @@ public:
 	void slamStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockState replaceWithThisState);
 	bool placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX);
+	void placeTetrominoShadow();
+	bool getShowTetrominoShadow() const;
+	void setShowTetrominoShadow(bool showTetrominoShadow);
 
 	bool spawnNextTetromino();
 	bool moveCurrentTetromino(Direction direction);
@@ -411,6 +414,7 @@ private:
 	size_t boardHeight_ = 20;
 	std::vector<std::vector<TetrominoBlock>> board_;
 
+	bool showTetrominoShadow_ = true;
 	size_t currentTetrominoY_ = 0;
 	size_t currentTetrominoX_ = 0;
 	TetrominoType currentTetrominoType_ = TetrominoType::i;

@@ -89,6 +89,16 @@ int main()
 				std::cout << "failed to rotate" << std::endl;
 			}
 			print(tetris.getBoard());
+		} else if(getlinestring == "ss")
+		{
+			tetris.setShowTetrominoShadow(false);
+			std::cout << "----------------------------------" << std::endl;
+			print(tetris.getBoard());
+		} else if(getlinestring == "sS")
+		{
+			tetris.setShowTetrominoShadow(true);
+			std::cout << "----------------------------------" << std::endl;
+			print(tetris.getBoard());
 		}
 	}
 }

@@ -77,7 +77,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					direction == Direction::up &&
 					(
 						board_.at(y - 1).at(x).state_ != state &&
-						board_.at(y - 1).at(x).state_ != TetrominoBlockState::blank
+						board_.at(y - 1).at(x).state_ != TetrominoBlockState::blank &&
+						board_.at(y - 1).at(x).state_ != TetrominoBlockState::shadow
 					)
 				)
 				{
@@ -87,7 +88,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					direction == Direction::down &&
 					(
 						board_.at(y + 1).at(x).state_ != state &&
-						board_.at(y + 1).at(x).state_ != TetrominoBlockState::blank
+						board_.at(y + 1).at(x).state_ != TetrominoBlockState::blank &&
+						board_.at(y + 1).at(x).state_ != TetrominoBlockState::shadow
 					)
 				)
 				{
@@ -97,7 +99,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					direction == Direction::left &&
 					(
 						board_.at(y).at(x - 1).state_ != state &&
-						board_.at(y).at(x - 1).state_ != TetrominoBlockState::blank
+						board_.at(y).at(x - 1).state_ != TetrominoBlockState::blank &&
+						board_.at(y).at(x - 1).state_ != TetrominoBlockState::shadow
 					)
 				)
 				{
@@ -107,7 +110,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 					direction == Direction::right &&
 					(
 						board_.at(y).at(x + 1).state_ != state &&
-						board_.at(y).at(x + 1).state_ != TetrominoBlockState::blank
+						board_.at(y).at(x + 1).state_ != TetrominoBlockState::blank &&
+						board_.at(y).at(x + 1).state_ != TetrominoBlockState::shadow
 					)
 				)
 				{
@@ -211,7 +215,10 @@ bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetro
 					placeX + x < 0 ||
 					placeY + y >= board_.size() ||
 					placeX + x >= board_.at(0).size() ||
-					board_.at(placeY + y).at(placeX + x).state_ != TetrominoBlockState::blank
+					(
+						board_.at(placeY + y).at(placeX + x).state_ != TetrominoBlockState::blank &&
+						board_.at(placeY + y).at(placeX + x).state_ != TetrominoBlockState::shadow
+					)
 				)
 			)
 			{
@@ -238,6 +245,30 @@ bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetro
 	return true;
 }
 
+void Tetris::placeTetrominoShadow()
+{
+	replaceStateBlocks(TetrominoBlockState::active, TetrominoBlockState::shadow);
+	slamStateBlocksInDirection(TetrominoBlockState::shadow, Direction::down);
+	placeTetromino(currentTetrominoType_, currentTetrominoRotation_, currentTetrominoY_, currentTetrominoX_);
+}
+
+bool Tetris::getShowTetrominoShadow() const
+{
+	return showTetrominoShadow_;
+}
+
+void Tetris::setShowTetrominoShadow(bool showTetrominoShadow)
+{
+	if(showTetrominoShadow)
+	{
+		placeTetrominoShadow();
+	} else
+	{
+		replaceStateBlocks(TetrominoBlockState::shadow, TetrominoBlockState::blank);
+	}
+	showTetrominoShadow_ = showTetrominoShadow;
+}
+
 bool Tetris::spawnNextTetromino()
 {
 	bool placed = placeTetromino
@@ -251,6 +282,10 @@ bool Tetris::spawnNextTetromino()
 	{
 		tetrominoQueue_.pop();
 		tetrominoQueue_.push(randomTetrominoType());
+		if(showTetrominoShadow_)
+		{
+			placeTetrominoShadow();
+		}
 	}
 	return placed;
 }
@@ -271,6 +306,11 @@ bool Tetris::moveCurrentTetromino(Direction direction)
 		} else if(direction == Direction::right && currentTetrominoX_ != board_.at(0).size() - 1)
 		{
 			currentTetrominoX_ += 1;
+		}
+		if(showTetrominoShadow_)
+		{
+			replaceStateBlocks(TetrominoBlockState::shadow, TetrominoBlockState::blank);
+			placeTetrominoShadow();
 		}
 		return true;
 	}
@@ -371,6 +411,10 @@ bool Tetris::rotateCurrentTetromino(bool counterClockWise)
 			//should be unreachable
 			//throw "something has gone wrong";
 		}
+	} else if(showTetrominoShadow_)
+	{
+		replaceStateBlocks(TetrominoBlockState::shadow, TetrominoBlockState::blank);
+		placeTetrominoShadow();
 	}
 	return rotated;
 }
