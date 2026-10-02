@@ -1,4 +1,4 @@
-CXXFLAGS := -std=c++17 -Wall
+CXXFLAGS := -std=c++17 -Wall -g
 CXXLINKLIBS := -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio
 
 main: obj/main.o obj/tetris.o obj/particle.o
@@ -12,6 +12,10 @@ obj/tetris.o: src/tetris.cpp
 
 obj/particle.o: src/particle.cpp
 	clang++ $(CXXFLAGS) -c -o $@ $^
+
+.PHONY: clean
+clean:
+	- rm obj/*
 
 .PHONY: newEngine
 obj/newEngineTmpTest.o: src/newEngineTmpTest.cpp

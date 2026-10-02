@@ -62,7 +62,7 @@ int main()
 		{
 			std::cout << "----------------------------------" << std::endl;
 			tetris.slamCurrentTetromino();
-			tetris.clearRowsAndGetClearedRowsCountAndClearedRowsYLevels();
+			tetris.clearRowsAndGetClearedRowsYLevels();
 			if(!tetris.spawnNextTetromino())
 			{
 				std::cout << "failed to place tetromino" << std::endl;
@@ -89,6 +89,19 @@ int main()
 			{
 				std::cout << "failed to rotate" << std::endl;
 			}
+			print(tetris.getBoard());
+		} else if(getlinestring == "c")
+		{
+			std::cout << "----------------------------------" << std::endl;
+			if(tetris.swapCurrentAndSavedTetromino())
+			{
+				std::cout << "tetris.swapCurrentAndSavedTetromino(): true" << std::endl;
+			} else
+			{
+				std::cout << "tetris.swapCurrentAndSavedTetromino(): false" << std::endl;
+			}
+			std::cout << "tetris.getCurrentTetrominoType(): " << (int)tetris.getCurrentTetrominoType() << std::endl;
+			std::cout << "tetris.getSavedTetrominoType(): " << (int)tetris.getSavedTetrominoType() << std::endl;
 			print(tetris.getBoard());
 		} else if(getlinestring == "ss")
 		{

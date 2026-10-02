@@ -6,17 +6,17 @@ namespace Tetris
 Tetris::Tetris()
 {
 	board_ = std::vector<std::vector<TetrominoBlock>>{boardHeight_, std::vector<TetrominoBlock>{boardWidth_}};
-	for(size_t x = 0; x < tetrominoQueueSize_; ++x)
+	for(std::size_t x = 0; x < tetrominoQueueSize_; ++x)
 	{
 		tetrominoQueue_.push(randomTetrominoType());
 	}
 }
 
-Tetris::Tetris(size_t boardWidth, size_t boardHeight)
+Tetris::Tetris(std::size_t boardWidth, std::size_t boardHeight)
 	: boardWidth_(boardWidth), boardHeight_(boardHeight)
 {
 	board_ = std::vector<std::vector<TetrominoBlock>>{boardHeight_, std::vector<TetrominoBlock>{boardWidth_}};
-	for(size_t x = 0; x < tetrominoQueueSize_; ++x)
+	for(std::size_t x = 0; x < tetrominoQueueSize_; ++x)
 	{
 		tetrominoQueue_.push(randomTetrominoType());
 	}
@@ -24,21 +24,52 @@ Tetris::Tetris(size_t boardWidth, size_t boardHeight)
 
 Tetris::~Tetris() {}
 
+void Tetris::colorTetrominoType(TetrominoType tetrominoType, const ColorRGBA color) const
+{
+	TetrominoRotation rot = TetrominoRotation::one;
+	while(rot != TetrominoRotation::unknown)
+	{
+		Tetromino& tetromino = TetrominoTypeAndRotationMap.at(tetrominoType).at(rot);
+		for(std::size_t y = 0; y < tetromino.size(); ++y)
+		{
+			for(std::size_t x = 0; x < tetromino.at(y).size(); ++x)
+			{
+				if(tetromino.at(y).at(x).state_ == TetrominoBlockState::active)
+				{
+					tetromino.at(y).at(x).color_ = color;
+				}
+			}
+		}
+		rot = static_cast<TetrominoRotation>((std::size_t)rot + 1);
+	}
+}
+
+TetrominoType Tetris::getSavedTetrominoType() const
+{
+	return savedTetrominoType_;
+}
+
 TetrominoType Tetris::getCurrentTetrominoType() const
 {
 	return currentTetrominoType_;
 }
+
+Tetromino Tetris::getTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation) const
+{
+	return TetrominoTypeAndRotationMap.at(tetrominoType).at(tetrominoRotation);
+}
+
 const std::vector<std::vector<TetrominoBlock>>& Tetris::getBoard() const
 {
 	return board_;
 }
 
-size_t Tetris::getBoardWidth() const
+std::size_t Tetris::getBoardWidth() const
 {
 	return boardWidth_;
 }
 
-size_t Tetris::getBoardHeight() const
+std::size_t Tetris::getBoardHeight() const
 {
 	return boardHeight_;
 }
@@ -48,16 +79,21 @@ std::queue<TetrominoType> Tetris::getTetrominoQueue() const
 	return tetrominoQueue_;
 }
 
-bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction direction)
+void Tetris::setTetrominoTypeColor(TetrominoType tetrominoType, ColorRGBA color)
+{
+	//for(size_t y = 0; y < TetrominoTypeAndRotationMap.at(tetrominoType).at(TetrominoRotation::one);
+}
+
+bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction direction, bool checkOnly)
 {
 	if(state == TetrominoBlockState::blank)
 	{
 		return false;
 	}
 
-	for(size_t y = 0; y < board_.size(); ++y)
+	for(std::size_t y = 0; y < board_.size(); ++y)
 	{
-		for(size_t x = 0; x < board_.at(y).size(); ++x)
+		for(std::size_t x = 0; x < board_.at(y).size(); ++x)
 		{
 			if(board_.at(y).at(x).state_ == state)
 			{
@@ -121,11 +157,16 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 		}
 	}
 
+	if(checkOnly)
+	{
+		return true;
+	}
+
 	if(direction == Direction::up)
 	{
-		for(size_t y = 1; y < board_.size(); ++y)
+		for(std::size_t y = 1; y < board_.size(); ++y)
 		{
-			for(size_t x = 0; x < board_.at(y).size(); ++x)
+			for(std::size_t x = 0; x < board_.at(y).size(); ++x)
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
@@ -136,9 +177,9 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 		}
 	} else if(direction == Direction::down)
 	{
-		for(size_t y = board_.size() - 2; y >= 0 && y < board_.size(); --y)
+		for(std::size_t y = board_.size() - 2; y >= 0 && y < board_.size(); --y)
 		{
-			for(size_t x = 0; x < board_.at(y).size(); ++x)
+			for(std::size_t x = 0; x < board_.at(y).size(); ++x)
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
@@ -149,9 +190,9 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 		}
 	} else if(direction == Direction::left)
 	{
-		for(size_t y = 0; y < board_.size(); ++y)
+		for(std::size_t y = 0; y < board_.size(); ++y)
 		{
-			for(size_t x = 1; x < board_.at(y).size(); ++x)
+			for(std::size_t x = 1; x < board_.at(y).size(); ++x)
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
@@ -162,9 +203,9 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 		}
 	} else if(direction == Direction::right)
 	{
-		for(size_t y = 0; y < board_.size(); ++y)
+		for(std::size_t y = 0; y < board_.size(); ++y)
 		{
-			for(size_t x = board_.at(y).size() - 2; x >= 0 && x < board_.at(y).size(); --x)
+			for(std::size_t x = board_.at(y).size() - 2; x >= 0 && x < board_.at(y).size(); --x)
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
@@ -188,9 +229,9 @@ void Tetris::slamStateBlocksInDirection(TetrominoBlockState state, Direction dir
 
 void Tetris::replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockState replaceWithThisState)
 {
-	for(size_t y = 0; y < board_.size(); ++y)
+	for(std::size_t y = 0; y < board_.size(); ++y)
 	{
-		for(size_t x = 0; x < board_.at(y).size(); ++x)
+		for(std::size_t x = 0; x < board_.at(y).size(); ++x)
 		{
 			if(board_.at(y).at(x).state_ == targetState)
 			{
@@ -200,12 +241,12 @@ void Tetris::replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockS
 	}
 }
 
-bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX)
+bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, std::int64_t placeY, std::int64_t placeX)
 {
 	std::array<std::array<TetrominoBlock, 4>, 4> tetromino = TetrominoTypeAndRotationMap.at(tetrominoType).at(tetrominoRotation);
-	for(size_t y = 0; y < tetromino.size(); ++y)
+	for(std::size_t y = 0; y < tetromino.size(); ++y)
 	{
-		for(size_t x = 0; x < tetromino.at(y).size(); ++x)
+		for(std::size_t x = 0; x < tetromino.at(y).size(); ++x)
 		{
 			if
 			(
@@ -227,9 +268,9 @@ bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetro
 		}
 	}
 
-	for(size_t y = 0; y < tetromino.size(); ++y)
+	for(std::size_t y = 0; y < tetromino.size(); ++y)
 	{
-		for(size_t x = 0; x < tetromino.at(y).size(); ++x)
+		for(std::size_t x = 0; x < tetromino.at(y).size(); ++x)
 		{
 			if(tetromino.at(y).at(x).state_ == TetrominoBlockState::active)
 			{
@@ -269,6 +310,27 @@ void Tetris::setShowTetrominoShadow(bool showTetrominoShadow)
 	showTetrominoShadow_ = showTetrominoShadow;
 }
 
+void Tetris::pinchRow(std::size_t nthRow, Direction upOrDown)
+{
+	if(nthRow >= board_.size())
+	{
+		return;
+	}
+	if(upOrDown == Direction::down)
+	{
+		for(std::size_t row = nthRow; row < board_.size() - 1; ++row)
+		{
+			board_.at(row) = board_.at(row + 1);
+		}
+	} else if(upOrDown == Direction::up)
+	{
+		for(std::size_t row = nthRow; row > 0; --row)
+		{
+			board_.at(row) = board_.at(row - 1);
+		}
+	}
+}
+
 bool Tetris::spawnNextTetromino()
 {
 	bool placed = placeTetromino
@@ -284,6 +346,7 @@ bool Tetris::spawnNextTetromino()
 		tetrominoQueue_.push(randomTetrominoType());
 		if(showTetrominoShadow_)
 		{
+			replaceStateBlocks(TetrominoBlockState::shadow, TetrominoBlockState::blank);
 			placeTetrominoShadow();
 		}
 	}
@@ -294,16 +357,16 @@ bool Tetris::moveCurrentTetromino(Direction direction)
 {
 	if(moveStateBlocksInDirection(TetrominoBlockState::active, direction))
 	{
-		if(direction == Direction::up && currentTetrominoY_ != 0)
+		if(direction == Direction::up)
 		{
 			currentTetrominoY_ -= 1;
-		} else if(direction == Direction::down && currentTetrominoY_ != board_.size() - 1)
+		} else if(direction == Direction::down)
 		{
 			currentTetrominoY_ += 1;
-		} else if(direction == Direction::left && currentTetrominoX_ != 0)
+		} else if(direction == Direction::left)
 		{
 			currentTetrominoX_ -= 1;
-		} else if(direction == Direction::right && currentTetrominoX_ != board_.at(0).size() - 1)
+		} else if(direction == Direction::right)
 		{
 			currentTetrominoX_ += 1;
 		}
@@ -425,15 +488,38 @@ void Tetris::slamCurrentTetromino()
 	replaceStateBlocks(TetrominoBlockState::active, TetrominoBlockState::inactive);
 }
 
-std::pair<size_t, std::vector<size_t>> Tetris::clearRowsAndGetClearedRowsCountAndClearedRowsYLevels()
+bool Tetris::swapCurrentAndSavedTetromino()
 {
-	size_t clearedRows = 0;
-	std::vector<size_t> clearedRowYLevels;
+	replaceStateBlocks(TetrominoBlockState::active, TetrominoBlockState::blank);
+	if(showTetrominoShadow_)
+	{
+		replaceStateBlocks(TetrominoBlockState::shadow, TetrominoBlockState::blank);
+	}
 
-	for(size_t y = board_.size() - 1; y >= 0 && y < board_.size(); --y)
+	TetrominoType savedTetromino = savedTetrominoType_;
+	savedTetrominoType_ = currentTetrominoType_;
+	if(savedTetromino == TetrominoType::unknown)
+	{
+		return spawnNextTetromino();
+	}
+	return placeTetromino
+	(
+		savedTetromino,
+		TetrominoRotation::one,
+		0,
+		(board_.at(0).size() / 2) - 2
+	);
+}
+
+std::vector<std::size_t> Tetris::clearRowsAndGetClearedRowsYLevels()
+{
+	std::size_t clearedRows = 0;
+	std::vector<std::size_t> clearedRowYLevels;
+
+	for(std::size_t y = board_.size() - 1; y >= 0 && y < board_.size(); --y)
 	{
 		bool rowIsFull = true;
-		for(size_t x = 0; x < board_.at(y).size(); ++x)
+		for(std::size_t x = 0; x < board_.at(y).size(); ++x)
 		{
 			if(board_.at(y).at(x).state_ != TetrominoBlockState::inactive)
 			{
@@ -450,11 +536,10 @@ std::pair<size_t, std::vector<size_t>> Tetris::clearRowsAndGetClearedRowsCountAn
 
 	for(int x = 0; x < clearedRowYLevels.size(); ++x)
 	{
-		board_.erase(board_.begin() + clearedRowYLevels.at(x));
-		board_.insert(board_.begin(), 1, std::vector<TetrominoBlock>{boardWidth_});
+		pinchRow(clearedRowYLevels.at(x));
 	}
 
-	return std::make_pair(clearedRows, clearedRowYLevels);
+	return clearedRowYLevels;
 }
 
 int Tetris::randomInt(int minimumInclusive, int maximumInclusive)

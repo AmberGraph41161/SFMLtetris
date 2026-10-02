@@ -17,6 +17,18 @@ struct ColorRGBA
 	ColorRGBA() {};
 	ColorRGBA(uint8_t R, uint8_t G, uint8_t B, uint8_t A)
 		: R(R), G(G), B(B), A(A) {};
+	ColorRGBA& operator=(const ColorRGBA& rhs)
+	{
+		if(this == &rhs)
+		{
+			return *this;
+		}
+		R = rhs.R;
+		G = rhs.G;
+		B = rhs.B;
+		A = rhs.A;
+		return *this;
+	}
 	uint8_t R = 0;
 	uint8_t G = 0;
 	uint8_t B = 0;
@@ -37,7 +49,7 @@ enum class TetrominoRotation { one, two, three, four, unknown };
 
 static const TetrominoBlock a = TetrominoBlock(TetrominoBlockState::active);
 static const TetrominoBlock b = TetrominoBlock(TetrominoBlockState::blank);
-static const std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> TetrominoTypeAndRotationMap =
+static std::map<TetrominoType, std::map<TetrominoRotation, Tetromino>> TetrominoTypeAndRotationMap =
 {
 	{
 		TetrominoType::i,
@@ -382,28 +394,35 @@ class Tetris
 {
 public:
 	Tetris();
-	Tetris(size_t boardWidth, size_t boardHeight);
+	Tetris(std::size_t boardWidth, std::size_t boardHeight);
 	~Tetris();
 
+	void colorTetrominoType(TetrominoType tetrominoType, const ColorRGBA color) const;
+
+	TetrominoType getSavedTetrominoType() const;
 	TetrominoType getCurrentTetrominoType() const;
+	Tetromino getTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation) const;
 	const std::vector<std::vector<TetrominoBlock>>& getBoard() const;
-	size_t getBoardWidth() const;
-	size_t getBoardHeight() const;
+	std::size_t getBoardWidth() const;
+	std::size_t getBoardHeight() const;
 	std::queue<TetrominoType> getTetrominoQueue() const;
 
-	bool moveStateBlocksInDirection(TetrominoBlockState state, Direction direction);
+	void setTetrominoTypeColor(TetrominoType tetrominoType, ColorRGBA color);
+	bool moveStateBlocksInDirection(TetrominoBlockState state, Direction direction, bool checkOnly = false);
 	void slamStateBlocksInDirection(TetrominoBlockState state, Direction direction);
 	void replaceStateBlocks(TetrominoBlockState targetState, TetrominoBlockState replaceWithThisState);
-	bool placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, size_t placeY, size_t placeX);
+	bool placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetrominoRotation, std::int64_t placeY, std::int64_t placeX);
 	void placeTetrominoShadow();
 	bool getShowTetrominoShadow() const;
 	void setShowTetrominoShadow(bool showTetrominoShadow);
+	void pinchRow(std::size_t nthRow, Direction upOrDown = Direction::down);
 
 	bool spawnNextTetromino();
 	bool moveCurrentTetromino(Direction direction);
 	bool rotateCurrentTetromino(bool counterClockWise = true);
 	void slamCurrentTetromino();
-	std::pair<size_t, std::vector<size_t>> clearRowsAndGetClearedRowsCountAndClearedRowsYLevels();
+	bool swapCurrentAndSavedTetromino();
+	std::vector<std::size_t> clearRowsAndGetClearedRowsYLevels();
 
 private:
 	inline static std::mt19937 mt_{std::random_device{}()};
@@ -411,18 +430,19 @@ private:
 	TetrominoType randomTetrominoType();
 
 private:
-	size_t boardWidth_ = 10;
-	size_t boardHeight_ = 20;
+	std::size_t boardWidth_ = 10;
+	std::size_t boardHeight_ = 20;
 	std::vector<std::vector<TetrominoBlock>> board_;
 
 	bool showTetrominoShadow_ = true;
-	size_t currentTetrominoY_ = 0;
-	size_t currentTetrominoX_ = 0;
+	std::uint64_t currentTetrominoY_ = 0;
+	std::uint64_t currentTetrominoX_ = 0;
+	TetrominoType savedTetrominoType_ = TetrominoType::unknown;
 	TetrominoType currentTetrominoType_ = TetrominoType::i;
 	TetrominoRotation currentTetrominoRotation_ = TetrominoRotation::one;
 	const inline static int tetrominoRotationShimmyThreshold_ = 2;
 
-	const inline static size_t tetrominoQueueSize_ = 5;
+	const inline static std::size_t tetrominoQueueSize_ = 5;
 	std::queue<TetrominoType> tetrominoQueue_;
 };
 
