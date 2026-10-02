@@ -279,6 +279,22 @@ bool Tetris::placeTetromino(TetrominoType tetrominoType, TetrominoRotation tetro
 		}
 	}
 
+	if(showTetrominoShadow_)
+	{
+		replaceStateBlocks(TetrominoBlockState::active, TetrominoBlockState::shadow);
+		slamStateBlocksInDirection(TetrominoBlockState::shadow , Direction::down);
+		for(std::size_t y = 0; y < tetromino.size(); ++y)
+		{
+			for(std::size_t x = 0; x < tetromino.at(y).size(); ++x)
+			{
+				if(tetromino.at(y).at(x).state_ == TetrominoBlockState::active)
+				{
+					board_.at(placeY + y).at(placeX + x) = tetromino.at(y).at(x);
+				}
+			}
+		}
+	}
+
 	currentTetrominoY_ = placeY;
 	currentTetrominoX_ = placeX;
 	currentTetrominoType_ = tetrominoType;
