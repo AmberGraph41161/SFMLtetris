@@ -316,13 +316,13 @@ void Tetris::pinchRow(std::size_t nthRow, Direction upOrDown)
 	{
 		return;
 	}
-	if(upOrDown == Direction::down)
+	if(upOrDown == Direction::up)
 	{
 		for(std::size_t row = nthRow; row < board_.size() - 1; ++row)
 		{
 			board_.at(row) = board_.at(row + 1);
 		}
-	} else if(upOrDown == Direction::up)
+	} else if(upOrDown == Direction::down)
 	{
 		for(std::size_t row = nthRow; row > 0; --row)
 		{
@@ -534,9 +534,11 @@ std::vector<std::size_t> Tetris::clearRowsAndGetClearedRowsYLevels()
 		}
 	}
 
+	size_t pinchedNRows = 0;
 	for(int x = 0; x < clearedRowYLevels.size(); ++x)
 	{
-		pinchRow(clearedRowYLevels.at(x));
+		pinchRow(clearedRowYLevels.at(x - pinchedNRows), Direction::down);
+		++pinchedNRows;
 	}
 
 	return clearedRowYLevels;
