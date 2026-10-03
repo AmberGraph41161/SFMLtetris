@@ -162,6 +162,9 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 		return true;
 	}
 
+	TetrominoBlock blankTetrominoBlock;
+	blankTetrominoBlock.state_ = TetrominoBlockState::blank;
+	blankTetrominoBlock.color_ = ColorRGBA(0, 0, 0, 0);
 	if(direction == Direction::up)
 	{
 		for(std::size_t y = 1; y < board_.size(); ++y)
@@ -170,8 +173,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
-					board_.at(y - 1).at(x).state_ = state;
-					board_.at(y).at(x).state_ = TetrominoBlockState::blank;
+					board_.at(y - 1).at(x) = board_.at(y).at(x);
+					board_.at(y).at(x) = blankTetrominoBlock;
 				}
 			}
 		}
@@ -183,8 +186,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
-					board_.at(y + 1).at(x).state_ = state;
-					board_.at(y).at(x).state_ = TetrominoBlockState::blank;
+					board_.at(y + 1).at(x) = board_.at(y).at(x);
+					board_.at(y).at(x) = blankTetrominoBlock;
 				}
 			}
 		}
@@ -196,8 +199,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
-					board_.at(y).at(x - 1).state_ = state;
-					board_.at(y).at(x).state_ = TetrominoBlockState::blank;
+					board_.at(y).at(x - 1) = board_.at(y).at(x);
+					board_.at(y).at(x) = blankTetrominoBlock;
 				}
 			}
 		}
@@ -209,8 +212,8 @@ bool Tetris::moveStateBlocksInDirection(TetrominoBlockState state, Direction dir
 			{
 				if(board_.at(y).at(x).state_ == state)
 				{
-					board_.at(y).at(x + 1).state_ = state;
-					board_.at(y).at(x).state_ = TetrominoBlockState::blank;
+					board_.at(y).at(x + 1) = board_.at(y).at(x);
+					board_.at(y).at(x) = blankTetrominoBlock;
 				}
 			}
 		}

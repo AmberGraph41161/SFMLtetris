@@ -225,35 +225,35 @@ int main()
 	const int screenHeight16PixelScaleToFitMultiplier = 3;
 
 	//theBlock
-	std::string blankIntTexturePath = "resources/textures/default/blank0.png"; //"resources/textures/blocks/wool_colored_pink.png";
-	std::string activeIntTexturePath = "resources/textures/default/active0.png"; //"resources/textures/blocks/diamond_ore.png";
-	std::string inactiveIntTexturePath = "resources/textures/default/inactive0.png"; //"resources/textures/blocks/diamond_block.png";
-	std::string shadowIntTexturePath = "resources/textures/default/shadow0.png"; //"resources/textures/blocks/glass.png";
+	std::string blankBlockTexturePath = "resources/textures/default/blank0.png"; //"resources/textures/blocks/wool_colored_pink.png";
+	std::string activeBlockTexturePath = "resources/textures/default/active0.png"; //"resources/textures/blocks/diamond_ore.png";
+	std::string inactiveBlockTexturePath = "resources/textures/default/inactive0.png"; //"resources/textures/blocks/diamond_block.png";
+	std::string shadowBlockTexturePath = "resources/textures/default/shadow0.png"; //"resources/textures/blocks/glass.png";
 	std::string warningFadeTexturePath = "resources/textures/default/warningfade.png";
 	std::string counterTexturePath = "resources/textures/default/counter-Sheet.png";
 
-	sf::Texture blankIntTexture;
-	if(!blankIntTexture.loadFromFile(blankIntTexturePath))
+	sf::Texture blankBlockTexture;
+	if(!blankBlockTexture.loadFromFile(blankBlockTexturePath))
 	{
-		std::cerr << "[failed to load [blankIntTexturePath] \"" << blankIntTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [blankBlockTexturePath] \"" << blankBlockTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture activeIntTexture;
-	if(!activeIntTexture.loadFromFile(activeIntTexturePath))
+	sf::Texture activeBlockTexture;
+	if(!activeBlockTexture.loadFromFile(activeBlockTexturePath))
 	{
-		std::cerr << "[failed to load [activeIntTexturePath] \"" << activeIntTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [activeBlockTexturePath] \"" << activeBlockTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture inactiveIntTexture;
-	if(!inactiveIntTexture.loadFromFile(inactiveIntTexturePath))
+	sf::Texture inactiveBlockTexture;
+	if(!inactiveBlockTexture.loadFromFile(inactiveBlockTexturePath))
 	{
-		std::cerr << "[failed to load [inactiveIntTexturePath] \"" << inactiveIntTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [inactiveBlockTexturePath] \"" << inactiveBlockTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Texture shadowIntTexture;
-	if(!shadowIntTexture.loadFromFile(shadowIntTexturePath))
+	sf::Texture shadowBlockTexture;
+	if(!shadowBlockTexture.loadFromFile(shadowBlockTexturePath))
 	{
-		std::cerr << "[failed to load [shadowIntTexturePath] \"" << shadowIntTexturePath << "\"]" << std::endl;
+		std::cerr << "[failed to load [shadowBlockTexturePath] \"" << shadowBlockTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
 	sf::Texture warningFadeTexture;
@@ -268,7 +268,7 @@ int main()
 		std::cerr << "[failed to load [counterTexturePath] \"" << counterTexturePath << "\"]" << std::endl;
 		exit(EXIT_FAILURE);
 	}
-	sf::Sprite theBlock(activeIntTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
+	sf::Sprite theBlock(activeBlockTexture); //assumed that blank, active, inactive, and shadow textures are all the same dimensions btw
 	theBlock.setScale(sf::Vector2f(screenWidth16PixelScaleToFitMultiplier, screenHeight16PixelScaleToFitMultiplier));
 
 	//int theBlockStartX = ((float)screenWidth / 2) - ((theBlock.getGlobalBounds().width * boardWidth) / 2);
@@ -484,7 +484,7 @@ int main()
 				{
 					if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::blank)
 					{
-						theBlock.setTexture(blankIntTexture);
+						theBlock.setTexture(blankBlockTexture);
 						if(blankIntRetainColor)
 						{
 							theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
@@ -494,15 +494,15 @@ int main()
 						}
 					} else if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::active)
 					{
-						theBlock.setTexture(activeIntTexture);
+						theBlock.setTexture(activeBlockTexture);
 						theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
 					} else if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::inactive)
 					{
-						theBlock.setTexture(inactiveIntTexture);
+						theBlock.setTexture(inactiveBlockTexture);
 						theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
 					} else if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::shadow)
 					{
-						theBlock.setTexture(shadowIntTexture);
+						theBlock.setTexture(shadowBlockTexture);
 						theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
 					}
 					theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
@@ -808,7 +808,7 @@ int main()
 				{
 					if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::blank)
 					{
-						theBlock.setTexture(blankIntTexture);
+						theBlock.setTexture(blankBlockTexture);
 						if(blankIntRetainColor)
 						{
 							theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
@@ -818,15 +818,15 @@ int main()
 						}
 					} else if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::active)
 					{
-						theBlock.setTexture(activeIntTexture);
+						theBlock.setTexture(activeBlockTexture);
 						theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
 					} else if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::inactive)
 					{
-						theBlock.setTexture(inactiveIntTexture);
+						theBlock.setTexture(inactiveBlockTexture);
 						theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
 					} else if(board.at(y).at(x).state_ == Tetris::TetrominoBlockState::shadow)
 					{
-						theBlock.setTexture(shadowIntTexture);
+						theBlock.setTexture(shadowBlockTexture);
 						theBlock.setColor(tetrisColorToSFMLColor(board.at(y).at(x).color_));
 					}
 					theBlock.setPosition(sf::Vector2f(x * theBlock.getGlobalBounds().size.x, y * theBlock.getGlobalBounds().size.y));
@@ -847,7 +847,7 @@ int main()
 
 			//draw tetrominoQueue and savedTetromino
 			Tetris::Tetromino tetrominoQueueFrontTetromino = tetris.getTetromino(tetris.getTetrominoQueue().front(), Tetris::TetrominoRotation::one);
-			theBlock.setTexture(activeIntTexture);
+			theBlock.setTexture(activeBlockTexture);
 
 			for(int y = 0; y < tetrominoQueueFrontTetromino.size(); y++)
 			{
